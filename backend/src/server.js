@@ -18,3 +18,6 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+const productRoutes = require('./routes/productRoutes');
+app.use('/api/products', productRoutes);
