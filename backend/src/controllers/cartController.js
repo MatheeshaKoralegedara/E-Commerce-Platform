@@ -15,13 +15,14 @@ async function viewCart(req, res) {
 
 async function addToCart(req, res) {
     try {
-        const { varientId, quantity } = req.body;
-        if (!varientId || !quantity || quantity <= 0) {
+        console.log('BODY RECEIVED:', req, res);
+        const { variantId, quantity } = req.body;
+        if (!variantId || !quantity || quantity <= 0) {
             return res.status(400).json({ error: 'Valid variantId and quantity required' });
     }
 
-    const varientCheck = await query('"SELECT id, stock_qty FROM product_varients WHERE id = $1`, [varientId]);')
-    if (!varientCheck.rows[0]) {
+    const variantCheck = await query('SELECT id, stock_qty FROM product_variants WHERE id = $1', [variantId]);
+    if (!variantCheck.rows[0]) {
         return res.status(404).json({ error: ' Product variant not found' });
 }
 
@@ -36,7 +37,7 @@ res.status(201).json(item);
 
 async function updateCartItem(req, res) {
     try{
-        const { varientId, quantity } = req.body;
+        const { variantId, quantity } = req.body;
         const cart = await getOrCreateCart(req.user.userId);
         const item = await updateItemQuantity(cart.id, variantId, quantity);
         res.json(item);
