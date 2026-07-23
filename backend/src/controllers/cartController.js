@@ -14,27 +14,26 @@ async function viewCart(req, res) {
 }
 
 async function addToCart(req, res) {
-    try {
-        console.log('BODY RECEIVED:', req, res);
-        const { variantId, quantity } = req.body;
-        if (!variantId || !quantity || quantity <= 0) {
-            return res.status(400).json({ error: 'Valid variantId and quantity required' });
+  try {
+    const { variantId, quantity } = req.body;
+
+    if (!variantId || !quantity || quantity <= 0) {
+      return res.status(400).json({ error: 'Valid variantId and quantity required' });
     }
 
     const variantCheck = await query('SELECT id, stock_qty FROM product_variants WHERE id = $1', [variantId]);
     if (!variantCheck.rows[0]) {
-        return res.status(404).json({ error: ' Product variant not found' });
-}
-
-const cart = await getOrCreateCart(req.user.userId);
-const item = await addItem(cart.id, variantId, quantity);
-res.status(201).json(item);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to add item to cart' });
+      return res.status(404).json({ error: 'Product variant not found' });
     }
-}
 
+    const cart = await getOrCreateCart(req.user.userId);
+    const item = await addItem(cart.id, variantId, quantity);
+    res.status(201).json(item);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to add item to cart' });
+  }
+}
 async function updateCartItem(req, res) {
     try{
         const { variantId, quantity } = req.body;
