@@ -1,4 +1,5 @@
 
+import AddToCartButton from '@/components/AddToCartButton';
 
 async function getProduct(slug) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${slug}`, {
@@ -9,7 +10,7 @@ async function getProduct(slug) {
 }
 
 export default async function ProductPage({ params }) {
-  const { slug } = await params; // Next.js 15+ requires awaiting params
+  const { slug } = await params;
   const product = await getProduct(slug);
 
   if (!product) {
@@ -36,12 +37,7 @@ export default async function ProductPage({ params }) {
             </div>
             <div className="text-right">
               <p className="font-bold text-lg">${(variant.price_cents / 100).toFixed(2)}</p>
-              <button
-                disabled={variant.stock_qty === 0}
-                className="mt-2 bg-black text-white px-4 py-2 rounded disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Add to Cart
-              </button>
+              <AddToCartButton variantId={variant.id} stockQty={variant.stock_qty} />
             </div>
           </div>
         ))}
