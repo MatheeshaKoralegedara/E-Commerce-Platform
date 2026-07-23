@@ -1,4 +1,5 @@
-const { pool } = require('../config/db');
+
+const { pool, query } = require('../config/db');
 
 async function createOrderFromCart(userId, cartId) {
   const client = await pool.connect();
@@ -6,7 +7,6 @@ async function createOrderFromCart(userId, cartId) {
   try {
     await client.query('BEGIN');
 
-    // Lock and read cart items together with their current variant state
     const itemsResult = await client.query(
       `SELECT ci.variant_id, ci.quantity, v.price_cents, v.stock_qty, v.version, p.name AS product_name
        FROM cart_items ci
@@ -21,7 +21,6 @@ async function createOrderFromCart(userId, cartId) {
       throw { status: 400, message: 'Cart is empty' };
     }
 
-    // Check stock BEFORE attempting any writes
     for (const item of items) {
       if (item.quantity > item.stock_qty) {
         throw { status: 409, message: `Not enough stock for ${item.product_name}` };
@@ -30,7 +29,6 @@ async function createOrderFromCart(userId, cartId) {
 
     const subtotalCents = items.reduce((sum, i) => sum + i.price_cents * i.quantity, 0);
 
-    // Create the order
     const orderResult = await client.query(
       `INSERT INTO orders (user_id, status, subtotal_cents, total_cents)
        VALUES ($1, 'pending', $2, $2)
@@ -39,8 +37,6 @@ async function createOrderFromCart(userId, cartId) {
     );
     const order = orderResult.rows[0];
 
-    // For each item: decrement stock SAFELY (optimistic lock via version check),
-    // and snapshot product/price info into order_items
     for (const item of items) {
       const updateResult = await client.query(
         `UPDATE product_variants
@@ -50,8 +46,6 @@ async function createOrderFromCart(userId, cartId) {
         [item.quantity, item.variant_id, item.version]
       );
 
-      // If no row was updated, someone else modified this variant between our
-      // SELECT and this UPDATE (a race condition) — abort the whole order.
       if (updateResult.rows.length === 0) {
         throw { status: 409, message: `Stock changed for ${item.product_name}, please retry` };
       }
@@ -63,7 +57,6 @@ async function createOrderFromCart(userId, cartId) {
       );
     }
 
-    // Clear the cart and mark it converted
     await client.query(`DELETE FROM cart_items WHERE cart_id = $1`, [cartId]);
     await client.query(`UPDATE carts SET status = 'converted' WHERE id = $1`, [cartId]);
 
@@ -77,4 +70,61 @@ async function createOrderFromCart(userId, cartId) {
   }
 }
 
-module.exports = { createOrderFromCart };
+async function getOrdersForUser(userId) {
+  const result = await query(
+    `SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC`,
+    [userId]
+  );
+  return result.rows;
+}
+
+async function getOrderWithItems(orderId, userId = null) {
+  const orderQuery = userId
+    ? `SELECT * FROM orders WHERE id = $1 AND user_id = $2`
+    : `SELECT * FROM orders WHERE id = $1`;
+  const orderParams = userId ? [orderId, userId] : [orderId];
+
+  const orderResult = await query(orderQuery, orderParams);
+  const order = orderResult.rows[0];
+  if (!order) return null;
+
+  const itemsResult = await query(
+    `SELECT * FROM order_items WHERE order_id = $1`,
+    [orderId]
+  );
+
+  return { ...order, items: itemsResult.rows };
+}
+
+async function getAllOrders({ status, limit = 50, offset = 0 }) {
+  const params = [];
+  let where = '';
+
+  if (status) {
+    params.push(status);
+    where = `WHERE status = $${params.length}`;
+  }
+
+  params.push(limit, offset);
+  const result = await query(
+    `SELECT * FROM orders ${where} ORDER BY created_at DESC LIMIT $${params.length - 1} OFFSET $${params.length}`,
+    params
+  );
+  return result.rows;
+}
+
+async function updateOrderStatus(orderId, status) {
+  const result = await query(
+    `UPDATE orders SET status = $1 WHERE id = $2 RETURNING *`,
+    [status, orderId]
+  );
+  return result.rows[0];
+}
+
+module.exports = {
+  createOrderFromCart,
+  getOrdersForUser,
+  getOrderWithItems,
+  getAllOrders,
+  updateOrderStatus,
+};
