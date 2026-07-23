@@ -8,6 +8,7 @@ const {
   list,
   getBySlug,
   adminList,
+  assignCategory,
 } = require('../controllers/productController');
 
 const router = express.Router();
@@ -21,5 +22,6 @@ router.get('/admin/all', requireAuth, requireAdmin, adminList);
 router.post('/', requireAuth, requireAdmin, create);
 router.post('/:productId/variants', requireAuth, requireAdmin, addProductVariant);
 router.patch('/:productId/status', requireAuth, requireAdmin, setStatus);
+router.patch('/:productId/category', requireAuth, requireAdmin, assignCategory);
 
 module.exports = router;

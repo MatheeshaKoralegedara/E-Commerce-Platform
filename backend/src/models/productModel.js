@@ -21,8 +21,19 @@ async function addVariant({ productId, sku, priceCents, attributes, stockQty }) 
   return result.rows[0];
 }
 
-// Public: only active products, with their variants attached
-async function listActiveProducts({ limit = 20, offset = 0 }) {
+async function listActiveProducts({ limit = 20, offset = 0, categorySlug = null }) {
+  const params = [];
+  let categoryJoin = '';
+  let categoryWhere = '';
+
+  if (categorySlug) {
+    params.push(categorySlug);
+    categoryJoin = `JOIN categories c ON c.id = p.category_id`;
+    categoryWhere = `AND c.slug = $${params.length}`;
+  }
+
+  params.push(limit, offset);
+
   const result = await query(
     `SELECT p.*,
             COALESCE(
@@ -38,11 +49,12 @@ async function listActiveProducts({ limit = 20, offset = 0 }) {
             ) AS variants
      FROM products p
      LEFT JOIN product_variants v ON v.product_id = p.id
-     WHERE p.status = 'active'
+     ${categoryJoin}
+     WHERE p.status = 'active' ${categoryWhere}
      GROUP BY p.id
      ORDER BY p.created_at DESC
-     LIMIT $1 OFFSET $2`,
-    [limit, offset]
+     LIMIT $${params.length - 1} OFFSET $${params.length}`,
+    params
   );
   return result.rows;
 }

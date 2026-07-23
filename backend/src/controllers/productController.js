@@ -70,11 +70,14 @@ async function setStatus(req, res) {
 }
 
 // Public: list active products (paginated)
+
+
 async function list(req, res) {
   try {
-    const limit = Math.min(parseInt(req.query.limit) || 20, 100); // cap to prevent abuse
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
     const offset = parseInt(req.query.offset) || 0;
-    const products = await listActiveProducts({ limit, offset });
+    const categorySlug = req.query.category || null;
+    const products = await listActiveProducts({ limit, offset, categorySlug });
     res.json(products);
   } catch (err) {
     console.error(err);
@@ -105,4 +108,27 @@ async function adminList(req, res) {
   }
 }
 
-module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList };
+// backend/src/controllers/productController.js
+// Add this new function alongside your existing ones:
+
+async function assignCategory(req, res) {
+  try {
+    const { productId } = req.params;
+    const { categoryId } = req.body;
+
+    const result = await require('../config/db').query(
+      `UPDATE products SET category_id = $1 WHERE id = $2 RETURNING *`,
+      [categoryId, productId]
+    );
+
+    if (!result.rows[0]) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to assign category' });
+  }
+}
+
+module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory };

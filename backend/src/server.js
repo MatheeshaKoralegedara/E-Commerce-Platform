@@ -9,6 +9,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
+const categoryRoutes = require('./routes/categoryRoutes')
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/categories', categoryRoutes);
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
