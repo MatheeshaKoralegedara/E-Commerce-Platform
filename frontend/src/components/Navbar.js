@@ -1,4 +1,4 @@
-// frontend/src/components/Navbar.js
+
 'use client';
 
 import Link from 'next/link';
@@ -36,6 +36,9 @@ export default function Navbar() {
         <Link href="/cart">Cart</Link>
         {loading ? null : user ? (
           <>
+            {user.role === 'admin' && (
+              <Link href="/admin/products" className="text-sm font-medium text-blue-600">Admin</Link>
+            )}
             <Link href="/orders">My Orders</Link>
             <span className="text-sm text-gray-500">{user.email}</span>
             <button onClick={logout} className="text-sm underline">Logout</button>
