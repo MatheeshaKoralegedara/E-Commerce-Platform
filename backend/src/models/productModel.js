@@ -96,6 +96,33 @@ async function updateProductStatus(productId, status) {
   return result.rows[0];
 }
 
+async function searchProducts({ q, limit = 20, offset = 0 }) {
+  const result = await query(
+    `SELECT p.*,
+            COALESCE(
+              json_agg(
+                json_build_object(
+                  'id', v.id,
+                  'sku', v.sku,
+                  'price_cents', v.price_cents,
+                  'attributes', v.attributes,
+                  'stock_qty', v.stock_qty
+                )
+              ) FILTER (WHERE v.id IS NOT NULL), '[]'
+            ) AS variants
+     FROM products p
+     LEFT JOIN product_variants v ON v.product_id = p.id
+     WHERE p.status = 'active'
+       AND (p.name ILIKE $1 OR p.description ILIKE $1)
+     GROUP BY p.id
+     ORDER BY p.created_at DESC
+     LIMIT $2 OFFSET $3`,
+    [`%${q}%`, limit, offset]   // ← backticks now
+  );
+  return result.rows;
+}
+
+
 module.exports = {
   createProduct,
   addVariant,
@@ -103,4 +130,5 @@ module.exports = {
   getProductBySlug,
   listAllProducts,
   updateProductStatus,
+  searchProducts,
 };

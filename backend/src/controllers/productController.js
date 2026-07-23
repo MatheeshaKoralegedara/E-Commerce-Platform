@@ -6,6 +6,7 @@ const {
   getProductBySlug,
   listAllProducts,
   updateProductStatus,
+  searchProducts,
 } = require('../models/productModel');
 
 // Admin: create a new product (starts as 'draft')
@@ -108,8 +109,6 @@ async function adminList(req, res) {
   }
 }
 
-// backend/src/controllers/productController.js
-// Add this new function alongside your existing ones:
 
 async function assignCategory(req, res) {
   try {
@@ -131,4 +130,22 @@ async function assignCategory(req, res) {
   }
 }
 
-module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory };
+async function search(req, res) {
+  try {
+    const q = (req.query.q || '').trim();
+    
+    if (!q) {
+      return res.status(400).json({ error: 'Query parameter "q" is required' });
+    }
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const offset = parseInt(req.query.offset) || 0;
+
+    const products = await searchProducts({ q, limit, offset });
+    res.json(products);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Search failed' });
+  }
+}
+
+module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search };

@@ -9,13 +9,16 @@ const {
   getBySlug,
   adminList,
   assignCategory,
+  search,
 } = require('../controllers/productController');
 
 const router = express.Router();
 
 // Public routes
 router.get('/', list);
+router.get('/search', search);
 router.get('/:slug', getBySlug);
+
 
 // Admin routes (auth + admin role required)
 router.get('/admin/all', requireAuth, requireAdmin, adminList);
