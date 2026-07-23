@@ -10,8 +10,9 @@ const {
 
 async function checkout(req, res) {
   try {
+    const { discountCode } = req.body;
     const cart = await getOrCreateCart(req.user.userId);
-    const order = await createOrderFromCart(req.user.userId, cart.id);
+    const order = await createOrderFromCart(req.user.userId, cart.id, discountCode || null);
     res.status(201).json(order);
   } catch (err) {
     if (err.status) {
@@ -88,6 +89,9 @@ async function adminUpdateStatus(req, res) {
     res.status(500).json({ error: 'Failed to update order status' });
   }
 }
+
+
+
 
 module.exports = {
   checkout,

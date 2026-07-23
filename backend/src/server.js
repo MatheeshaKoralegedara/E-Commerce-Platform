@@ -11,6 +11,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const discountRoutes = require('./routes/discountRoutes');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products/:productId/reviews', reviewRoutes);
+app.use('/api/discounts',discountRoutes);
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 

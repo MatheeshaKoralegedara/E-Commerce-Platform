@@ -1,7 +1,8 @@
 
 const { pool, query } = require('../config/db');
+const { validateDiscountCode } = require('./discountModel');
 
-async function createOrderFromCart(userId, cartId) {
+async function createOrderFromCart(userId, cartId, discountCodeStr = null) {
   const client = await pool.connect();
 
   try {
@@ -29,11 +30,25 @@ async function createOrderFromCart(userId, cartId) {
 
     const subtotalCents = items.reduce((sum, i) => sum + i.price_cents * i.quantity, 0);
 
+    // Validate and apply discount code, if provided
+    let discountCents = 0;
+    let discountCodeId = null;
+    if (discountCodeStr) {
+      const validation = await validateDiscountCode(discountCodeStr, subtotalCents);
+      if (!validation.valid) {
+        throw { status: 400, message: validation.error };
+      }
+      discountCents = validation.discountCents;
+      discountCodeId = validation.discountCode.id;
+    }
+
+    const totalCents = subtotalCents - discountCents;
+
     const orderResult = await client.query(
-      `INSERT INTO orders (user_id, status, subtotal_cents, total_cents)
-       VALUES ($1, 'pending', $2, $2)
+      `INSERT INTO orders (user_id, status, subtotal_cents, discount_cents, discount_code_id, total_cents)
+       VALUES ($1, 'pending', $2, $3, $4, $5)
        RETURNING *`,
-      [userId, subtotalCents]
+      [userId, subtotalCents, discountCents, discountCodeId, totalCents]
     );
     const order = orderResult.rows[0];
 
@@ -54,6 +69,14 @@ async function createOrderFromCart(userId, cartId) {
         `INSERT INTO order_items (order_id, variant_id, product_name, unit_price_cents, quantity)
          VALUES ($1, $2, $3, $4, $5)`,
         [order.id, item.variant_id, item.product_name, item.price_cents, item.quantity]
+      );
+    }
+
+    // Increment usage count for the discount code, still inside the same transaction
+    if (discountCodeId) {
+      await client.query(
+        `UPDATE discount_codes SET times_used = times_used + 1 WHERE id = $1`,
+        [discountCodeId]
       );
     }
 
