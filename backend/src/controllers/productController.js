@@ -7,6 +7,8 @@ const {
   listAllProducts,
   updateProductStatus,
   searchProducts,
+  updateProduct,
+  deleteVariant,
 } = require('../models/productModel');
 
 // Admin: create a new product (starts as 'draft')
@@ -168,4 +170,35 @@ async function updateImage(req, res) {
   }
 
 }
-module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search, updateImage };
+
+async function update(req, res) {
+  try {
+    const { productId } = req.params;
+    const { name, slug, description, categoryId, imageUrl } = req.body;
+    if (!name || !slug) {
+      return res.status(400).json({ error: 'name and slug are required' });
+    }
+    const product = await updateProduct(productId, { name, slug, description, categoryId, imageUrl });
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json(product);
+  } catch (err) {
+    console.error(err);
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'Slug already exists' });
+    }
+    res.status(500).json({ error: 'Failed to update product' });
+  }
+}
+
+async function removeVariant(req, res) {
+  try {
+    const { variantId } = req.params;
+    await deleteVariant(variantId);
+    res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete variant' });
+  }
+}
+
+module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search, updateImage, update, removeVariant };

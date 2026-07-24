@@ -122,6 +122,21 @@ async function searchProducts({ q, limit = 20, offset = 0 }) {
   return result.rows;
 }
 
+async function updateProduct(productId, { name, slug, description, categoryId, imageUrl }) {
+  const result = await query(
+    `UPDATE products
+     SET name = $1, slug = $2, description = $3, category_id = $4, image_url = $5
+     WHERE id = $6
+     RETURNING *`,
+    [name, slug, description, categoryId || null, imageUrl || null, productId]
+  );
+  return result.rows[0];
+}
+
+async function deleteVariant(varientId) {
+  await query('DELETE FROM product_variants WHERE id = $1', [varientId]);
+}
+
 
 module.exports = {
   createProduct,
@@ -131,4 +146,6 @@ module.exports = {
   listAllProducts,
   updateProductStatus,
   searchProducts,
+  updateProduct,
+  deleteVariant,
 };

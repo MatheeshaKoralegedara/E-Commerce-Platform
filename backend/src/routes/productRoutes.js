@@ -11,6 +11,8 @@ const {
   assignCategory,
   search,
   updateImage,
+  update,
+  removeVariant,
 
 } = require('../controllers/productController');
 
@@ -29,5 +31,7 @@ router.post('/:productId/variants', requireAuth, requireAdmin, addProductVariant
 router.patch('/:productId/status', requireAuth, requireAdmin, setStatus);
 router.patch('/:productId/category', requireAuth, requireAdmin, assignCategory);
 router.patch('/:productId/image', requireAuth, requireAdmin, updateImage);
+router.patch('/:productId', requireAuth, requireAdmin, update);
+router.delete('/:productId/variants/:variantId', requireAuth, requireAdmin, removeVariant);
 
 module.exports = router;

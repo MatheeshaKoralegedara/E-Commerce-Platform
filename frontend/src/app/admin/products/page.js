@@ -19,6 +19,7 @@ export default function AdminProductsPage() {
   const [categoryId, setCategoryId] = useState('');
   const [creating, setCreating] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     if (token) loadData();
@@ -174,12 +175,24 @@ export default function AdminProductsPage() {
                 <button onClick={() => toggleStatus(product)} className="text-blue-600 underline text-xs">
                   {product.status === 'active' ? 'Unpublish' : 'Publish'}
                 </button>
+                <button onClick={() => setEditingId(editingId === product.id ? null : product.id)} className="text-blue-600 underline text-xs">
+                  {editingId === product.id ? 'Cancel Edit' : 'Edit'}
+                </button>
               </div>
             </div>
 
             {expandedId === product.id && (
               <VariantManager product={product} token={token} onChange={loadData} />
             )}
+            {editingId === product.id && (
+             <ProductEditForm
+                  product={product}
+                  categories={categories}
+                  token={token}
+                  onChange={loadData}
+                  onCancel={() => setEditingId(null)}
+              />
+          )}
           </div>
         ))}
       </div>
@@ -220,31 +233,52 @@ function VariantManager({ product, token, onChange }) {
     }
   }
 
+  async function handleDeleteVariant(variantId) {
+    if (!confirm('Delete this variant? This cannot be undone.')) return;
+    try {
+      await apiRequest(`/products/${product.id}/variants/${variantId}`, {
+        method: 'DELETE',
+        token,
+      });
+      onChange();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+ 
+
   return (
     <div className="border-t bg-gray-50 p-3">
       {product.variants && product.variants.length > 0 && (
         <table className="w-full text-xs mb-3">
-          <thead>
-            <tr className="text-left text-gray-500">
-              <th className="pb-1">SKU</th>
-              <th className="pb-1">Price</th>
-              <th className="pb-1">Stock</th>
-              <th className="pb-1">Attributes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {product.variants.map((v) => (
-              <tr key={v.id}>
-                <td className="py-1">{v.sku}</td>
-                <td className="py-1">${(v.price_cents / 100).toFixed(2)}</td>
-                <td className="py-1">{v.stock_qty}</td>
-                <td className="py-1">
-                  {Object.entries(v.attributes || {}).map(([k, val]) => `${k}: ${val}`).join(', ') || '—'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+  <thead>
+    <tr className="text-left text-gray-500">
+      <th className="pb-1">SKU</th>
+      <th className="pb-1">Price</th>
+      <th className="pb-1">Stock</th>
+      <th className="pb-1">Attributes</th>
+      <th className="pb-1"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {product.variants.map((v) => (
+      <tr key={v.id}>
+        <td className="py-1">{v.sku}</td>
+        <td className="py-1">${(v.price_cents / 100).toFixed(2)}</td>
+        <td className="py-1">{v.stock_qty}</td>
+        <td className="py-1">
+          {Object.entries(v.attributes || {}).map(([k, val]) => `${k}: ${val}`).join(', ') || '—'}
+        </td>
+        <td className="py-1">
+          <button onClick={() => handleDeleteVariant(v.id)} className="text-red-600 underline">
+            Delete
+          </button>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
       )}
 
       <form onSubmit={handleAddVariant} className="flex flex-wrap gap-2 items-end">
@@ -274,5 +308,60 @@ function VariantManager({ product, token, onChange }) {
       </form>
       {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
     </div>
+  );
+}
+
+function ProductEditForm({ product, categories, token, onChange, onCancel }) {
+  const [name, setName] = useState(product.name);
+  const [slug, setSlug] = useState(product.slug);
+  const [description, setDescription] = useState(product.description || '');
+  const [categoryId, setCategoryId] = useState(product.category_id || '');
+  const [imageUrl, setImageUrl] = useState(product.image_url || '');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleSave(e) {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+    try {
+      await apiRequest(`/products/${product.id}`, {
+        method: 'PATCH',
+        body: { name, slug, description, categoryId: categoryId || null, imageUrl: imageUrl || null },
+        token,
+      });
+      onChange();
+      onCancel();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSave} className="border-t bg-blue-50 p-3 space-y-2">
+      <div className="grid grid-cols-2 gap-2">
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="border rounded px-2 py-1 text-sm" required />
+        <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="Slug" className="border rounded px-2 py-1 text-sm" required />
+      </div>
+      <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="w-full border rounded px-2 py-1 text-sm" rows={2} />
+      <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="Image URL" className="w-full border rounded px-2 py-1 text-sm" />
+      <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="border rounded px-2 py-1 text-sm">
+        <option value="">No category</option>
+        {categories.map((cat) => (
+          <option key={cat.id} value={cat.id}>{cat.name}</option>
+        ))}
+      </select>
+      {error && <p className="text-red-600 text-xs">{error}</p>}
+      <div className="flex gap-2">
+        <button type="submit" disabled={saving} className="bg-black text-white px-3 py-1.5 rounded text-xs disabled:opacity-50">
+          {saving ? 'Saving...' : 'Save Changes'}
+        </button>
+        <button type="button" onClick={onCancel} className="px-3 py-1.5 rounded text-xs border">
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }
