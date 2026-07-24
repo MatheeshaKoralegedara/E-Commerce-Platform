@@ -1,5 +1,6 @@
 
 import Link from 'next/link';
+import { formatPrice } from '@/lib/format';
 
 async function searchProducts(q) {
   const res = await fetch(
@@ -49,7 +50,7 @@ export default async function SearchPage({ searchParams }) {
     <p className="text-gray-600 text-sm mt-1">{product.description}</p>
     {product.variants[0] && (
       <p className="mt-3 font-bold">
-        ${(product.variants[0].price_cents / 100).toFixed(2)}
+        {formatPrice(product.variants[0].price_cents)}
       </p>
     )}
   </div>

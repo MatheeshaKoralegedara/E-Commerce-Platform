@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { formatPrice } from '@/lib/format';
 
 const STATUS_STYLES = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -61,18 +62,18 @@ export default function OrderDetailPage({ params }) {
               <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
             </div>
             <p className="font-medium">
-              ${((item.unit_price_cents * item.quantity) / 100).toFixed(2)}
+              {formatPrice(item.unit_price_cents * item.quantity)}
             </p>
           </div>
         ))}
       </div>
 
       <div className="mt-4 space-y-1 text-right">
-        <p className="text-sm text-gray-600">Subtotal: ${(order.subtotal_cents / 100).toFixed(2)}</p>
+        <p className="text-sm text-gray-600">Subtotal: {formatPrice(order.subtotal_cents)}</p>
         {order.discount_cents > 0 && (
-          <p className="text-sm text-green-600">Discount: −${(order.discount_cents / 100).toFixed(2)}</p>
+          <p className="text-sm text-green-600">Discount: −{formatPrice(order.discount_cents)}</p>
         )}
-        <p className="font-bold text-lg">Total: ${(order.total_cents / 100).toFixed(2)}</p>
+        <p className="font-bold text-lg">Total: {formatPrice(order.total_cents)}</p>
       </div>
     </main>
   );

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { formatPrice } from '@/lib/format';
 
 export default function OrderConfirmationPage({ params }) {
   const { token } = useAuth();
@@ -35,7 +36,7 @@ export default function OrderConfirmationPage({ params }) {
         {order.status === 'paid' ? 'Payment Successful!' : 'Order Received'}
       </h1>
       <p className="text-gray-600 mb-6">Order #{order.id} — Status: {order.status}</p>
-      <p className="text-lg font-bold mb-6">Total: ${(order.total_cents / 100).toFixed(2)}</p>
+      <p className="text-lg font-bold mb-6">Total: {formatPrice(order.total_cents)}</p>
       <Link href="/" className="text-blue-600 underline">Continue shopping</Link>
     </main>
   );

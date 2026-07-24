@@ -1,6 +1,7 @@
 // frontend/src/app/products/[slug]/page.js
 import AddToCartButton from '@/components/AddToCartButton';
 import ReviewForm from '@/components/ReviewForm';
+import { formatPrice } from '@/lib/format';
 
 async function getProduct(slug) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${slug}`, {
@@ -61,7 +62,7 @@ export default async function ProductPage({ params }) {
               </p>
             </div>
             <div className="text-right">
-              <p className="font-bold text-lg">${(variant.price_cents / 100).toFixed(2)}</p>
+              <p className="font-bold text-lg">{formatPrice(variant.price_cents)}</p>
               <AddToCartButton variantId={variant.id} stockQty={variant.stock_qty} />
             </div>
           </div>

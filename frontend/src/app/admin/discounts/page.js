@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { formatPrice } from '@/lib/format';
 
 export default function AdminDiscountsPage() {
   const { token } = useAuth();
@@ -94,13 +95,13 @@ export default function AdminDiscountsPage() {
             className="border rounded px-3 py-2 text-sm"
           >
             <option value="percentage">Percentage off</option>
-            <option value="fixed">Fixed amount off (cents)</option>
+            <option value="fixed">Fixed amount off (LKR)</option>
           </select>
         </div>
         <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="text-xs text-gray-500 block mb-1">
-              {type === 'percentage' ? 'Percent (1-100)' : 'Cents off'}
+              {type === 'percentage' ? 'Percent (1-100)' : 'LKR off'}
             </label>
             <input
               type="number"
@@ -111,7 +112,7 @@ export default function AdminDiscountsPage() {
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Min order (cents, optional)</label>
+            <label className="text-xs text-gray-500 block mb-1">Min order (LKR, optional)</label>
             <input
               type="number"
               value={minOrderCents}
@@ -158,7 +159,7 @@ export default function AdminDiscountsPage() {
                 <td className="py-2 font-mono">{c.code}</td>
                 <td className="py-2">{c.type}</td>
                 <td className="py-2">
-                  {c.type === 'percentage' ? `${c.value}%` : `$${(c.value / 100).toFixed(2)}`}
+                  {c.type === 'percentage' ? `${c.value}%` : formatPrice(c.value)}
                 </td>
                 <td className="py-2">{c.times_used}{c.usage_limit ? ` / ${c.usage_limit}` : ''}</td>
                 <td className="py-2">

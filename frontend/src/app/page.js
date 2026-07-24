@@ -1,5 +1,6 @@
 // frontend/src/app/page.js
 import Link from 'next/link';
+import { formatPrice } from '@/lib/format';
 
 async function getProducts(categorySlug) {
   const url = categorySlug
@@ -81,7 +82,7 @@ export default async function HomePage({ searchParams }) {
                   <h2 className="font-display text-lg">{product.name}</h2>
                   <p className="text-[var(--color-muted)] text-sm mt-1 line-clamp-1">{product.description}</p>
                   {firstVariant && (
-                    <p className="mt-3 font-medium">${(firstVariant.price_cents / 100).toFixed(2)}</p>
+                    <p className="mt-3 font-medium">{formatPrice(firstVariant.price_cents)}</p>
                   )}
                 </div>
               </Link>

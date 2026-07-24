@@ -8,6 +8,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import CheckoutForm from '@/components/CheckoutForm';
+import { formatPrice } from '@/lib/format';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
@@ -108,10 +109,10 @@ export default function CheckoutPage() {
         <p className="text-gray-600 mb-1">Order #{order.id}</p>
         {order.discount_cents > 0 && (
           <p className="text-green-600 text-sm mb-1">
-            Discount applied: −${(order.discount_cents / 100).toFixed(2)}
+            Discount applied: −{formatPrice(order.discount_cents)}
           </p>
         )}
-        <p className="text-gray-600 mb-6">Total: ${(order.total_cents / 100).toFixed(2)}</p>
+        <p className="text-gray-600 mb-6">Total: {formatPrice(order.total_cents)}</p>
 
         <Elements stripe={stripePromise} options={{ clientSecret }}>
           <CheckoutForm orderId={order.id} />
@@ -130,11 +131,11 @@ export default function CheckoutPage() {
 
       <div className="border rounded-lg p-4 mb-4">
         <p className="text-sm text-gray-600 mb-2">{cart.items.length} item(s)</p>
-        <p>Subtotal: ${(cart.subtotalCents / 100).toFixed(2)}</p>
+        <p>Subtotal: {formatPrice(cart.subtotalCents)}</p>
         {discountStatus === 'valid' && (
-          <p className="text-green-600">Discount: −${(discountPreviewCents / 100).toFixed(2)}</p>
+          <p className="text-green-600">Discount: −{formatPrice(discountPreviewCents)}</p>
         )}
-        <p className="font-bold text-lg mt-2">Total: ${(estimatedTotal / 100).toFixed(2)}</p>
+        <p className="font-bold text-lg mt-2">Total: {formatPrice(estimatedTotal)}</p>
       </div>
 
       <div className="mb-6">

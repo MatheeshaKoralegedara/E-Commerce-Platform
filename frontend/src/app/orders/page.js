@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { formatPrice } from '@/lib/format';
 
 const STATUS_STYLES = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -78,7 +79,7 @@ export default function MyOrdersPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold">${(order.total_cents / 100).toFixed(2)}</p>
+                  <p className="font-bold">{formatPrice(order.total_cents)}</p>
                   <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs ${STATUS_STYLES[order.status] || 'bg-gray-100 text-gray-800'}`}>
                     {order.status}
                   </span>

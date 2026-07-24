@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { formatPrice } from '@/lib/format';
 
 const STATUS_OPTIONS = ['pending', 'paid', 'shipped', 'delivered', 'cancelled'];
 
@@ -85,7 +86,7 @@ export default function AdminOrdersPage() {
               <tr key={order.id} className="border-b">
                 <td className="py-2">#{order.id}</td>
                 <td className="py-2">{order.user_id}</td>
-                <td className="py-2">${(order.total_cents / 100).toFixed(2)}</td>
+                <td className="py-2">{formatPrice(order.total_cents)}</td>
                 <td className="py-2">
                   <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800">{order.status}</span>
                 </td>

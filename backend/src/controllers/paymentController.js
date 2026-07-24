@@ -21,8 +21,8 @@ async function createPaymentIntent(req, res) {
 
     
     const paymentIntent = await stripe.paymentIntents.create({
-         amount: order.total_cents,
-         currency: 'usd',
+         amount: Math.round(order.total_cents * 100),
+         currency: 'lkr',
          automatic_payment_methods: {
          enabled: true,
         allow_redirects: 'never', // avoids needing a return_url; card payments still work fine

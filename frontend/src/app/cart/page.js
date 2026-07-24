@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { formatPrice } from '@/lib/format';
 
 export default function CartPage() {
   const { token, user, loading: authLoading } = useAuth();
@@ -80,7 +81,7 @@ export default function CartPage() {
                   .map(([k, v]) => `${k}: ${v}`)
                   .join(', ') || item.sku}
               </p>
-              <p className="text-sm text-gray-500">${(item.price_cents / 100).toFixed(2)} each</p>
+              <p className="text-sm text-gray-500">{formatPrice(item.price_cents)} each</p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -101,7 +102,7 @@ export default function CartPage() {
                 </button>
               </div>
               <p className="font-bold w-20 text-right">
-                ${((item.price_cents * item.quantity) / 100).toFixed(2)}
+                {formatPrice(item.price_cents * item.quantity)}
               </p>
             </div>
           </div>
@@ -110,7 +111,7 @@ export default function CartPage() {
 
       <div className="mt-6 flex justify-between items-center border-t pt-4">
         <p className="text-xl font-bold">
-          Subtotal: ${(cart.subtotalCents / 100).toFixed(2)}
+          Subtotal: {formatPrice(cart.subtotalCents)}
         </p>
         <Link
           href="/checkout"

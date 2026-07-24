@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { formatPrice } from '@/lib/format';
 
 export default function AdminProductsPage() {
   const { token } = useAuth();
@@ -265,7 +266,7 @@ function VariantManager({ product, token, onChange }) {
     {product.variants.map((v) => (
       <tr key={v.id}>
         <td className="py-1">{v.sku}</td>
-        <td className="py-1">${(v.price_cents / 100).toFixed(2)}</td>
+        <td className="py-1">{formatPrice(v.price_cents)}</td>
         <td className="py-1">{v.stock_qty}</td>
         <td className="py-1">
           {Object.entries(v.attributes || {}).map(([k, val]) => `${k}: ${val}`).join(', ') || '—'}
@@ -287,7 +288,7 @@ function VariantManager({ product, token, onChange }) {
           <input value={sku} onChange={(e) => setSku(e.target.value)} className="border rounded px-2 py-1 text-xs w-28" required />
         </div>
         <div>
-          <label className="text-xs block">Price (cents)</label>
+          <label className="text-xs block">Price (LKR)</label>
           <input type="number" value={priceCents} onChange={(e) => setPriceCents(e.target.value)} className="border rounded px-2 py-1 text-xs w-24" required />
         </div>
         <div>
