@@ -11,8 +11,8 @@ export default function AdminProductsPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [expandedId, setExpandedId] = useState(null);
 
-  // New product form state
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
@@ -30,7 +30,18 @@ export default function AdminProductsPage() {
         apiRequest('/products/admin/all', { token }),
         apiRequest('/categories'),
       ]);
-      setProducts(productsData);
+      // Fetch variants for each product (admin/all doesn't include them, unlike public listing)
+      const withVariants = await Promise.all(
+        productsData.map(async (p) => {
+          try {
+            const detail = await apiRequest(`/products/${p.slug}`);
+            return { ...p, variants: detail.variants };
+          } catch {
+            return { ...p, variants: [] }; // draft products might not be publicly fetchable
+          }
+        })
+      );
+      setProducts(withVariants);
       setCategories(categoriesData);
     } catch (err) {
       setError(err.message);
@@ -44,12 +55,11 @@ export default function AdminProductsPage() {
     setCreating(true);
     setError('');
     try {
-      const newProduct = await apiRequest('/products', {
+      await apiRequest('/products', {
         method: 'POST',
         body: { name, slug, description, categoryId: categoryId || null },
         token,
       });
-      // Reset form
       setName('');
       setSlug('');
       setDescription('');
@@ -84,7 +94,6 @@ export default function AdminProductsPage() {
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
 
-      {/* Create product form */}
       <form onSubmit={handleCreate} className="border rounded-lg p-4 mb-8 space-y-3">
         <h3 className="font-medium">Add New Product</h3>
         <div className="grid grid-cols-2 gap-3">
@@ -122,9 +131,6 @@ export default function AdminProductsPage() {
             <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
         </select>
-        <p className="text-xs text-gray-500">
-          Note: after creating, add at least one variant via the API before publishing (variant management UI coming later).
-        </p>
         <button
           type="submit"
           disabled={creating}
@@ -134,40 +140,130 @@ export default function AdminProductsPage() {
         </button>
       </form>
 
-      {/* Product list */}
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="border-b text-left">
-            <th className="py-2">Name</th>
-            <th className="py-2">Slug</th>
-            <th className="py-2">Status</th>
-            <th className="py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.id} className="border-b">
-              <td className="py-2">{product.name}</td>
-              <td className="py-2 text-gray-500">{product.slug}</td>
-              <td className="py-2">
+      <div className="space-y-2">
+        {products.map((product) => (
+          <div key={product.id} className="border rounded-lg">
+            <div className="flex justify-between items-center p-3">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setExpandedId(expandedId === product.id ? null : product.id)}
+                  className="text-xs underline"
+                >
+                  {expandedId === product.id ? 'Hide' : 'Manage'} variants
+                </button>
+                <div>
+                  <p className="font-medium">{product.name}</p>
+                  <p className="text-xs text-gray-500">{product.slug} · {product.variants?.length || 0} variant(s)</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
                 <span className={`px-2 py-0.5 rounded text-xs ${
                   product.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
                 }`}>
                   {product.status}
                 </span>
-              </td>
-              <td className="py-2">
-                <button
-                  onClick={() => toggleStatus(product)}
-                  className="text-blue-600 underline text-xs"
-                >
+                <button onClick={() => toggleStatus(product)} className="text-blue-600 underline text-xs">
                   {product.status === 'active' ? 'Unpublish' : 'Publish'}
                 </button>
-              </td>
+              </div>
+            </div>
+
+            {expandedId === product.id && (
+              <VariantManager product={product} token={token} onChange={loadData} />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function VariantManager({ product, token, onChange }) {
+  const [sku, setSku] = useState('');
+  const [priceCents, setPriceCents] = useState('');
+  const [stockQty, setStockQty] = useState('');
+  const [attrKey, setAttrKey] = useState('');
+  const [attrValue, setAttrValue] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleAddVariant(e) {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+    try {
+      const attributes = attrKey ? { [attrKey]: attrValue } : {};
+      await apiRequest(`/products/${product.id}/variants`, {
+        method: 'POST',
+        body: { sku, priceCents: parseInt(priceCents), attributes, stockQty: parseInt(stockQty) },
+        token,
+      });
+      setSku('');
+      setPriceCents('');
+      setStockQty('');
+      setAttrKey('');
+      setAttrValue('');
+      onChange();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="border-t bg-gray-50 p-3">
+      {product.variants && product.variants.length > 0 && (
+        <table className="w-full text-xs mb-3">
+          <thead>
+            <tr className="text-left text-gray-500">
+              <th className="pb-1">SKU</th>
+              <th className="pb-1">Price</th>
+              <th className="pb-1">Stock</th>
+              <th className="pb-1">Attributes</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {product.variants.map((v) => (
+              <tr key={v.id}>
+                <td className="py-1">{v.sku}</td>
+                <td className="py-1">${(v.price_cents / 100).toFixed(2)}</td>
+                <td className="py-1">{v.stock_qty}</td>
+                <td className="py-1">
+                  {Object.entries(v.attributes || {}).map(([k, val]) => `${k}: ${val}`).join(', ') || '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      <form onSubmit={handleAddVariant} className="flex flex-wrap gap-2 items-end">
+        <div>
+          <label className="text-xs block">SKU</label>
+          <input value={sku} onChange={(e) => setSku(e.target.value)} className="border rounded px-2 py-1 text-xs w-28" required />
+        </div>
+        <div>
+          <label className="text-xs block">Price (cents)</label>
+          <input type="number" value={priceCents} onChange={(e) => setPriceCents(e.target.value)} className="border rounded px-2 py-1 text-xs w-24" required />
+        </div>
+        <div>
+          <label className="text-xs block">Stock</label>
+          <input type="number" value={stockQty} onChange={(e) => setStockQty(e.target.value)} className="border rounded px-2 py-1 text-xs w-20" required />
+        </div>
+        <div>
+          <label className="text-xs block">Attr name</label>
+          <input value={attrKey} onChange={(e) => setAttrKey(e.target.value)} placeholder="color" className="border rounded px-2 py-1 text-xs w-20" />
+        </div>
+        <div>
+          <label className="text-xs block">Attr value</label>
+          <input value={attrValue} onChange={(e) => setAttrValue(e.target.value)} placeholder="blue" className="border rounded px-2 py-1 text-xs w-20" />
+        </div>
+        <button type="submit" disabled={saving} className="bg-black text-white px-3 py-1.5 rounded text-xs disabled:opacity-50">
+          {saving ? 'Adding...' : 'Add Variant'}
+        </button>
+      </form>
+      {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
     </div>
   );
 }
