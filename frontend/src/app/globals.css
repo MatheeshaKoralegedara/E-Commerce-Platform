@@ -1,26 +1,88 @@
+/* frontend/src/app/globals.css */
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --color-canvas: #FAFAF8;
+  --color-ink: #15171A;
+  --color-pine: #324A3A;
+  --color-pine-dark: #263A2D;
+  --color-clay: #B8763E;
+  --color-line: #E5E2D9;
+  --color-muted: #6E6D64;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.section-heading {
+  font-family: var(--font-display);
+  font-weight: 500;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.5rem;
+}
+
+.section-heading::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 2.5rem;
+  height: 2px;
+  background: var(--color-clay);
+}
+
+.btn-primary {
+  background: var(--color-ink);
+  color: var(--color-canvas);
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-pine-dark);
+}
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
+  font-weight: 500;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.btn-secondary:hover {
+  border-color: var(--color-ink);
+  background: rgba(21, 23, 26, 0.03);
+}
+
+.card-product {
+  border: 1px solid var(--color-line);
+  background: white;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card-product:hover {
+  border-color: var(--color-ink);
+  box-shadow: 0 4px 20px rgba(21, 23, 26, 0.06);
 }

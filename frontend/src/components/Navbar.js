@@ -1,4 +1,4 @@
-
+// frontend/src/components/Navbar.js
 'use client';
 
 import Link from 'next/link';
@@ -19,37 +19,45 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="border-b px-4 py-3 flex justify-between items-center gap-4">
-      <Link href="/" className="font-bold text-lg whitespace-nowrap">My Store</Link>
+    <header className="sticky top-0 z-40 bg-[var(--color-canvas)]/95 backdrop-blur border-b border-[var(--color-line)]">
+      <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-6">
+        <Link href="/" className="font-display text-xl tracking-tight whitespace-nowrap">
+          My Store
+        </Link>
 
-      <form onSubmit={handleSearch} className="flex-1 max-w-md">
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full border rounded px-3 py-1.5 text-sm"
-        />
-      </form>
+        <form onSubmit={handleSearch} className="flex-1 max-w-sm">
+          <input
+            type="text"
+            placeholder="Search products"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-transparent border border-[var(--color-line)] rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
+          />
+        </form>
 
-      <div className="flex gap-4 items-center whitespace-nowrap">
-        <Link href="/cart">Cart</Link>
-        {loading ? null : user ? (
-          <>
-            {user.role === 'admin' && (
-              <Link href="/admin/products" className="text-sm font-medium text-blue-600">Admin</Link>
-            )}
-            <Link href="/orders">My Orders</Link>
-            <span className="text-sm text-gray-500">{user.email}</span>
-            <button onClick={logout} className="text-sm underline">Logout</button>
-          </>
-        ) : (
-          <>
-            <Link href="/login">Login</Link>
-            <Link href="/register">Register</Link>
-          </>
-        )}
-      </div>
-    </nav>
+        <div className="flex items-center gap-5 text-sm whitespace-nowrap">
+          <Link href="/cart" className="hover:text-[var(--color-pine)] transition-colors">Cart</Link>
+          {loading ? null : user ? (
+            <>
+              {user.role === 'admin' && (
+                <Link href="/admin/products" className="text-[var(--color-clay)] font-medium hover:opacity-80">
+                  Admin
+                </Link>
+              )}
+              <Link href="/orders" className="hover:text-[var(--color-pine)] transition-colors">Orders</Link>
+              <span className="text-[var(--color-muted)] hidden sm:inline">{user.email}</span>
+              <button onClick={logout} className="text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors">
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="hover:text-[var(--color-pine)] transition-colors">Login</Link>
+              <Link href="/register" className="btn-primary rounded-full px-4 py-2">Register</Link>
+            </>
+          )}
+        </div>
+      </nav>
+    </header>
   );
 }
