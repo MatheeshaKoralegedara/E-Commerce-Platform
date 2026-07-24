@@ -1,4 +1,4 @@
-
+// frontend/src/app/checkout/page.js
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -7,8 +7,8 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
-import CheckoutForm from '@/components/CheckoutForm';
 import { formatPrice } from '@/lib/format';
+import CheckoutForm from '@/components/CheckoutForm';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
@@ -17,7 +17,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [cart, setCart] = useState(null);
   const [discountCode, setDiscountCode] = useState('');
-  const [discountStatus, setDiscountStatus] = useState('idle'); // idle | checking | valid | invalid
+  const [discountStatus, setDiscountStatus] = useState('idle');
   const [discountInfo, setDiscountInfo] = useState(null);
   const [discountError, setDiscountError] = useState('');
   const [clientSecret, setClientSecret] = useState(null);
@@ -78,7 +78,6 @@ export default function CheckoutPage() {
         token,
       });
       setOrder(newOrder);
-
       const intentData = await apiRequest('/payments/create-intent', {
         method: 'POST',
         body: { orderId: newOrder.id },
@@ -90,29 +89,30 @@ export default function CheckoutPage() {
     }
   }
 
-  if (authLoading || !cart) return <main className="max-w-lg mx-auto px-4 py-8">Loading...</main>;
+  if (authLoading || !cart) {
+    return <main className="max-w-lg mx-auto px-6 py-16 text-center text-[var(--color-muted)]">Loading…</main>;
+  }
 
   if (error) {
     return (
-      <main className="max-w-lg mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">Checkout</h1>
-        <p className="text-red-600">{error}</p>
+      <main className="max-w-lg mx-auto px-6 py-16">
+        <h1 className="font-display text-2xl mb-4">Checkout</h1>
+        <p className="text-red-600 text-sm">{error}</p>
       </main>
     );
   }
 
-  // Payment step — order created, show Stripe form
   if (clientSecret && order) {
     return (
-      <main className="max-w-lg mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-2">Payment</h1>
-        <p className="text-gray-600 mb-1">Order #{order.id}</p>
+      <main className="max-w-lg mx-auto px-6 py-16">
+        <p className="eyebrow mb-2">Payment</p>
+        <h1 className="font-display text-2xl mb-1">Order #{order.id}</h1>
         {order.discount_cents > 0 && (
-          <p className="text-green-600 text-sm mb-1">
+          <p className="text-[var(--color-pine)] text-sm mb-1">
             Discount applied: −{formatPrice(order.discount_cents)}
           </p>
         )}
-        <p className="text-gray-600 mb-6">Total: {formatPrice(order.total_cents)}</p>
+        <p className="text-[var(--color-muted)] mb-8">Total: {formatPrice(order.total_cents)}</p>
 
         <Elements stripe={stripePromise} options={{ clientSecret }}>
           <CheckoutForm orderId={order.id} />
@@ -121,25 +121,34 @@ export default function CheckoutPage() {
     );
   }
 
-  // Review step — show cart summary + discount input, before creating the order
   const discountPreviewCents = discountStatus === 'valid' ? discountInfo.discountCents : 0;
   const estimatedTotal = cart.subtotalCents - discountPreviewCents;
 
   return (
-    <main className="max-w-lg mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Checkout</h1>
+    <main className="max-w-lg mx-auto px-6 py-16">
+      <p className="eyebrow mb-2">Checkout</p>
+      <h1 className="font-display text-3xl mb-8">Review your order</h1>
 
-      <div className="border rounded-lg p-4 mb-4">
-        <p className="text-sm text-gray-600 mb-2">{cart.items.length} item(s)</p>
-        <p>Subtotal: {formatPrice(cart.subtotalCents)}</p>
+      <div className="border border-[var(--color-line)] rounded-md p-5 mb-6">
+        <p className="text-sm text-[var(--color-muted)] mb-3">{cart.items.length} item(s)</p>
+        <div className="flex justify-between text-sm mb-1">
+          <span>Subtotal</span>
+          <span>{formatPrice(cart.subtotalCents)}</span>
+        </div>
         {discountStatus === 'valid' && (
-          <p className="text-green-600">Discount: −{formatPrice(discountPreviewCents)}</p>
+          <div className="flex justify-between text-sm text-[var(--color-pine)] mb-1">
+            <span>Discount</span>
+            <span>−{formatPrice(discountPreviewCents)}</span>
+          </div>
         )}
-        <p className="font-bold text-lg mt-2">Total: {formatPrice(estimatedTotal)}</p>
+        <div className="flex justify-between font-medium text-lg mt-3 pt-3 border-t border-[var(--color-line)]">
+          <span>Total</span>
+          <span>{formatPrice(estimatedTotal)}</span>
+        </div>
       </div>
 
-      <div className="mb-6">
-        <label className="text-sm font-medium block mb-1">Discount code</label>
+      <div className="mb-8">
+        <label className="text-sm font-medium block mb-2">Discount code</label>
         <div className="flex gap-2">
           <input
             type="text"
@@ -149,28 +158,21 @@ export default function CheckoutPage() {
               setDiscountStatus('idle');
             }}
             placeholder="Enter code"
-            className="flex-1 border rounded px-3 py-2 text-sm"
+            className="flex-1 border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
           />
           <button
             onClick={applyDiscountCode}
             disabled={discountStatus === 'checking' || !discountCode.trim()}
-            className="bg-gray-200 px-4 py-2 rounded text-sm disabled:opacity-50"
+            className="btn-secondary rounded-md px-4 py-2 text-sm disabled:opacity-50"
           >
             Apply
           </button>
         </div>
-        {discountStatus === 'valid' && (
-          <p className="text-green-600 text-sm mt-1">Code applied!</p>
-        )}
-        {discountStatus === 'invalid' && (
-          <p className="text-red-600 text-sm mt-1">{discountError}</p>
-        )}
+        {discountStatus === 'valid' && <p className="text-[var(--color-pine)] text-sm mt-2">Code applied</p>}
+        {discountStatus === 'invalid' && <p className="text-red-600 text-sm mt-2">{discountError}</p>}
       </div>
 
-      <button
-        onClick={proceedToPayment}
-        className="w-full bg-black text-white py-3 rounded font-medium"
-      >
+      <button onClick={proceedToPayment} className="btn-primary rounded-md w-full py-3 text-sm">
         Continue to Payment
       </button>
     </main>

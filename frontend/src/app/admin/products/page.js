@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,15 +11,16 @@ export default function AdminProductsPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [expandedId, setExpandedId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
 
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [creating, setCreating] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
-  const [editingId, setEditingId] = useState(null);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     if (token) loadData();
@@ -33,14 +33,13 @@ export default function AdminProductsPage() {
         apiRequest('/products/admin/all', { token }),
         apiRequest('/categories'),
       ]);
-      // Fetch variants for each product (admin/all doesn't include them, unlike public listing)
       const withVariants = await Promise.all(
         productsData.map(async (p) => {
           try {
             const detail = await apiRequest(`/products/${p.slug}`);
             return { ...p, variants: detail.variants };
           } catch {
-            return { ...p, variants: [] }; // draft products might not be publicly fetchable
+            return { ...p, variants: [] };
           }
         })
       );
@@ -57,12 +56,15 @@ export default function AdminProductsPage() {
     e.preventDefault();
     setCreating(true);
     setError('');
+    setSuccessMessage('');
     try {
       await apiRequest('/products', {
         method: 'POST',
         body: { name, slug, description, categoryId: categoryId || null, imageUrl: imageUrl || null },
         token,
       });
+      setSuccessMessage(`"${name}" created successfully.`);
+      setTimeout(() => setSuccessMessage(''), 3000);
       setName('');
       setSlug('');
       setDescription('');
@@ -90,23 +92,24 @@ export default function AdminProductsPage() {
     }
   }
 
-  if (loading) return <p>Loading products...</p>;
+  if (loading) return <p className="text-[var(--color-muted)] text-sm">Loading products…</p>;
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">Products</h2>
+      <h2 className="font-display text-2xl mb-6">Products</h2>
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+      {successMessage && <p className="text-[var(--color-pine)] text-sm mb-4">{successMessage}</p>}
 
-      <form onSubmit={handleCreate} className="border rounded-lg p-4 mb-8 space-y-3">
-        <h3 className="font-medium">Add New Product</h3>
+      <form onSubmit={handleCreate} className="border border-[var(--color-line)] rounded-md p-5 mb-8 space-y-3">
+        <h3 className="font-medium text-sm">Add new product</h3>
         <div className="grid grid-cols-2 gap-3">
           <input
             type="text"
             placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="border rounded px-3 py-2 text-sm"
+            className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
             required
           />
           <input
@@ -114,7 +117,7 @@ export default function AdminProductsPage() {
             placeholder="Slug (e.g. blue-hoodie)"
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
-            className="border rounded px-3 py-2 text-sm"
+            className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
             required
           />
         </div>
@@ -122,7 +125,7 @@ export default function AdminProductsPage() {
           placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full border rounded px-3 py-2 text-sm"
+          className="w-full border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
           rows={2}
         />
         <input
@@ -130,54 +133,52 @@ export default function AdminProductsPage() {
           placeholder="Image URL (optional)"
           value={imageUrl}
           onChange={(e) => setImageUrl(e.target.value)}
-          className="w-full border rounded px-3 py-3 py-2 text-sm"
+          className="w-full border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
         />
         <select
           value={categoryId}
           onChange={(e) => setCategoryId(e.target.value)}
-          className="border rounded px-3 py-2 text-sm"
+          className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
         >
           <option value="">No category</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
         </select>
-        <button
-          type="submit"
-          disabled={creating}
-          className="bg-black text-white px-4 py-2 rounded text-sm disabled:opacity-50"
-        >
-          {creating ? 'Creating...' : 'Create Product'}
+        <button type="submit" disabled={creating} className="btn-primary rounded-md px-4 py-2 text-sm disabled:opacity-50">
+          {creating ? 'Creating…' : 'Create Product'}
         </button>
       </form>
 
       <div className="space-y-2">
         {products.map((product) => (
-          <div key={product.id} className="border rounded-lg">
-            <div className="flex justify-between items-center p-3">
-              <div className="flex items-center gap-3">
+          <div key={product.id} className="border border-[var(--color-line)] rounded-md">
+            <div className="flex justify-between items-center p-4">
+              <div className="flex items-center gap-4">
                 <button
                   onClick={() => setExpandedId(expandedId === product.id ? null : product.id)}
-                  className="text-xs underline"
+                  className="text-xs text-[var(--color-pine)] underline underline-offset-2"
                 >
                   {expandedId === product.id ? 'Hide' : 'Manage'} variants
                 </button>
                 <div>
-                  <p className="font-medium">{product.name}</p>
-                  <p className="text-xs text-gray-500">{product.slug} · {product.variants?.length || 0} variant(s)</p>
+                  <p className="font-medium text-sm">{product.name}</p>
+                  <p className="text-xs text-[var(--color-muted)]">{product.slug} · {product.variants?.length || 0} variant(s)</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <span className={`px-2 py-0.5 rounded text-xs ${
-                  product.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+              <div className="flex items-center gap-4">
+                <span className={`px-2 py-0.5 rounded-full text-xs ${
+                  product.status === 'active'
+                    ? 'bg-[var(--color-pine)]/10 text-[var(--color-pine)]'
+                    : 'bg-[var(--color-line)]/60 text-[var(--color-muted)]'
                 }`}>
                   {product.status}
                 </span>
-                <button onClick={() => toggleStatus(product)} className="text-blue-600 underline text-xs">
+                <button onClick={() => toggleStatus(product)} className="text-xs text-[var(--color-pine)] underline underline-offset-2">
                   {product.status === 'active' ? 'Unpublish' : 'Publish'}
                 </button>
-                <button onClick={() => setEditingId(editingId === product.id ? null : product.id)} className="text-blue-600 underline text-xs">
-                  {editingId === product.id ? 'Cancel Edit' : 'Edit'}
+                <button onClick={() => setEditingId(editingId === product.id ? null : product.id)} className="text-xs text-[var(--color-pine)] underline underline-offset-2">
+                  {editingId === product.id ? 'Cancel edit' : 'Edit'}
                 </button>
               </div>
             </div>
@@ -186,14 +187,14 @@ export default function AdminProductsPage() {
               <VariantManager product={product} token={token} onChange={loadData} />
             )}
             {editingId === product.id && (
-             <ProductEditForm
-                  product={product}
-                  categories={categories}
-                  token={token}
-                  onChange={loadData}
-                  onCancel={() => setEditingId(null)}
+              <ProductEditForm
+                product={product}
+                categories={categories}
+                token={token}
+                onChange={loadData}
+                onCancel={() => setEditingId(null)}
               />
-          )}
+            )}
           </div>
         ))}
       </div>
@@ -247,67 +248,65 @@ function VariantManager({ product, token, onChange }) {
     }
   }
 
- 
-
   return (
-    <div className="border-t bg-gray-50 p-3">
+    <div className="border-t border-[var(--color-line)] bg-[var(--color-canvas)] p-4">
       {product.variants && product.variants.length > 0 && (
-        <table className="w-full text-xs mb-3">
-  <thead>
-    <tr className="text-left text-gray-500">
-      <th className="pb-1">SKU</th>
-      <th className="pb-1">Price</th>
-      <th className="pb-1">Stock</th>
-      <th className="pb-1">Attributes</th>
-      <th className="pb-1"></th>
-    </tr>
-  </thead>
-  <tbody>
-    {product.variants.map((v) => (
-      <tr key={v.id}>
-        <td className="py-1">{v.sku}</td>
-        <td className="py-1">{formatPrice(v.price_cents)}</td>
-        <td className="py-1">{v.stock_qty}</td>
-        <td className="py-1">
-          {Object.entries(v.attributes || {}).map(([k, val]) => `${k}: ${val}`).join(', ') || '—'}
-        </td>
-        <td className="py-1">
-          <button onClick={() => handleDeleteVariant(v.id)} className="text-red-600 underline">
-            Delete
-          </button>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+        <table className="w-full text-xs mb-4">
+          <thead>
+            <tr className="text-left text-[var(--color-muted)] uppercase tracking-wide">
+              <th className="pb-2 font-medium">SKU</th>
+              <th className="pb-2 font-medium">Price</th>
+              <th className="pb-2 font-medium">Stock</th>
+              <th className="pb-2 font-medium">Attributes</th>
+              <th className="pb-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {product.variants.map((v) => (
+              <tr key={v.id} className="border-t border-[var(--color-line)]">
+                <td className="py-2">{v.sku}</td>
+                <td className="py-2">{formatPrice(v.price_cents)}</td>
+                <td className="py-2">{v.stock_qty}</td>
+                <td className="py-2">
+                  {Object.entries(v.attributes || {}).map(([k, val]) => `${k}: ${val}`).join(', ') || '—'}
+                </td>
+                <td className="py-2">
+                  <button onClick={() => handleDeleteVariant(v.id)} className="text-red-600 underline underline-offset-2">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
 
       <form onSubmit={handleAddVariant} className="flex flex-wrap gap-2 items-end">
         <div>
-          <label className="text-xs block">SKU</label>
-          <input value={sku} onChange={(e) => setSku(e.target.value)} className="border rounded px-2 py-1 text-xs w-28" required />
+          <label className="text-xs text-[var(--color-muted)] block mb-1">SKU</label>
+          <input value={sku} onChange={(e) => setSku(e.target.value)} className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-xs w-28 focus:outline-none focus:border-[var(--color-ink)]" required />
         </div>
         <div>
-          <label className="text-xs block">Price (LKR)</label>
-          <input type="number" value={priceCents} onChange={(e) => setPriceCents(e.target.value)} className="border rounded px-2 py-1 text-xs w-24" required />
+          <label className="text-xs text-[var(--color-muted)] block mb-1">Price (cents)</label>
+          <input type="number" value={priceCents} onChange={(e) => setPriceCents(e.target.value)} className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-xs w-24 focus:outline-none focus:border-[var(--color-ink)]" required />
         </div>
         <div>
-          <label className="text-xs block">Stock</label>
-          <input type="number" value={stockQty} onChange={(e) => setStockQty(e.target.value)} className="border rounded px-2 py-1 text-xs w-20" required />
+          <label className="text-xs text-[var(--color-muted)] block mb-1">Stock</label>
+          <input type="number" value={stockQty} onChange={(e) => setStockQty(e.target.value)} className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-xs w-20 focus:outline-none focus:border-[var(--color-ink)]" required />
         </div>
         <div>
-          <label className="text-xs block">Attr name</label>
-          <input value={attrKey} onChange={(e) => setAttrKey(e.target.value)} placeholder="color" className="border rounded px-2 py-1 text-xs w-20" />
+          <label className="text-xs text-[var(--color-muted)] block mb-1">Attr name</label>
+          <input value={attrKey} onChange={(e) => setAttrKey(e.target.value)} placeholder="color" className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-xs w-20 focus:outline-none focus:border-[var(--color-ink)]" />
         </div>
         <div>
-          <label className="text-xs block">Attr value</label>
-          <input value={attrValue} onChange={(e) => setAttrValue(e.target.value)} placeholder="blue" className="border rounded px-2 py-1 text-xs w-20" />
+          <label className="text-xs text-[var(--color-muted)] block mb-1">Attr value</label>
+          <input value={attrValue} onChange={(e) => setAttrValue(e.target.value)} placeholder="blue" className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-xs w-20 focus:outline-none focus:border-[var(--color-ink)]" />
         </div>
-        <button type="submit" disabled={saving} className="bg-black text-white px-3 py-1.5 rounded text-xs disabled:opacity-50">
-          {saving ? 'Adding...' : 'Add Variant'}
+        <button type="submit" disabled={saving} className="btn-primary rounded-md px-3 py-1.5 text-xs disabled:opacity-50">
+          {saving ? 'Adding…' : 'Add Variant'}
         </button>
       </form>
-      {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
+      {error && <p className="text-red-600 text-xs mt-2">{error}</p>}
     </div>
   );
 }
@@ -341,14 +340,14 @@ function ProductEditForm({ product, categories, token, onChange, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSave} className="border-t bg-blue-50 p-3 space-y-2">
+    <form onSubmit={handleSave} className="border-t border-[var(--color-line)] bg-[var(--color-pine)]/[0.04] p-4 space-y-2">
       <div className="grid grid-cols-2 gap-2">
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="border rounded px-2 py-1 text-sm" required />
-        <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="Slug" className="border rounded px-2 py-1 text-sm" required />
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-ink)]" required />
+        <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="Slug" className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-ink)]" required />
       </div>
-      <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="w-full border rounded px-2 py-1 text-sm" rows={2} />
-      <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="Image URL" className="w-full border rounded px-2 py-1 text-sm" />
-      <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="border rounded px-2 py-1 text-sm">
+      <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="w-full border border-[var(--color-line)] rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-ink)]" rows={2} />
+      <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="Image URL" className="w-full border border-[var(--color-line)] rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-ink)]" />
+      <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-ink)]">
         <option value="">No category</option>
         {categories.map((cat) => (
           <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -356,10 +355,10 @@ function ProductEditForm({ product, categories, token, onChange, onCancel }) {
       </select>
       {error && <p className="text-red-600 text-xs">{error}</p>}
       <div className="flex gap-2">
-        <button type="submit" disabled={saving} className="bg-black text-white px-3 py-1.5 rounded text-xs disabled:opacity-50">
-          {saving ? 'Saving...' : 'Save Changes'}
+        <button type="submit" disabled={saving} className="btn-primary rounded-md px-3 py-1.5 text-xs disabled:opacity-50">
+          {saving ? 'Saving…' : 'Save Changes'}
         </button>
-        <button type="button" onClick={onCancel} className="px-3 py-1.5 rounded text-xs border">
+        <button type="button" onClick={onCancel} className="btn-secondary rounded-md px-3 py-1.5 text-xs">
           Cancel
         </button>
       </div>

@@ -9,7 +9,7 @@ import { useAuth } from '@/lib/AuthContext';
 export default function AddToCartButton({ variantId, stockQty }) {
   const { token, user } = useAuth();
   const router = useRouter();
-  const [status, setStatus] = useState('idle'); // idle | loading | added | error
+  const [status, setStatus] = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
   async function handleAddToCart() {
@@ -17,7 +17,6 @@ export default function AddToCartButton({ variantId, stockQty }) {
       router.push('/login');
       return;
     }
-
     setStatus('loading');
     setErrorMsg('');
     try {
@@ -27,7 +26,7 @@ export default function AddToCartButton({ variantId, stockQty }) {
         token,
       });
       setStatus('added');
-      setTimeout(() => setStatus('idle'), 1500); // reset button text after a moment
+      setTimeout(() => setStatus('idle'), 1500);
     } catch (err) {
       setStatus('error');
       setErrorMsg(err.message);
@@ -39,11 +38,11 @@ export default function AddToCartButton({ variantId, stockQty }) {
       <button
         onClick={handleAddToCart}
         disabled={stockQty === 0 || status === 'loading'}
-        className="mt-2 bg-black text-white px-4 py-2 rounded disabled:opacity-40 disabled:cursor-not-allowed"
+        className="btn-primary rounded-full px-5 py-2 text-sm"
       >
-        {status === 'loading' ? 'Adding...' : status === 'added' ? 'Added ✓' : 'Add to Cart'}
+        {status === 'loading' ? 'Adding…' : status === 'added' ? 'Added ✓' : 'Add to Cart'}
       </button>
-      {errorMsg && <p className="text-red-600 text-sm mt-1">{errorMsg}</p>}
+      {errorMsg && <p className="text-red-600 text-xs mt-1">{errorMsg}</p>}
     </div>
   );
 }

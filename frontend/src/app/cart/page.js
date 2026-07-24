@@ -16,7 +16,7 @@ export default function CartPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (authLoading) return; // wait for auth state to resolve first
+    if (authLoading) return;
     if (!user) {
       router.push('/login');
       return;
@@ -43,65 +43,62 @@ export default function CartPage() {
         body: { variantId, quantity: newQuantity },
         token,
       });
-      loadCart(); // refresh cart after change
+      loadCart();
     } catch (err) {
       setError(err.message);
     }
   }
 
   if (authLoading || loading) {
-    return <main className="max-w-3xl mx-auto px-4 py-8">Loading cart...</main>;
+    return <main className="max-w-3xl mx-auto px-6 py-16 text-center text-[var(--color-muted)]">Loading cart…</main>;
   }
 
   if (!cart || cart.items.length === 0) {
     return (
-      <main className="max-w-3xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
-        <p className="text-gray-500">Your cart is empty.</p>
-        <Link href="/" className="text-blue-600 underline mt-2 inline-block">
-          Continue shopping
-        </Link>
+      <main className="max-w-3xl mx-auto px-6 py-16 text-center">
+        <p className="font-display text-2xl mb-2">Your cart is empty</p>
+        <p className="text-[var(--color-muted)] mb-6">Nothing here yet — go find something you like.</p>
+        <Link href="/" className="btn-primary rounded-full px-5 py-2 text-sm inline-block">Continue shopping</Link>
       </main>
     );
   }
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Your Cart</h1>
+    <main className="max-w-3xl mx-auto px-6 py-12">
+      <p className="eyebrow mb-2">Your Cart</p>
+      <h1 className="font-display text-3xl mb-8">{cart.items.length} item{cart.items.length !== 1 ? 's' : ''}</h1>
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
 
-      <div className="space-y-4">
+      <div className="divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
         {cart.items.map((item) => (
-          <div key={item.variant_id} className="border rounded-lg p-4 flex justify-between items-center">
+          <div key={item.variant_id} className="py-5 flex justify-between items-center">
             <div>
               <p className="font-medium">{item.product_name}</p>
-              <p className="text-sm text-gray-500">
-                {Object.entries(item.attributes || {})
-                  .map(([k, v]) => `${k}: ${v}`)
-                  .join(', ') || item.sku}
+              <p className="text-sm text-[var(--color-muted)] mt-0.5">
+                {Object.entries(item.attributes || {}).map(([k, v]) => `${k}: ${v}`).join(', ') || item.sku}
               </p>
-              <p className="text-sm text-gray-500">{formatPrice(item.price_cents)} each</p>
+              <p className="text-sm text-[var(--color-muted)]">{formatPrice(item.price_cents)} each</p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex items-center border rounded">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center border border-[var(--color-line)] rounded-full">
                 <button
                   onClick={() => updateQuantity(item.variant_id, item.quantity - 1)}
-                  className="px-3 py-1"
+                  className="w-8 h-8 flex items-center justify-center hover:bg-[var(--color-line)]/40 rounded-full transition-colors"
                 >
                   −
                 </button>
-                <span className="px-3">{item.quantity}</span>
+                <span className="w-6 text-center text-sm">{item.quantity}</span>
                 <button
                   onClick={() => updateQuantity(item.variant_id, item.quantity + 1)}
                   disabled={item.quantity >= item.stock_qty}
-                  className="px-3 py-1 disabled:opacity-40"
+                  className="w-8 h-8 flex items-center justify-center hover:bg-[var(--color-line)]/40 rounded-full transition-colors disabled:opacity-30"
                 >
                   +
                 </button>
               </div>
-              <p className="font-bold w-20 text-right">
+              <p className="font-medium w-24 text-right">
                 {formatPrice(item.price_cents * item.quantity)}
               </p>
             </div>
@@ -109,14 +106,11 @@ export default function CartPage() {
         ))}
       </div>
 
-      <div className="mt-6 flex justify-between items-center border-t pt-4">
-        <p className="text-xl font-bold">
-          Subtotal: {formatPrice(cart.subtotalCents)}
+      <div className="mt-8 flex justify-between items-center">
+        <p className="text-lg">
+          Subtotal: <span className="font-display text-xl ml-1">{formatPrice(cart.subtotalCents)}</span>
         </p>
-        <Link
-          href="/checkout"
-          className="bg-black text-white px-6 py-3 rounded font-medium"
-        >
+        <Link href="/checkout" className="btn-primary rounded-full px-6 py-3 text-sm">
           Proceed to Checkout
         </Link>
       </div>

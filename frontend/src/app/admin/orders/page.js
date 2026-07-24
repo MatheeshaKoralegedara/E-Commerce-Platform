@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -47,16 +46,16 @@ export default function AdminOrdersPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">Orders</h2>
+      <h2 className="font-display text-2xl mb-6">Orders</h2>
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
 
-      <div className="mb-4">
+      <div className="mb-5">
         <label className="text-sm font-medium mr-2">Filter by status:</label>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="border rounded px-2 py-1 text-sm"
+          className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-ink)]"
         >
           <option value="">All</option>
           {STATUS_OPTIONS.map((s) => (
@@ -66,38 +65,40 @@ export default function AdminOrdersPage() {
       </div>
 
       {loading ? (
-        <p>Loading orders...</p>
+        <p className="text-[var(--color-muted)] text-sm">Loading orders…</p>
       ) : orders.length === 0 ? (
-        <p className="text-gray-500">No orders found.</p>
+        <p className="text-[var(--color-muted)] text-sm">No orders found.</p>
       ) : (
         <table className="w-full text-sm border-collapse">
           <thead>
-            <tr className="border-b text-left">
-              <th className="py-2">Order #</th>
-              <th className="py-2">User ID</th>
-              <th className="py-2">Total</th>
-              <th className="py-2">Status</th>
-              <th className="py-2">Date</th>
-              <th className="py-2">Update Status</th>
+            <tr className="border-b border-[var(--color-line)] text-left text-[var(--color-muted)] text-xs uppercase tracking-wide">
+              <th className="py-2 font-medium">Order #</th>
+              <th className="py-2 font-medium">User ID</th>
+              <th className="py-2 font-medium">Total</th>
+              <th className="py-2 font-medium">Status</th>
+              <th className="py-2 font-medium">Date</th>
+              <th className="py-2 font-medium">Update Status</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id} className="border-b">
-                <td className="py-2">#{order.id}</td>
-                <td className="py-2">{order.user_id}</td>
-                <td className="py-2">{formatPrice(order.total_cents)}</td>
-                <td className="py-2">
-                  <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800">{order.status}</span>
+              <tr key={order.id} className="border-b border-[var(--color-line)]">
+                <td className="py-3">#{order.id}</td>
+                <td className="py-3">{order.user_id}</td>
+                <td className="py-3">{formatPrice(order.total_cents)}</td>
+                <td className="py-3">
+                  <span className="px-2 py-0.5 rounded-full text-xs bg-[var(--color-line)]/60 text-[var(--color-ink)]">
+                    {order.status}
+                  </span>
                 </td>
-                <td className="py-2 text-gray-500">
+                <td className="py-3 text-[var(--color-muted)]">
                   {new Date(order.created_at).toLocaleDateString()}
                 </td>
-                <td className="py-2">
+                <td className="py-3">
                   <select
                     value={order.status}
                     onChange={(e) => updateStatus(order.id, e.target.value)}
-                    className="border rounded px-2 py-1 text-xs"
+                    className="border border-[var(--color-line)] rounded-md px-2 py-1 text-xs focus:outline-none focus:border-[var(--color-ink)]"
                   >
                     {STATUS_OPTIONS.map((s) => (
                       <option key={s} value={s}>{s}</option>
