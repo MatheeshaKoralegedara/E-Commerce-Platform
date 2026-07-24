@@ -31,6 +31,13 @@ export default async function ProductPage({ params }) {
   return (
     <main className="max-w-3xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold">{product.name}</h1>
+      {product.image_url && (
+        <img
+          src={product.image_url}
+          alt={product.name}
+          className="w-full max-w-md rounded-lg my-4"
+        />
+      )}
 
       {reviewData.reviewCount > 0 && (
         <p className="text-sm text-gray-600 mt-1">

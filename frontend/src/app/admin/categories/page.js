@@ -14,6 +14,7 @@ export default function AdminCategoriesPage() {
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [creating, setCreating] = useState(false);
+  const [successMessage,  setSuccessMessage] = useState('');
 
   useEffect(() => {
     loadCategories();
@@ -32,24 +33,27 @@ export default function AdminCategoriesPage() {
   }
 
   async function handleCreate(e) {
-    e.preventDefault();
-    setCreating(true);
-    setError('');
-    try {
-      await apiRequest('/categories', {
-        method: 'POST',
-        body: { name, slug },
-        token,
-      });
-      setName('');
-      setSlug('');
-      loadCategories();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setCreating(false);
-    }
+  e.preventDefault();
+  setCreating(true);
+  setError('');
+  setSuccessMessage('');
+  try {
+    await apiRequest('/categories', {
+      method: 'POST',
+      body: { name, slug },
+      token,
+    });
+    setName('');
+    setSlug('');
+    setSuccessMessage(`"${name}" created successfully.`);
+    setTimeout(() => setSuccessMessage(''), 3000);
+    loadCategories();
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setCreating(false);
   }
+}
 
   async function handleDelete(id) {
     setError('');
@@ -66,6 +70,7 @@ export default function AdminCategoriesPage() {
       <h2 className="text-xl font-bold mb-4">Categories</h2>
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
+      {successMessage && <p className="text-green-600 mb-4">{successMessage}</p>}
 
       <form onSubmit={handleCreate} className="border rounded-lg p-4 mb-8 flex gap-3 items-end">
         <div>

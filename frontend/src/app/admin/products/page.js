@@ -18,6 +18,7 @@ export default function AdminProductsPage() {
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [creating, setCreating] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
 
   useEffect(() => {
     if (token) loadData();
@@ -57,13 +58,14 @@ export default function AdminProductsPage() {
     try {
       await apiRequest('/products', {
         method: 'POST',
-        body: { name, slug, description, categoryId: categoryId || null },
+        body: { name, slug, description, categoryId: categoryId || null, imageUrl: imageUrl || null },
         token,
       });
       setName('');
       setSlug('');
       setDescription('');
       setCategoryId('');
+      setImageUrl('');
       loadData();
     } catch (err) {
       setError(err.message);
@@ -120,6 +122,13 @@ export default function AdminProductsPage() {
           onChange={(e) => setDescription(e.target.value)}
           className="w-full border rounded px-3 py-2 text-sm"
           rows={2}
+        />
+        <input
+          type="text"
+          placeholder="Image URL (optional)"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          className="w-full border rounded px-3 py-3 py-2 text-sm"
         />
         <select
           value={categoryId}

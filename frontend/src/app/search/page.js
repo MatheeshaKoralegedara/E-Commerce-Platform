@@ -27,19 +27,33 @@ export default async function SearchPage({ searchParams }) {
           {products.map((product) => {
             const firstVariant = product.variants[0];
             return (
-              <Link
-                key={product.id}
-                href={`/products/${product.slug}`}
-                className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-              >
-                <h2 className="font-semibold text-lg">{product.name}</h2>
-                <p className="text-gray-600 text-sm mt-1">{product.description}</p>
-                {firstVariant && (
-                  <p className="mt-3 font-bold">
-                    ${(firstVariant.price_cents / 100).toFixed(2)}
-                  </p>
-                )}
-              </Link>
+              // frontend/src/app/page.js
+// Update the product card markup inside the map:
+
+<Link
+  key={product.id}
+  href={`/products/${product.slug}`}
+  className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+>
+  <div className="aspect-square bg-gray-100">
+    {product.image_url ? (
+      <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+    ) : (
+      <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+        No image
+      </div>
+    )}
+  </div>
+  <div className="p-4">
+    <h2 className="font-semibold text-lg">{product.name}</h2>
+    <p className="text-gray-600 text-sm mt-1">{product.description}</p>
+    {product.variants[0] && (
+      <p className="mt-3 font-bold">
+        ${(product.variants[0].price_cents / 100).toFixed(2)}
+      </p>
+    )}
+  </div>
+</Link>
             );
           })}
         </div>
