@@ -10,6 +10,8 @@ const {
   adminList,
   assignCategory,
   search,
+  updateImage,
+
 } = require('../controllers/productController');
 
 const router = express.Router();
@@ -26,5 +28,6 @@ router.post('/', requireAuth, requireAdmin, create);
 router.post('/:productId/variants', requireAuth, requireAdmin, addProductVariant);
 router.patch('/:productId/status', requireAuth, requireAdmin, setStatus);
 router.patch('/:productId/category', requireAuth, requireAdmin, assignCategory);
+router.patch('/:productId/image', requireAuth, requireAdmin, updateImage);
 
 module.exports = router;

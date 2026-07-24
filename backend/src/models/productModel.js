@@ -1,12 +1,12 @@
 
 const { query } = require('../config/db');
 
-async function createProduct({ name, slug, description, categoryId }) {
+async function createProduct({ name, slug, description, categoryId, imageUrl }) {
   const result = await query(
-    `INSERT INTO products (name, slug, description, category_id, status)
-     VALUES ($1, $2, $3, $4, 'draft')
+    `INSERT INTO products (name, slug, description, category_id, status, imageUrl)
+     VALUES ($1, $2, $3, $4, 'draft', $5)
      RETURNING *`,
-    [name, slug, description, categoryId]
+    [name, slug, description, categoryId, imageUrl || null]
   );
   return result.rows[0];
 }

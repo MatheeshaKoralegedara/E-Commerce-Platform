@@ -12,11 +12,11 @@ const {
 // Admin: create a new product (starts as 'draft')
 async function create(req, res) {
   try {
-    const { name, slug, description, categoryId } = req.body;
+    const { name, slug, description, categoryId, imageUrl } = req.body;
     if (!name || !slug) {
       return res.status(400).json({ error: 'name and slug are required' });
     }
-    const product = await createProduct({ name, slug, description, categoryId });
+    const product = await createProduct({ name, slug, description, categoryId, imageUrl });
     res.status(201).json(product);
   } catch (err) {
     console.error(err);
@@ -148,4 +148,24 @@ async function search(req, res) {
   }
 }
 
-module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search };
+async function updateImage(req, res) {
+  try{
+    const { productId } = req.params;
+    const { imageUrl } = req.body;
+
+    const result = await require('../config/db').query(
+      'UPDATE products SET image_url = $1 WHERE id = $2 RETURNING *',
+      [imageUrl, productId]
+    );
+    
+    if (!result.rows[0]){
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (err){
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update image'})
+  }
+
+}
+module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search, updateImage };
