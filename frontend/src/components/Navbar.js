@@ -21,8 +21,11 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 bg-[var(--color-canvas)]/95 backdrop-blur border-b border-[var(--color-line)]">
       <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-6">
-        <Link href="/" className="font-display text-xl tracking-tight whitespace-nowrap">
-          My Store
+        <Link href="/" className="flex items-center gap-3 font-display text-xl tracking-tight whitespace-nowrap">
+          <div className="w-9 h-9 rounded-full bg-[var(--color-line)] flex items-center justify-center overflow-hidden">
+            <img src="/logo.png" alt="Mercato logo" className="w-full h-full object-cover" />
+          </div>
+          <span>Mercato</span>
         </Link>
 
         <form onSubmit={handleSearch} className="flex-1 max-w-sm">
