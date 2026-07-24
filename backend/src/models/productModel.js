@@ -3,7 +3,7 @@ const { query } = require('../config/db');
 
 async function createProduct({ name, slug, description, categoryId, imageUrl }) {
   const result = await query(
-    `INSERT INTO products (name, slug, description, category_id, status, imageUrl)
+    `INSERT INTO products (name, slug, description, category_id, status, image_Url)
      VALUES ($1, $2, $3, $4, 'draft', $5)
      RETURNING *`,
     [name, slug, description, categoryId, imageUrl || null]
