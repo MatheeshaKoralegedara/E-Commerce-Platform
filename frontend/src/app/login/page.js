@@ -46,10 +46,16 @@ export default function LoginPage() {
           className="w-full border border-[var(--color-line)] rounded-md px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
           required
         />
+        <div className="text-right">
+  <a href="/forgot-password" className="text-xs text-[var(--color-pine)] underline underline-offset-2">
+    Forgot password?
+  </a>
+</div>
         {error && <p className="text-red-600 text-sm">{error}</p>}
         <button type="submit" className="btn-primary rounded-md w-full py-2.5 text-sm">
           Log In
         </button>
+
       </form>
     </main>
   );
