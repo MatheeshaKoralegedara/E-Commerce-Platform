@@ -66,7 +66,11 @@ async function updateReview(productId, userId, rating, comment) {
 }
 
 async function deleteReview(productId, userId) {
-  await query(`DELETE FROM reviews WHERE product_id = $1 AND user_id = $2`, [productId, userId]);
+  const result = await query(
+    'DELETE FROM reviews WHERE product_id = $1 AND user_id = $2 RETURNING id',
+    [productId, userId]
+  );
+  return result.rows.length > 0;
 }
 
 module.exports = {
