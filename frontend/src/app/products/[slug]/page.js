@@ -101,7 +101,7 @@ export default async function ProductPage({ params }) {
                   <span className="text-[var(--color-clay)] text-sm">
                     {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
                   </span>
-                  <span className="text-xs text-[var(--color-muted)]">{review.user_email}</span>
+                  <span className="text-xs text-[var(--color-muted)]">{review.masked_email}</span>
                 </div>
                 {review.comment && <p className="mt-2 text-sm leading-relaxed">{review.comment}</p>}
               </div>

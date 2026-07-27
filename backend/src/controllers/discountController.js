@@ -26,6 +26,9 @@ async function create(req, res) {
     if (!['percentage', 'fixed'].includes(type)) {
       return res.status(400).json({ error: 'type must be "percentage" or "fixed"' });
     }
+    if (type === 'percentage' && (value < 1 || value > 100)) {
+      return res.status(400).json({ error: 'Percentage value must be between 1 and 100' });
+    }
     const discountCode = await createDiscountCode({ code, type, value, minOrderCents, usageLimit, expiresAt });
     res.status(201).json(discountCode);
   } catch (err) {
