@@ -11,7 +11,7 @@ async function validate(req, res) {
     const result = await validateDiscountCode(code, subtotalCents);
     res.json(result);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to validate discount code' });
   }
 }
@@ -32,7 +32,7 @@ async function create(req, res) {
     const discountCode = await createDiscountCode({ code, type, value, minOrderCents, usageLimit, expiresAt });
     res.status(201).json(discountCode);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     if (err.code === '23505') {
       return res.status(409).json({ error: 'This code already exists' });
     }
@@ -46,7 +46,7 @@ async function list(req, res) {
     const codes = await listAllCodes();
     res.json(codes);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to list discount codes' });
   }
 }
@@ -58,7 +58,7 @@ async function remove(req, res) {
     if (!code) return res.status(404).json({ error: 'Discount code not found' });
     res.json(code);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to deactivate discount code' });
   }
 }

@@ -21,7 +21,7 @@ async function create(req, res) {
     const product = await createProduct({ name, slug, description, categoryId, imageUrl });
     res.status(201).json(product);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     if (err.code === '23505') { // Postgres unique_violation
       return res.status(409).json({ error: 'Slug already exists' });
     }
@@ -48,7 +48,7 @@ async function addProductVariant(req, res) {
     });
     res.status(201).json(variant);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     if (err.code === '23505') {
       return res.status(409).json({ error: 'SKU already exists' });
     }
@@ -67,7 +67,7 @@ async function setStatus(req, res) {
     const product = await updateProductStatus(productId, status);
     res.json(product);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to update status' });
   }
 }
@@ -83,7 +83,7 @@ async function list(req, res) {
     const products = await listActiveProducts({ limit, offset, categorySlug });
     res.json(products);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to list products' });
   }
 }
@@ -95,7 +95,7 @@ async function getBySlug(req, res) {
     if (!product) return res.status(404).json({ error: 'Product not found' });
     res.json(product);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to get product' });
   }
 }
@@ -106,7 +106,7 @@ async function adminList(req, res) {
     const products = await listAllProducts();
     res.json(products);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to list products' });
   }
 }
@@ -127,7 +127,7 @@ async function assignCategory(req, res) {
     }
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to assign category' });
   }
 }
@@ -145,7 +145,7 @@ async function search(req, res) {
     const products = await searchProducts({ q, limit, offset });
     res.json(products);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Search failed' });
   }
 }
@@ -165,7 +165,7 @@ async function updateImage(req, res) {
     }
     res.json(result.rows[0]);
   } catch (err){
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to update image'})
   }
 
@@ -182,7 +182,7 @@ async function update(req, res) {
     if (!product) return res.status(404).json({ error: 'Product not found' });
     res.json(product);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     if (err.code === '23505') {
       return res.status(409).json({ error: 'Slug already exists' });
     }
@@ -196,7 +196,7 @@ async function removeVariant(req, res) {
     await deleteVariant(variantId);
     res.status(204).send();
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to delete variant' });
   }
 }

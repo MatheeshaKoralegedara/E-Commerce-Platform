@@ -3,6 +3,9 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const pinoHttp = require('pino-http');
+const { randomUUID } = require('crypto');
+const logger = require('./config/logger');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
@@ -24,6 +27,18 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+app.use(
+  pinoHttp({
+    logger,
+    genReqId: (req, res) => {
+      const existingId = req.headers['x-request-id'];
+      const id = existingId || randomUUID();
+      res.setHeader('x-request-id', id);
+      return id;
+    },
+  })
+);
+
 // IMPORTANT: webhook route must be registered BEFORE express.json(),
 // because it needs the raw body — express.json() would consume/parse it first otherwise
 app.use('/api/webhooks', webhookRoutes);
@@ -43,4 +58,4 @@ app.use('/api/discounts',discountRoutes);
 app.get('/health', (req, res) => res.json({ ok: true }));
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));

@@ -12,7 +12,7 @@ async function list(req, res) {
     const categories = await getAllCategories();
     res.json(categories);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to fetch categories' });
   }
 }
@@ -26,7 +26,7 @@ async function create(req, res) {
     const category = await createCategory(name, slug, parentId || null);
     res.status(201).json(category);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     if (err.code === '23505') {
       return res.status(409).json({ error: 'Slug already exists' });
     }
@@ -41,7 +41,7 @@ async function update(req, res) {
     if (!category) return res.status(404).json({ error: 'Category not found' });
     res.json(category);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to update category' });
   }
 }
@@ -54,7 +54,7 @@ async function remove(req, res) {
     if (err.status) {
       return res.status(err.status).json({ error: err.message });
     }
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to delete category' });
   }
 }
