@@ -84,7 +84,10 @@ async function update(req, res) {
 async function remove(req, res) {
   try {
     const { productId } = req.params;
-    await deleteReview(productId, req.user.userId);
+    const deleted = await deleteReview(productId, req.user.userId);
+    if (!deleted) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
     res.status(204).send();
   } catch (err) {
     console.error(err);

@@ -16,7 +16,6 @@ async function viewCart(req, res) {
 async function addToCart(req, res) {
   try {
     const { variantId, quantity } = req.body;
-
     if (!variantId || !quantity || quantity <= 0) {
       return res.status(400).json({ error: 'Valid variantId and quantity required' });
     }
@@ -24,6 +23,11 @@ async function addToCart(req, res) {
     const variantCheck = await query('SELECT id, stock_qty FROM product_variants WHERE id = $1', [variantId]);
     if (!variantCheck.rows[0]) {
       return res.status(404).json({ error: 'Product variant not found' });
+    }
+
+    // New: reject adding more than what's currently in stock
+    if (quantity > variantCheck.rows[0].stock_qty) {
+      return res.status(409).json({ error: `Only ${variantCheck.rows[0].stock_qty} in stock` });
     }
 
     const cart = await getOrCreateCart(req.user.userId);
