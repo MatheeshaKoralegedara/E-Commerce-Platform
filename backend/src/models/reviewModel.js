@@ -11,17 +11,35 @@ async function createReview(productId, userId, rating, comment) {
   return result.rows[0];
 }
 
+// backend/src/models/reviewModel.js
+
+function maskEmail(email) {
+  const [localPart] = email.split('@');
+  if (localPart.length <= 3) {
+    return localPart[0] + '*'.repeat(Math.max(localPart.length - 1, 1));
+  }
+  return localPart.slice(0, 3) + '*'.repeat(localPart.length - 3);
+}
+
 async function getReviewsForProduct(productId) {
   const result = await query(
-    `SELECT r.*, u.email AS user_email
+    `SELECT r.id, r.product_id, r.user_id, r.rating, r.comment, r.created_at, u.email
      FROM reviews r
      JOIN users u ON u.id = r.user_id
      WHERE r.product_id = $1
      ORDER BY r.created_at DESC`,
     [productId]
   );
-  return result.rows;
+
+  // Mask emails here, server-side, before they ever leave the database layer
+  return result.rows.map((row) => ({
+    ...row,
+    email: undefined,
+    masked_email: maskEmail(row.email),
+  }));
 }
+
+
 
 async function getReviewSummary(productId) {
   const result = await query(
@@ -57,4 +75,5 @@ module.exports = {
   getReviewSummary,
   updateReview,
   deleteReview,
+  maskEmail,
 };
