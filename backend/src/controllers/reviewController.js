@@ -18,7 +18,7 @@ async function listForProduct(req, res) {
     ]);
     res.json({ ...summary, reviews });
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to fetch reviews' });
   }
 }
@@ -58,7 +58,7 @@ async function create(req, res) {
     if (err.code === '23505') { // unique_violation — already reviewed this product
       return res.status(409).json({ error: 'You have already reviewed this product. Use update instead.' });
     }
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to create review' });
   }
 }
@@ -75,7 +75,7 @@ async function update(req, res) {
     if (!review) return res.status(404).json({ error: 'Review not found' });
     res.json(review);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to update review' });
   }
 }
@@ -90,7 +90,7 @@ async function remove(req, res) {
     }
     res.status(204).send();
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to delete review' });
   }
 }
