@@ -18,7 +18,7 @@ async function checkout(req, res) {
     if (err.status) {
       return res.status(err.status).json({ error: err.message });
     }
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Checkout failed' });
   }
 }
@@ -29,7 +29,7 @@ async function myOrders(req, res) {
     const orders = await getOrdersForUser(req.user.userId);
     res.json(orders);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to fetch orders' });
   }
 }
@@ -41,7 +41,7 @@ async function myOrderDetail(req, res) {
     if (!order) return res.status(404).json({ error: 'Order not found' });
     res.json(order);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to fetch order' });
   }
 }
@@ -55,7 +55,7 @@ async function adminListOrders(req, res) {
     const orders = await getAllOrders({ status, limit, offset });
     res.json(orders);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to fetch orders' });
   }
 }
@@ -67,7 +67,7 @@ async function adminOrderDetail(req, res) {
     if (!order) return res.status(404).json({ error: 'Order not found' });
     res.json(order);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to fetch order' });
   }
 }
@@ -85,7 +85,7 @@ async function adminUpdateStatus(req, res) {
     if (!order) return res.status(404).json({ error: 'Order not found' });
     res.json(order);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to update order status' });
   }
 }

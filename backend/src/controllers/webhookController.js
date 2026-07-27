@@ -10,7 +10,7 @@ async function handleStripeWebhook(req, res) {
     // req.body must be the RAW request body here, not JSON-parsed
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
+    req.log.error({ err }, 'Webhook signature verification failed');
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
@@ -20,7 +20,7 @@ if (event.type === 'payment_intent.succeeded') {
   const orderId = paymentIntent.metadata?.orderId;
 
   if (!orderId) {
-    console.warn(`payment_intent.succeeded received with no orderId in metadata (id: ${paymentIntent.id}) — ignoring`);
+    req.log.warn({ paymentIntentId: paymentIntent.id }, 'payment_intent.succeeded received with no orderId in metadata — ignoring');
     return res.json({ received: true });
   }
 
@@ -28,9 +28,9 @@ if (event.type === 'payment_intent.succeeded') {
   const result = await query(`UPDATE orders SET status = 'paid' WHERE id = $1 RETURNING *`, [orderId]);
 
   if (result.rows.length === 0) {
-    console.warn(`payment_intent.succeeded for orderId ${orderId} — no matching order found`);
+    req.log.warn({ orderId }, 'payment_intent.succeeded for order — no matching order found');
   } else {
-    console.log(`Order ${orderId} marked as paid`);
+    req.log.info({ orderId }, 'Order marked as paid');
   }
 }
 

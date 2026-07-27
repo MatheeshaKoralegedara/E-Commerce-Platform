@@ -8,7 +8,7 @@ async function viewCart(req, res) {
         const subtotalCents = items.reduce((sum, i) => sum + i.price_cents * i.quantity, 0);
         res.json({ cartId: cart.id, items, subtotalCents });
     } catch (err) {
-        console.error(err);
+        req.log.error(err);
         res.status(500).json({ error: 'Failed to fetch cart' });
     }
 }
@@ -34,7 +34,7 @@ async function addToCart(req, res) {
     const item = await addItem(cart.id, variantId, quantity);
     res.status(201).json(item);
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Failed to add item to cart' });
   }
 }
@@ -45,7 +45,7 @@ async function updateCartItem(req, res) {
         const item = await updateItemQuantity(cart.id, variantId, quantity);
         res.json(item);
     } catch (err){
-        console.error(err);
+        req.log.error(err);
         res.status(500).json({ error: 'Failed to update cart' });
     }
 }

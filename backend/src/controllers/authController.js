@@ -26,7 +26,7 @@ async function register(req, res) {
 
     res.status(201).json({ user: sanitizeUser(user), token });
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Registration failed' });
   }
 }
@@ -51,7 +51,7 @@ async function login(req, res) {
 
     res.json({ user: sanitizeUser(user), token });
   } catch (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).json({ error: 'Login failed' });
   }
 }
