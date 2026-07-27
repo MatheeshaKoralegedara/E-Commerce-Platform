@@ -13,4 +13,15 @@ async function findUserByEmail(email) {
     return result.rows[0];
 }
 
-module.exports = { createUser, findUserByEmail };
+function sanitizeUser(user) {
+  
+  return {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    created_at: user.created_at,
+  };
+}
+
+
+module.exports = { createUser, findUserByEmail, sanitizeUser };

@@ -1,9 +1,8 @@
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { createUser, findUserByEmail } = require('../models/userModel');
 
-const SALT_ROUNDS = 12;
+const { createUser, findUserByEmail, sanitizeUser } = require('../models/userModel');
 
 async function register(req, res) {
   try {
@@ -25,7 +24,7 @@ async function register(req, res) {
       expiresIn: '7d',
     });
 
-    res.status(201).json({ user, token });
+    res.status(201).json({ user: sanitizeUser(user), token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Registration failed' });
@@ -50,7 +49,7 @@ async function login(req, res) {
       expiresIn: '7d',
     });
 
-    res.json({ user: { id: user.id, email: user.email, role: user.role }, token });
+    res.json({ user: sanitizeUser(user), token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Login failed' });
