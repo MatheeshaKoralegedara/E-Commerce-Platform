@@ -26,32 +26,21 @@ export default function AdminProductsPage() {
     if (token) loadData();
   }, [token]);
 
-  async function loadData() {
-    setLoading(true);
-    try {
-      const [productsData, categoriesData] = await Promise.all([
-        apiRequest('/products/admin/all', { token }),
-        apiRequest('/categories'),
-      ]);
-      const withVariants = await Promise.all(
-        productsData.map(async (p) => {
-          try {
-            const detail = await apiRequest(`/products/${p.slug}`);
-            return { ...p, variants: detail.variants };
-          } catch {
-            return { ...p, variants: [] };
-          }
-        })
-      );
-      setProducts(withVariants);
-      setCategories(categoriesData);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+ async function loadData() {
+  setLoading(true);
+  try {
+    const [productsData, categoriesData] = await Promise.all([
+      apiRequest('/products/admin/all', { token }),
+      apiRequest('/categories'),
+    ]);
+    setProducts(productsData);
+    setCategories(categoriesData);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
   }
-
+}
   async function handleCreate(e) {
     e.preventDefault();
     setCreating(true);

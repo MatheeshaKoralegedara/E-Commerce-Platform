@@ -3,7 +3,7 @@ const { query } = require('../config/db');
 
 async function createProduct({ name, slug, description, categoryId, imageUrl }) {
   const result = await query(
-    `INSERT INTO products (name, slug, description, category_id, status, image_Url)
+    `INSERT INTO products (name, slug, description, category_id, status, image_url)
      VALUES ($1, $2, $3, $4, 'draft', $5)
      RETURNING *`,
     [name, slug, description, categoryId, imageUrl || null]
@@ -84,10 +84,26 @@ async function getProductBySlug(slug) {
 
 // Admin: all products regardless of status
 async function listAllProducts() {
-  const result = await query(`SELECT * FROM products ORDER BY created_at DESC`);
+  const result = await query(
+    `SELECT p.*,
+            COALESCE(
+              json_agg(
+                json_build_object(
+                  'id', v.id,
+                  'sku', v.sku,
+                  'price_cents', v.price_cents,
+                  'attributes', v.attributes,
+                  'stock_qty', v.stock_qty
+                )
+              ) FILTER (WHERE v.id IS NOT NULL), '[]'
+            ) AS variants
+     FROM products p
+     LEFT JOIN product_variants v ON v.product_id = p.id
+     GROUP BY p.id
+     ORDER BY p.created_at DESC`
+  );
   return result.rows;
 }
-
 async function updateProductStatus(productId, status) {
   const result = await query(
     `UPDATE products SET status = $1 WHERE id = $2 RETURNING *`,
@@ -133,8 +149,8 @@ async function updateProduct(productId, { name, slug, description, categoryId, i
   return result.rows[0];
 }
 
-async function deleteVariant(varientId) {
-  await query('DELETE FROM product_variants WHERE id = $1', [varientId]);
+async function deleteVariant(variantId) {
+  await query('DELETE FROM product_variants WHERE id = $1', [variantId]);
 }
 
 
