@@ -20,17 +20,9 @@
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.22.0",
-<<<<<<< Updated upstream
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
-=======
-<<<<<<< HEAD
     "resend": "^6.18.0",
-=======
-    "pino": "^10.3.1",
-    "pino-http": "^11.0.0",
->>>>>>> 9f26f3aa92bf4e4b6e4a71aac8f9fa9480f3a8c0
->>>>>>> Stashed changes
     "stripe": "^22.3.2"
   },
   "devDependencies": {
