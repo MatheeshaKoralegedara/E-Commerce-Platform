@@ -16,7 +16,13 @@ const discountRoutes = require('./routes/discountRoutes');
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+const corsOptions = {
+  origin: [
+    'https://mercato-e-commerce-platform.vercel.app',
+    'http://localhost:3000',
+  ],
+};
+app.use(cors(corsOptions));
 
 // IMPORTANT: webhook route must be registered BEFORE express.json(),
 // because it needs the raw body — express.json() would consume/parse it first otherwise
