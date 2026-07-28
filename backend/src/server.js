@@ -16,6 +16,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const discountRoutes = require('./routes/discountRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes')
+const adminReviewRoutes = require('./routes/adminReviewRoutes');
 
 const app = express();
 
@@ -55,7 +56,8 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products/:productId/reviews', reviewRoutes);
 app.use('/api/discounts',discountRoutes);
-app.use('/api/analytics', analyticsRoutes)
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin/reviews', adminReviewRoutes);
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 

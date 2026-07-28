@@ -15,6 +15,7 @@ export default function AdminLayout({ children }) {
             ['Orders', '/admin/orders'],
             ['Discount Codes', '/admin/discounts'],
             ['Categories', '/admin/categories'],
+            ['Reviews', '/admin/reviews'],
           ].map(([label, href]) => (
             <Link
               key={href}
