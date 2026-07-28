@@ -7,6 +7,7 @@ const {
   createUser, findUserByEmail, sanitizeUser,
   setResetToken, findUserByResetTokenHash, updatePasswordAndClearReset,
 } = require('../models/userModel');
+const { mergeGuestCartIntoUserCart } = require('../models/cartModel');
 
 const SALT_ROUNDS = 12;
 
@@ -34,7 +35,7 @@ async function register(req, res) {
 
 async function login(req, res) {
   try {
-    const { email, password } = req.body;
+    const { email, password, guestToken } = req.body;
     const user = await findUserByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
@@ -43,12 +44,17 @@ async function login(req, res) {
     if (!valid) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
+
+    if (guestToken) {
+      await mergeGuestCartIntoUserCart(guestToken, user.id);
+    }
+
     const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
     res.json({ user: sanitizeUser(user), token });
   } catch (err) {
-    req.log.error(err);
+    console.error(err);
     res.status(500).json({ error: 'Login failed' });
   }
 }

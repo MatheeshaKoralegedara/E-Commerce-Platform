@@ -17,12 +17,9 @@ export default function CartPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) {
-      router.push('/login');
-      return;
-    }
+    
     loadCart();
-  }, [authLoading, user]);
+  }, [authLoading]);
 
   async function loadCart() {
     setLoading(true);
@@ -49,6 +46,19 @@ export default function CartPage() {
     }
   }
 
+  async function removeItem(variantId) {
+    try {
+      await apiRequest('/cart/items', {
+        method: 'PATCH',
+        body: { variantId, quantity: 0 },
+        token,
+      });
+      loadCart();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   if (authLoading || loading) {
     return <main className="max-w-3xl mx-auto px-6 py-16 text-center text-[var(--color-muted)]">Loading cart…</main>;
   }
@@ -62,6 +72,20 @@ export default function CartPage() {
       </main>
     );
   }
+
+  async function removeItem(variantId) {
+  try {
+    await apiRequest('/cart/items', {
+      method: 'PATCH',
+      body: { variantId, quantity: 0 },
+      token,
+    });
+    loadCart();
+  } catch (err) {
+    setError(err.message);
+  }
+}
+
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
@@ -82,22 +106,33 @@ export default function CartPage() {
             </div>
 
             <div className="flex items-center gap-6">
-              <div className="flex items-center border border-[var(--color-line)] rounded-full">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center border border-[var(--color-line)] rounded-full">
+                  <button
+                    onClick={() => updateQuantity(item.variant_id, item.quantity - 1)}
+                    className="w-8 h-8 flex items-center justify-center hover:bg-[var(--color-line)]/40 rounded-full transition-colors"
+                  >
+                    −
+                  </button>
+                  <span className="w-6 text-center text-sm">{item.quantity}</span>
+                  <button
+                    onClick={() => updateQuantity(item.variant_id, item.quantity + 1)}
+                    disabled={item.quantity >= item.stock_qty}
+                    className="w-8 h-8 flex items-center justify-center hover:bg-[var(--color-line)]/40 rounded-full transition-colors disabled:opacity-30"
+                  >
+                    +
+                  </button>
+                </div>
+
                 <button
-                  onClick={() => updateQuantity(item.variant_id, item.quantity - 1)}
-                  className="w-8 h-8 flex items-center justify-center hover:bg-[var(--color-line)]/40 rounded-full transition-colors"
+                  onClick={() => removeItem(item.variant_id)}
+                  className="text-xs text-red-600 underline underline-offset-2"
+                  aria-label={`Remove ${item.product_name} from cart`}
                 >
-                  −
-                </button>
-                <span className="w-6 text-center text-sm">{item.quantity}</span>
-                <button
-                  onClick={() => updateQuantity(item.variant_id, item.quantity + 1)}
-                  disabled={item.quantity >= item.stock_qty}
-                  className="w-8 h-8 flex items-center justify-center hover:bg-[var(--color-line)]/40 rounded-full transition-colors disabled:opacity-30"
-                >
-                  +
+                  Remove
                 </button>
               </div>
+
               <p className="font-medium w-24 text-right">
                 {formatPrice(item.price_cents * item.quantity)}
               </p>

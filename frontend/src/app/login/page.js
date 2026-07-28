@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { getGuestToken, clearGuestToken } from '@/lib/guestToken';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -14,17 +15,18 @@ export default function LoginPage() {
   const { login } = useAuth();
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    setError('');
-    try {
-      const data = await apiRequest('/auth/login', { method: 'POST', body: { email, password } });
-      login(data.token, data.user);
-      router.push('/');
-    } catch (err) {
-      setError(err.message);
-    }
+  e.preventDefault();
+  setError('');
+  try {
+    const guestToken = getGuestToken();
+    const data = await apiRequest('/auth/login', { method: 'POST', body: { email, password, guestToken } });
+    login(data.token, data.user);
+    clearGuestToken(); // merged server-side now, stop sending it
+    router.push('/');
+  } catch (err) {
+    setError(err.message);
   }
-
+}
   return (
     <main className="max-w-sm mx-auto px-6 py-20">
       <p className="eyebrow mb-2 text-center">Welcome back</p>

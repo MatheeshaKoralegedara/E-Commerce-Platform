@@ -1,22 +1,15 @@
-
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 
 export default function AddToCartButton({ variantId, stockQty }) {
   const { token, user } = useAuth();
-  const router = useRouter();
   const [status, setStatus] = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
   async function handleAddToCart() {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
     setStatus('loading');
     setErrorMsg('');
     try {
