@@ -8,10 +8,10 @@ async function validate(req, res) {
     if (!code || subtotalCents == null) {
       return res.status(400).json({ error: 'code and subtotalCents are required' });
     }
-    const result = await validateDiscountCode(code, subtotalCents);
+    const result = await validateDiscountCode(code, subtotalCents, req.user.userId);
     res.json(result);
   } catch (err) {
-    req.log.error(err);
+    req.log.error({ err }, 'Failed to validate discount code');
     res.status(500).json({ error: 'Failed to validate discount code' });
   }
 }
@@ -63,4 +63,25 @@ async function remove(req, res) {
   }
 }
 
-module.exports = { validate, create, list, remove };
+async function update(req, res) {
+  try {
+    const { id } = req.params;
+    const { type, value, minOrderCents, usageLimit, expiresAt, active } = req.body;
+
+    if (!['percentage', 'fixed'].includes(type)) {
+      return res.status(400).json({ error: 'type must be "percentage" or "fixed"' });
+    }
+    if (type === 'percentage' && (value < 1 || value > 100)) {
+      return res.status(400).json({ error: 'Percentage value must be between 1 and 100' });
+    }
+
+    const updated = await updateDiscountCode(id, { type, value, minOrderCents, usageLimit, expiresAt, active });
+    if (!updated) return res.status(404).json({ error: 'Discount code not found' });
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, 'Failed to update discount code');
+    res.status(500).json({ error: 'Failed to update discount code' });
+  }
+}
+
+module.exports = { validate, create, list, remove, update };

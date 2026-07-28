@@ -18,6 +18,7 @@ export default function AdminDiscountsPage() {
   const [minOrderCents, setMinOrderCents] = useState('');
   const [usageLimit, setUsageLimit] = useState('');
   const [creating, setCreating] = useState(false);
+  const [perUserLimit, setPerUserLimit] = useState('');
 
   useEffect(() => {
     if (token) loadCodes();
@@ -44,12 +45,11 @@ export default function AdminDiscountsPage() {
       await apiRequest('/discounts', {
         method: 'POST',
         body: {
-          code,
-          type,
-          value: parseInt(value),
+          code, type, value: parseInt(value),
           minOrderCents: minOrderCents ? parseInt(minOrderCents) : 0,
           usageLimit: usageLimit ? parseInt(usageLimit) : null,
-        },
+          perUserLimit: perUserLimit ? parseInt(perUserLimit) : null,
+},
         token,
       });
       setSuccessMessage(`Code "${code}" created.`);
@@ -133,6 +133,15 @@ export default function AdminDiscountsPage() {
               className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm w-full focus:outline-none focus:border-[var(--color-ink)]"
             />
           </div>
+          <div>
+            <label className="text-xs text-[var(--color-muted)] block mb-1">Per-user limit (optional)</label>
+              <input
+                    type="number"
+                    value={perUserLimit}
+                    onChange={(e) => setPerUserLimit(e.target.value)}
+                    className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm w-full focus:outline-none focus:border-[var(--color-ink)]"
+              />
+</div>
         </div>
         <button type="submit" disabled={creating} className="btn-primary rounded-md px-4 py-2 text-sm disabled:opacity-50">
           {creating ? 'Creating…' : 'Create Code'}
