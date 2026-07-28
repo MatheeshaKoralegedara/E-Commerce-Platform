@@ -201,4 +201,21 @@ async function removeVariant(req, res) {
   }
 }
 
-module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search, updateImage, update, removeVariant };
+async function bulkSetStatus(req, res) {
+  try {
+    const { productIds, status } = req.body;
+    if (!Array.isArray(productIds) || productIds.length === 0) {
+      return res.status(400).json({ error: 'productIds must be a non-empty array' });
+    }
+    if (!['draft', 'active', 'archived'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+    const updated = await bulkUpdateStatus(productIds, status);
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, 'Bulk status update failed');
+    res.status(500).json({ error: 'Bulk status update failed' });
+  }
+}
+
+module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search, updateImage, update, removeVariant, bulkSetStatus };

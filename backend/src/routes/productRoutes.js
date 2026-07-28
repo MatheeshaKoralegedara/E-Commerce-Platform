@@ -13,6 +13,7 @@ const {
   updateImage,
   update,
   removeVariant,
+  bulkSetStatus,
 
 } = require('../controllers/productController');
 
@@ -33,5 +34,6 @@ router.patch('/:productId/category', requireAuth, requireAdmin, assignCategory);
 router.patch('/:productId/image', requireAuth, requireAdmin, updateImage);
 router.patch('/:productId', requireAuth, requireAdmin, update);
 router.delete('/:productId/variants/:variantId', requireAuth, requireAdmin, removeVariant);
+router.patch('/bulk/status', requireAuth, requireAdmin, bulkSetStatus);
 
 module.exports = router;
