@@ -11,14 +11,14 @@ const {
 async function checkout(req, res) {
   try {
     const { discountCode } = req.body;
-    const cart = await getOrCreateCart(req.user.userId);
+    const cart = await getOrCreateCart({ userId: req.user.userId });
     const order = await createOrderFromCart(req.user.userId, cart.id, discountCode || null);
     res.status(201).json(order);
   } catch (err) {
     if (err.status) {
       return res.status(err.status).json({ error: err.message });
     }
-    req.log.error(err);
+    req.log.error({ err }, 'Checkout failed');
     res.status(500).json({ error: 'Checkout failed' });
   }
 }
