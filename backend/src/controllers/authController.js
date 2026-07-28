@@ -59,17 +59,22 @@ async function forgotPassword(req, res) {
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
     }
+
     const user = await findUserByEmail(email);
-    // Always respond the same way whether or not the email exists —
-    // prevents this endpoint from being used to discover registered emails
+    req.log.info({ email, userFound: !!user }, 'Forgot password requested'); // temporary debug line
+
     if (user) {
       const rawToken = crypto.randomBytes(32).toString('hex');
       const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
       await setResetToken(email, tokenHash, expiresAt);
+
       const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${rawToken}`;
       await sendPasswordResetEmail(email, resetUrl);
+      req.log.info({ email }, 'Password reset email send attempted successfully'); // temporary debug line
     }
+
     res.json({ message: 'If that email is registered, a reset link has been sent.' });
   } catch (err) {
     req.log.error({ err }, 'Forgot password failed');
