@@ -19,7 +19,7 @@ async function validate(req, res) {
 // Admin: create a new code
 async function create(req, res) {
   try {
-    const { code, type, value, minOrderCents, usageLimit, expiresAt } = req.body;
+    const { code, type, value, minOrderCents, usageLimit, perUserLimit, expiresAt } = req.body;
     if (!code || !type || !value) {
       return res.status(400).json({ error: 'code, type, and value are required' });
     }
@@ -29,7 +29,7 @@ async function create(req, res) {
     if (type === 'percentage' && (value < 1 || value > 100)) {
       return res.status(400).json({ error: 'Percentage value must be between 1 and 100' });
     }
-    const discountCode = await createDiscountCode({ code, type, value, minOrderCents, usageLimit, expiresAt });
+    const discountCode = await createDiscountCode({ code, type, value, minOrderCents, usageLimit, perUserLimit, expiresAt });
     res.status(201).json(discountCode);
   } catch (err) {
     req.log.error(err);
