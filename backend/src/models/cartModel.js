@@ -2,18 +2,52 @@
 const { query } = require('../config/db');
 
 // Get or create an active cart for a user
-async function getOrCreateCart(userId) {
+async function getOrCreateCart({ userId, guestToken }) {
+  if (userId) {
+    const existing = await query(
+      `SELECT * FROM carts WHERE user_id = $1 AND status = 'active'`,
+      [userId]
+    );
+    if (existing.rows[0]) return existing.rows[0];
+
+    const created = await query(
+      `INSERT INTO carts (user_id, status) VALUES ($1, 'active') RETURNING *`,
+      [userId]
+    );
+    return created.rows[0];
+  }
+
+  // Guest path
   const existing = await query(
-    `SELECT * FROM carts WHERE user_id = $1 AND status = 'active'`,
-    [userId]
+    `SELECT * FROM carts WHERE guest_token = $1 AND status = 'active'`,
+    [guestToken]
   );
   if (existing.rows[0]) return existing.rows[0];
 
   const created = await query(
-    `INSERT INTO carts (user_id, status) VALUES ($1, 'active') RETURNING *`,
-    [userId]
+    `INSERT INTO carts (guest_token, status) VALUES ($1, 'active') RETURNING *`,
+    [guestToken]
   );
   return created.rows[0];
+}
+
+// New: merge a guest cart's items into a user's cart on login
+async function mergeGuestCartIntoUserCart(guestToken, userId) {
+  const guestCart = await query(
+    `SELECT * FROM carts WHERE guest_token = $1 AND status = 'active'`,
+    [guestToken]
+  );
+  if (!guestCart.rows[0]) return;
+
+  const userCart = await getOrCreateCart({ userId });
+
+  const guestItems = await query(`SELECT * FROM cart_items WHERE cart_id = $1`, [guestCart.rows[0].id]);
+  for (const item of guestItems.rows) {
+    await addItem(userCart.id, item.variant_id, item.quantity);
+  }
+
+  await query(`DELETE FROM cart_items WHERE cart_id = $1`, [guestCart.rows[0].id]);
+  await query(`UPDATE carts SET status = 'converted' WHERE id = $1`, [guestCart.rows[0].id]);
 }
 
 async function addItem(cartId, variantId, quantity) {
@@ -55,4 +89,6 @@ async function getCartWithItems(cartId) {
   return result.rows;
 }
 
-module.exports = { getOrCreateCart, addItem, updateItemQuantity, getCartWithItems };
+
+
+module.exports = { getOrCreateCart, addItem, updateItemQuantity, getCartWithItems, mergeGuestCartIntoUserCart };
