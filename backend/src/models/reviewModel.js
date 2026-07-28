@@ -73,6 +73,24 @@ async function deleteReview(productId, userId) {
   return result.rows.length > 0;
 }
 
+async function getAllReviews({ limit = 50, offset = 0 }) {
+  const result = await query(
+    `SELECT r.id, r.product_id, r.user_id, r.rating, r.comment, r.created_at,
+            p.name AS product_name
+     FROM reviews r
+     JOIN products p ON p.id = r.product_id
+     ORDER BY r.created_at DESC
+     LIMIT $1 OFFSET $2`,
+    [limit, offset]
+  );
+  return result.rows;
+}
+
+async function adminDeleteReview(reviewId) {
+  const result = await query(`DELETE FROM reviews WHERE id = $1 RETURNING id`, [reviewId]);
+  return result.rows.length > 0;
+}
+
 module.exports = {
   createReview,
   getReviewsForProduct,
@@ -80,4 +98,6 @@ module.exports = {
   updateReview,
   deleteReview,
   maskEmail,
+  getAllReviews,
+  adminDeleteReview,
 };

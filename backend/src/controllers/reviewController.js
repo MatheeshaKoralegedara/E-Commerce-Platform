@@ -5,6 +5,8 @@ const {
   getReviewSummary,
   updateReview,
   deleteReview,
+  getAllReviews,
+  adminDeleteReview
 } = require('../models/reviewModel');
 const { query } = require('../config/db');
 
@@ -95,4 +97,27 @@ async function remove(req, res) {
   }
 }
 
-module.exports = { listForProduct, create, update, remove };
+async function adminList(req, res) {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 50, 100);
+    const offset = parseInt(req.query.offset) || 0;
+    const reviews = await getAllReviews({ limit, offset });
+    res.json(reviews);
+  } catch (err) {
+    req.log.error({ err }, 'Failed to fetch all reviews');
+    res.status(500).json({ error: 'Failed to fetch reviews' });
+  }
+}
+
+async function adminRemove(req, res) {
+  try {
+    const { reviewId } = req.params;
+    const deleted = await adminDeleteReview(reviewId);
+    if (!deleted) return res.status(404).json({ error: 'Review not found' });
+    res.status(204).send();
+  } catch (err) {
+    req.log.error({ err }, 'Failed to delete review as admin');
+    res.status(500).json({ error: 'Failed to delete review' });
+  }
+}
+module.exports = { listForProduct, create, update, remove, adminList, adminRemove };
