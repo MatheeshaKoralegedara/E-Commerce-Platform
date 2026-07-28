@@ -1,9 +1,16 @@
 // frontend/src/lib/api.js
+import { getGuestToken } from './guestToken';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 async function apiRequest(path, { method = 'GET', body, token } = {}) {
   const headers = { 'Content-Type': 'application/json' };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  } else if (path.startsWith('/cart')) {
+    // Only attach a guest token for cart endpoints, which support anonymous use
+    headers['X-Guest-Token'] = getGuestToken();
+  }
 
   let res;
   try {
@@ -13,8 +20,6 @@ async function apiRequest(path, { method = 'GET', body, token } = {}) {
       body: body ? JSON.stringify(body) : undefined,
     });
   } catch (networkErr) {
-    // fetch throws (not resolves) when the network itself fails —
-    // e.g. backend is down, no internet connection, CORS block
     throw new Error('Unable to reach the server. Please check your connection and try again.');
   }
 
