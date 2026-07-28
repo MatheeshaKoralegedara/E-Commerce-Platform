@@ -43,9 +43,7 @@ export default function Navbar() {
           {loading ? null : user ? (
             <>
               {user.role === 'admin' && (
-                <Link href="/admin/products" className="text-[var(--color-clay)] font-medium hover:opacity-80">
-                  Admin
-                </Link>
+                <Link href="/admin" className="text-sm font-medium text-[var(--color-clay)]">Admin</Link>
               )}
               <Link href="/orders" className="hover:text-[var(--color-pine)] transition-colors">Orders</Link>
               <span className="text-[var(--color-muted)] hidden sm:inline">{user.email}</span>

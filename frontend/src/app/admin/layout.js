@@ -10,6 +10,7 @@ export default function AdminLayout({ children }) {
         <h1 className="font-display text-3xl mb-6">Dashboard</h1>
         <nav className="flex gap-1 mb-8 border-b border-[var(--color-line)]">
           {[
+            ['Overview', '/admin'],
             ['Products', '/admin/products'],
             ['Orders', '/admin/orders'],
             ['Discount Codes', '/admin/discounts'],
