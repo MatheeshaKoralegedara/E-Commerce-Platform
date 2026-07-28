@@ -73,16 +73,16 @@ async function createOrderFromCart(userId, cartId, discountCodeStr = null) {
     }
 
     // Increment usage count for the discount code, still inside the same transaction
-    if (discountCodeId) {
-      await client.query(
-        `UPDATE discount_codes SET times_used = times_used + 1 WHERE id = $1`,
-        [discountCodeId]
-      );
-      await client.query(
-        'INSERT INTO discount_code_usage (discount_code_id, order_id) VALUES ($1, $2, $3)',
-        [discountCodeId, userId, order.id]
-      );
-    }
+   if (discountCodeId) {
+  await client.query(
+    `UPDATE discount_codes SET times_used = times_used + 1 WHERE id = $1`,
+    [discountCodeId]
+  );
+  await client.query(
+    `INSERT INTO discount_code_usage (discount_code_id, user_id, order_id) VALUES ($1, $2, $3)`,
+    [discountCodeId, userId, order.id]
+  );
+}
 
     await client.query(`DELETE FROM cart_items WHERE cart_id = $1`, [cartId]);
     await client.query(`UPDATE carts SET status = 'converted' WHERE id = $1`, [cartId]);
