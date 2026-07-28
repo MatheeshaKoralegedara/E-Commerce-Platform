@@ -153,6 +153,13 @@ async function deleteVariant(variantId) {
   await query('DELETE FROM product_variants WHERE id = $1', [variantId]);
 }
 
+async function bulkUpdateStatus(productIds, status) {
+  const result = await query(
+    'UPDATE products SET status = $1 WHERE id = ANY($2::int[]) RETURNING *',
+    [status, productIds]
+  );
+  return result.rows;
+}
 
 module.exports = {
   createProduct,
@@ -164,4 +171,5 @@ module.exports = {
   searchProducts,
   updateProduct,
   deleteVariant,
+  bulkUpdateStatus,
 };

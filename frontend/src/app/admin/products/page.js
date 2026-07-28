@@ -14,6 +14,7 @@ export default function AdminProductsPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [expandedId, setExpandedId] = useState(null);
   const [editingId, setEditingId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState(new Set());
 
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
@@ -81,6 +82,47 @@ export default function AdminProductsPage() {
     }
   }
 
+  function toggleSelect(productId) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(productId)) {
+        next.delete(productId);
+      } else {
+        next.add(productId);
+      }
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (products.length > 0 && selectedIds.size === products.length) {
+      setSelectedIds(new Set());
+      return;
+    }
+
+    setSelectedIds(new Set(products.map((product) => product.id)));
+  }
+
+  async function handleBulkStatus(status) {
+    if (selectedIds.size === 0) return;
+
+    try {
+      await Promise.all(
+        Array.from(selectedIds).map((productId) =>
+          apiRequest(`/products/${productId}/status`, {
+            method: 'PATCH',
+            body: { status },
+            token,
+          })
+        )
+      );
+      setSelectedIds(new Set());
+      loadData();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   if (loading) return <p className="text-[var(--color-muted)] text-sm">Loading products…</p>;
 
   return (
@@ -139,11 +181,41 @@ export default function AdminProductsPage() {
         </button>
       </form>
 
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 mb-4 p-3 bg-[var(--color-pine)]/5 border border-[var(--color-pine)]/20 rounded-md">
+          <span className="text-sm font-medium">{selectedIds.size} selected</span>
+          <button onClick={() => handleBulkStatus('active')} className="btn-secondary rounded-md px-3 py-1.5 text-xs">
+            Publish
+          </button>
+          <button onClick={() => handleBulkStatus('draft')} className="btn-secondary rounded-md px-3 py-1.5 text-xs">
+            Unpublish
+          </button>
+          <button onClick={() => setSelectedIds(new Set())} className="text-xs text-[var(--color-muted)] underline underline-offset-2 ml-auto">
+            Clear selection
+          </button>
+        </div>
+      )}
+
+      <div className="flex items-center gap-2 mb-2 px-1">
+        <input
+          type="checkbox"
+          checked={products.length > 0 && selectedIds.size === products.length}
+          onChange={toggleSelectAll}
+        />
+        <span className="text-xs text-[var(--color-muted)]">Select all</span>
+      </div>
+
       <div className="space-y-2">
         {products.map((product) => (
           <div key={product.id} className="border border-[var(--color-line)] rounded-md">
             <div className="flex justify-between items-center p-4">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(product.id)}
+                  onChange={() => toggleSelect(product.id)}
+                  className="rounded border-[var(--color-line)]"
+                />
                 <button
                   onClick={() => setExpandedId(expandedId === product.id ? null : product.id)}
                   className="text-xs text-[var(--color-pine)] underline underline-offset-2"
