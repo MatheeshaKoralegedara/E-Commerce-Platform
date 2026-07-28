@@ -34,7 +34,7 @@ async function createOrderFromCart(userId, cartId, discountCodeStr = null) {
     let discountCents = 0;
     let discountCodeId = null;
     if (discountCodeStr) {
-      const validation = await validateDiscountCode(discountCodeStr, subtotalCents);
+      const validation = await validateDiscountCode(discountCodeStr, subtotalCents, userId);
       if (!validation.valid) {
         throw { status: 400, message: validation.error };
       }
@@ -77,6 +77,10 @@ async function createOrderFromCart(userId, cartId, discountCodeStr = null) {
       await client.query(
         `UPDATE discount_codes SET times_used = times_used + 1 WHERE id = $1`,
         [discountCodeId]
+      );
+      await client.query(
+        'INSERT INTO discount_code_usage (discount_code_id, order_id) VALUES ($1, $2, $3)',
+        [discountCodeId, userId, order.id]
       );
     }
 

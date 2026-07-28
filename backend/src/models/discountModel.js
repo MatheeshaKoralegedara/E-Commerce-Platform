@@ -41,7 +41,22 @@ function calculateDiscount(discountCode, subtotalCents) {
   return Math.min(discountCode.value, subtotalCents);
 }
 
-async function validateDiscountCode(code, subtotalCents) {
+async function getUserUsageCount(discountCodeId, userId) {
+  const result = await query(
+    `SELECT COUNT(*) AS count FROM discount_code_usage WHERE discount_code_id = $1 AND user_id = $2`,
+    [discountCodeId, userId]
+  );
+  return parseInt(result.rows[0].count);
+}
+
+async function recordUsage(discountCodeId, userId, orderId) {
+  await query(
+    `INSERT INTO discount_code_usage (discount_code_id, user_id, order_id) VALUES ($1, $2, $3)`,
+    [discountCodeId, userId, orderId]
+  );
+}
+
+async function validateDiscountCode(code, subtotalCents, userId = null) {
   const discountCode = await getActiveCodeByCode(code);
 
   if (!discountCode) {
@@ -59,9 +74,26 @@ async function validateDiscountCode(code, subtotalCents) {
       error: `Minimum order of $${(discountCode.min_order_cents / 100).toFixed(2)} required for this code`,
     };
   }
+  if (userId && discountCode.per_user_limit !== null) {
+    const userUsage = await getUserUsageCount(discountCode.id, userId);
+    if (userUsage >= discountCode.per_user_limit) {
+      return { valid: false, error: 'You have already used this discount code the maximum number of times' };
+    }
+  }
 
   const discountCents = calculateDiscount(discountCode, subtotalCents);
   return { valid: true, discountCode, discountCents };
+}
+
+async function updateDiscountCode(id, { type, value, minOrderCents, usageLimit, expiresAt, active }) {
+  const result = await query(
+    `UPDATE discount_codes
+     SET type = $1, value = $2, min_order_cents = $3, usage_limit = $4, expires_at = $5, active = $6
+     WHERE id = $7
+     RETURNING *`,
+    [type, value, minOrderCents || 0, usageLimit || null, expiresAt || null, active, id]
+  );
+  return result.rows[0];
 }
 
 module.exports = {
@@ -70,6 +102,7 @@ module.exports = {
   listAllCodes,
   deactivateCode,
   validateDiscountCode,
+  updateDiscountCode,
 };
 
 
