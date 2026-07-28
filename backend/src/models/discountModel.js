@@ -1,12 +1,12 @@
 
 const { query } = require('../config/db');
 
-async function createDiscountCode({ code, type, value, minOrderCents, usageLimit, expiresAt }) {
+async function createDiscountCode({ code, type, value, minOrderCents, usageLimit, perUserLimit, expiresAt }) {
   const result = await query(
-    `INSERT INTO discount_codes (code, type, value, min_order_cents, usage_limit, expires_at)
-     VALUES ($1, $2, $3, $4, $5, $6)
+    `INSERT INTO discount_codes (code, type, value, min_order_cents, usage_limit, per_user_limit, expires_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING *`,
-    [code.toUpperCase(), type, value, minOrderCents || 0, usageLimit || null, expiresAt || null]
+    [code.toUpperCase(), type, value, minOrderCents || 0, usageLimit || null, perUserLimit || null, expiresAt || null]
   );
   return result.rows[0];
 }
