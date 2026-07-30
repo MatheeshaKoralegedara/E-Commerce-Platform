@@ -21,7 +21,8 @@ async function addVariant({ productId, sku, priceCents, attributes, stockQty }) 
   return result.rows[0];
 }
 
-async function listActiveProducts({ limit = 20, offset = 0, categorySlug = null }) {
+
+async function listActiveProducts({ limit = 20, offset = 0, categorySlug = null, sort = 'newest' }) {
   const params = [];
   let categoryJoin = '';
   let categoryWhere = '';
@@ -31,6 +32,14 @@ async function listActiveProducts({ limit = 20, offset = 0, categorySlug = null 
     categoryJoin = `JOIN categories c ON c.id = p.category_id`;
     categoryWhere = `AND c.slug = $${params.length}`;
   }
+
+  const sortMap = {
+    newest: 'p.created_at DESC',
+    price_asc: 'MIN(v.price_cents) ASC',
+    price_desc: 'MIN(v.price_cents) DESC',
+    name_asc: 'p.name ASC',
+  };
+  const orderBy = sortMap[sort] || sortMap.newest;
 
   params.push(limit, offset);
 
@@ -46,17 +55,22 @@ async function listActiveProducts({ limit = 20, offset = 0, categorySlug = null 
                   'stock_qty', v.stock_qty
                 )
               ) FILTER (WHERE v.id IS NOT NULL), '[]'
-            ) AS variants
+            ) AS variants,
+            COUNT(*) OVER() AS total_count
      FROM products p
      LEFT JOIN product_variants v ON v.product_id = p.id
      ${categoryJoin}
      WHERE p.status = 'active' ${categoryWhere}
      GROUP BY p.id
-     ORDER BY p.created_at DESC
+     ORDER BY ${orderBy}
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params
   );
-  return result.rows;
+
+  const total = result.rows.length > 0 ? parseInt(result.rows[0].total_count) : 0;
+  const products = result.rows.map(({ total_count, ...rest }) => rest);
+
+  return { products, total };
 }
 
 async function getProductBySlug(slug) {
