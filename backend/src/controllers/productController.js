@@ -12,7 +12,7 @@ const {
 } = require('../models/productModel');
 
 const { logActionSafe } = require('../models/auditLogModel');
-const { getRelatedProducts } = require('../model/productModel');
+const { getRelatedProducts } = require('../models/productModel');
 
 // Admin: create a new product (starts as 'draft')
 async function create(req, res) {
