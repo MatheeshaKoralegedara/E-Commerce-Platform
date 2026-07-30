@@ -12,6 +12,7 @@ const {
 } = require('../models/productModel');
 
 const { logActionSafe } = require('../models/auditLogModel');
+const { getRelatedProducts } = require('../model/productModel');
 
 // Admin: create a new product (starts as 'draft')
 async function create(req, res) {
@@ -230,6 +231,18 @@ async function bulkSetStatus(req, res) {
   }
 }
 
+async function getBySlug(req, res) {
+  try {
+    const product = await getProductBySlug(req.params.slug);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+
+    const related = await getRelatedProducts(product.id, product.category_id, 4);
+    res.json({ ...product, related });
+  } catch (err) {
+    req.log.error({ err }, 'Failed to get product');
+    res.status(500).json({ error: 'Failed to get product' });
+  }
+}
 
 
-module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search, updateImage, update, removeVariant, bulkSetStatus };
+module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search, updateImage, update, removeVariant, bulkSetStatus, getBySlug };
