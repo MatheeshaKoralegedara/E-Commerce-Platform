@@ -11,6 +11,8 @@ const {
   deleteVariant,
 } = require('../models/productModel');
 
+const { logActionSafe } = require('../models/auditLogModel');
+
 // Admin: create a new product (starts as 'draft')
 async function create(req, res) {
   try {
@@ -65,9 +67,18 @@ async function setStatus(req, res) {
       return res.status(400).json({ error: 'Invalid status' });
     }
     const product = await updateProductStatus(productId, status);
+
+    logActionSafe({
+      adminUserId: req.user.userId,
+      action: 'product.status_changed',
+      entityType: 'product',
+      entityId: parseInt(productId),
+      details: { newStatus: status, productName: product.name },
+    });
+
     res.json(product);
   } catch (err) {
-    req.log.error(err);
+    req.log.error({ err }, 'Failed to update status');
     res.status(500).json({ error: 'Failed to update status' });
   }
 }
@@ -217,5 +228,7 @@ async function bulkSetStatus(req, res) {
     res.status(500).json({ error: 'Bulk status update failed' });
   }
 }
+
+
 
 module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search, updateImage, update, removeVariant, bulkSetStatus };
