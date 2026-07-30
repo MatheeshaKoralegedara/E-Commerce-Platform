@@ -26,6 +26,8 @@ export default function AdminProductsPage() {
   const [categoryId, setCategoryId] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [creating, setCreating] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (token) loadData();
@@ -46,6 +48,36 @@ export default function AdminProductsPage() {
       setLoading(false);
     }
   }
+
+  async function uploadProductImage(file, token) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` }, // no Content-Type — browser sets multipart boundary automatically
+    body: formData,
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Upload failed');
+  return data.imageUrl;
+}
+
+async function handleImageFileChange(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  setUploading(true);
+  setError('');
+  try {
+    const uploadedUrl = await uploadProductImage(file, token);
+    setImageUrl(uploadedUrl); // reuses your existing imageUrl state — the URL field auto-fills
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setUploading(false);
+  }
+}
 
   async function handleCreate(e) {
     e.preventDefault();
@@ -145,6 +177,17 @@ export default function AdminProductsPage() {
         </div>
         <Textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
         <Input type="text" placeholder="Image URL (optional)" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+        <div>
+          <label className="text-xs text-[var(--color-muted)] block mb-1">Or upload an image</label>
+              <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleImageFileChange}
+                  disabled={uploading}
+                  className="text-sm"
+              />
+          {uploading && <p className="text-xs text-[var(--color-muted)] mt-1">Uploading…</p>}
+        </div>
         <Select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
           <option value="">No category</option>
           {categories.map((cat) => (
