@@ -17,7 +17,11 @@ export default function AdminGuard({ children }) {
   }, [user, loading]);
 
   if (loading || !user || user.role !== 'admin') {
-    return <main className="max-w-3xl mx-auto px-4 py-8">Checking access...</main>;
+    return (
+      <main className="max-w-3xl mx-auto px-6 py-24 text-center text-[var(--color-muted)] text-sm">
+        Checking access…
+      </main>
+    );
   }
 
   return children;

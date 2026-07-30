@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { Input } from '@/components/ui/Field';
+import Button from '@/components/ui/Button';
+import Alert from '@/components/ui/Alert';
 
 export default function AdminCategoriesPage() {
   const { token } = useAuth();
@@ -68,60 +71,44 @@ export default function AdminCategoriesPage() {
     <div>
       <h2 className="font-display text-2xl mb-6">Categories</h2>
 
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
-      {successMessage && <p className="text-[var(--color-pine)] text-sm mb-4">{successMessage}</p>}
+      {error && <Alert className="mb-4">{error}</Alert>}
+      {successMessage && <Alert tone="success" className="mb-4">{successMessage}</Alert>}
 
-      <form onSubmit={handleCreate} className="border border-[var(--color-line)] rounded-md p-5 mb-8 flex gap-3 items-end">
-        <div>
-          <label className="text-xs text-[var(--color-muted)] block mb-1">Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)]"
-            required
-          />
-        </div>
-        <div>
-          <label className="text-xs text-[var(--color-muted)] block mb-1">Slug</label>
-          <input
-            type="text"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)]"
-            required
-          />
-        </div>
-        <button type="submit" disabled={creating} className="btn-primary rounded-md px-4 py-2 text-sm disabled:opacity-50">
+      <form onSubmit={handleCreate} className="card rounded-lg p-5 mb-8 flex flex-wrap gap-3 items-end">
+        <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+        <Input label="Slug" value={slug} onChange={(e) => setSlug(e.target.value)} required />
+        <Button type="submit" disabled={creating} size="sm">
           {creating ? 'Creating…' : 'Create Category'}
-        </button>
+        </Button>
       </form>
 
       {loading ? (
-        <p className="text-[var(--color-muted)] text-sm">Loading categories…</p>
+        <div className="skeleton h-40 rounded-lg"></div>
       ) : (
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="border-b border-[var(--color-line)] text-left text-[var(--color-muted)] text-xs uppercase tracking-wide">
-              <th className="py-2 font-medium">Name</th>
-              <th className="py-2 font-medium">Slug</th>
-              <th className="py-2 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map((cat) => (
-              <tr key={cat.id} className="border-b border-[var(--color-line)]">
-                <td className="py-3">{cat.name}</td>
-                <td className="py-3 text-[var(--color-muted)]">{cat.slug}</td>
-                <td className="py-3">
-                  <button onClick={() => handleDelete(cat.id)} className="text-red-600 underline underline-offset-2 text-xs">
-                    Delete
-                  </button>
-                </td>
+        <div className="card rounded-lg overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-[var(--color-line)] text-left text-[var(--color-muted)] text-xs uppercase tracking-wide">
+                <th className="py-3 px-4 font-medium">Name</th>
+                <th className="py-3 px-4 font-medium">Slug</th>
+                <th className="py-3 px-4 font-medium">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {categories.map((cat) => (
+                <tr key={cat.id} className="border-b border-[var(--color-line)] last:border-0 hover:bg-[var(--color-canvas)]">
+                  <td className="py-3 px-4">{cat.name}</td>
+                  <td className="py-3 px-4 text-[var(--color-muted)]">{cat.slug}</td>
+                  <td className="py-3 px-4">
+                    <button onClick={() => handleDelete(cat.id)} className="text-[var(--color-danger)] underline underline-offset-2 text-xs">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

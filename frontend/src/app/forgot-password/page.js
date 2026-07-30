@@ -3,6 +3,9 @@
 
 import { useState } from 'react';
 import apiRequest from '@/lib/api';
+import { Input } from '@/components/ui/Field';
+import Button from '@/components/ui/Button';
+import Alert from '@/components/ui/Alert';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -25,6 +28,7 @@ export default function ForgotPasswordPage() {
   if (status === 'done') {
     return (
       <main className="max-w-sm mx-auto px-6 py-20 text-center">
+        <div className="w-14 h-14 mx-auto mb-5 rounded-full bg-[var(--color-pine-light)] flex items-center justify-center text-2xl">✉️</div>
         <p className="font-display text-2xl mb-3">Check your email</p>
         <p className="text-[var(--color-muted)] text-sm">
           If that email is registered, we've sent a password reset link.
@@ -35,22 +39,24 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="max-w-sm mx-auto px-6 py-20">
-      <p className="eyebrow mb-2 text-center">Reset password</p>
-      <h1 className="font-display text-3xl mb-8 text-center">Forgot your password?</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-[var(--color-line)] rounded-md px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-ink)]"
-          required
-        />
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-        <button type="submit" disabled={status === 'loading'} className="btn-primary rounded-md w-full py-2.5 text-sm disabled:opacity-50">
-          {status === 'loading' ? 'Sending…' : 'Send Reset Link'}
-        </button>
-      </form>
+      <div className="card rounded-lg p-8" style={{ boxShadow: 'var(--shadow-md)' }}>
+        <p className="eyebrow mb-2 text-center">Reset password</p>
+        <h1 className="font-display text-3xl mb-8 text-center">Forgot your password?</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            type="email"
+            placeholder="you@example.com"
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          {error && <Alert>{error}</Alert>}
+          <Button type="submit" fullWidth disabled={status === 'loading'}>
+            {status === 'loading' ? 'Sending…' : 'Send Reset Link'}
+          </Button>
+        </form>
+      </div>
     </main>
   );
 }
