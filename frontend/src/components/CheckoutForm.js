@@ -37,13 +37,13 @@ export default function CheckoutForm({ orderId }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <PaymentElement />
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-[var(--color-danger)] text-sm">{error}</p>}
       <button
         type="submit"
         disabled={!stripe || submitting}
-        className="w-full bg-black text-white py-3 rounded font-medium disabled:opacity-50"
+        className="btn btn-primary w-full py-3 rounded-md text-sm"
       >
-        {submitting ? 'Processing...' : 'Pay Now'}
+        {submitting ? 'Processing…' : 'Pay Now'}
       </button>
     </form>
   );

@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { formatPrice } from '@/lib/format';
+import { Input, Select } from '@/components/ui/Field';
+import Button from '@/components/ui/Button';
+import Alert from '@/components/ui/Alert';
+import Badge from '@/components/ui/Badge';
 
 export default function AdminDiscountsPage() {
   const { token } = useAuth();
@@ -49,7 +53,7 @@ export default function AdminDiscountsPage() {
           minOrderCents: minOrderCents ? parseInt(minOrderCents) : 0,
           usageLimit: usageLimit ? parseInt(usageLimit) : null,
           perUserLimit: perUserLimit ? parseInt(perUserLimit) : null,
-},
+        },
         token,
       });
       setSuccessMessage(`Code "${code}" created.`);
@@ -79,118 +83,95 @@ export default function AdminDiscountsPage() {
     <div>
       <h2 className="font-display text-2xl mb-6">Discount Codes</h2>
 
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
-      {successMessage && <p className="text-[var(--color-pine)] text-sm mb-4">{successMessage}</p>}
+      {error && <Alert className="mb-4">{error}</Alert>}
+      {successMessage && <Alert tone="success" className="mb-4">{successMessage}</Alert>}
 
-      <form onSubmit={handleCreate} className="border border-[var(--color-line)] rounded-md p-5 mb-8 space-y-3">
+      <form onSubmit={handleCreate} className="card rounded-lg p-5 mb-8 space-y-3">
         <h3 className="font-medium text-sm">Create new code</h3>
         <div className="grid grid-cols-2 gap-3">
-          <input
+          <Input
             type="text"
             placeholder="Code (e.g. SAVE10)"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
-            className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)]"
             required
           />
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)]"
-          >
+          <Select value={type} onChange={(e) => setType(e.target.value)}>
             <option value="percentage">Percentage off</option>
             <option value="fixed">Fixed amount off (cents)</option>
-          </select>
+          </Select>
         </div>
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label className="text-xs text-[var(--color-muted)] block mb-1">
-              {type === 'percentage' ? 'Percent (1-100)' : 'Cents off'}
-            </label>
-            <input
-              type="number"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm w-full focus:outline-none focus:border-[var(--color-ink)]"
-              required
-            />
-          </div>
-          <div>
-            <label className="text-xs text-[var(--color-muted)] block mb-1">Min order (cents, optional)</label>
-            <input
-              type="number"
-              value={minOrderCents}
-              onChange={(e) => setMinOrderCents(e.target.value)}
-              className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm w-full focus:outline-none focus:border-[var(--color-ink)]"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-[var(--color-muted)] block mb-1">Usage limit (optional)</label>
-            <input
-              type="number"
-              value={usageLimit}
-              onChange={(e) => setUsageLimit(e.target.value)}
-              className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm w-full focus:outline-none focus:border-[var(--color-ink)]"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-[var(--color-muted)] block mb-1">Per-user limit (optional)</label>
-              <input
-                    type="number"
-                    value={perUserLimit}
-                    onChange={(e) => setPerUserLimit(e.target.value)}
-                    className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm w-full focus:outline-none focus:border-[var(--color-ink)]"
-              />
-</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Input
+            type="number"
+            label={type === 'percentage' ? 'Percent (1-100)' : 'Cents off'}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            required
+          />
+          <Input
+            type="number"
+            label="Min order (cents, optional)"
+            value={minOrderCents}
+            onChange={(e) => setMinOrderCents(e.target.value)}
+          />
+          <Input
+            type="number"
+            label="Usage limit (optional)"
+            value={usageLimit}
+            onChange={(e) => setUsageLimit(e.target.value)}
+          />
+          <Input
+            type="number"
+            label="Per-user limit (optional)"
+            value={perUserLimit}
+            onChange={(e) => setPerUserLimit(e.target.value)}
+          />
         </div>
-        <button type="submit" disabled={creating} className="btn-primary rounded-md px-4 py-2 text-sm disabled:opacity-50">
+        <Button type="submit" disabled={creating} size="sm">
           {creating ? 'Creating…' : 'Create Code'}
-        </button>
+        </Button>
       </form>
 
       {loading ? (
-        <p className="text-[var(--color-muted)] text-sm">Loading codes…</p>
+        <div className="skeleton h-48 rounded-lg"></div>
       ) : (
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="border-b border-[var(--color-line)] text-left text-[var(--color-muted)] text-xs uppercase tracking-wide">
-              <th className="py-2 font-medium">Code</th>
-              <th className="py-2 font-medium">Type</th>
-              <th className="py-2 font-medium">Value</th>
-              <th className="py-2 font-medium">Used</th>
-              <th className="py-2 font-medium">Status</th>
-              <th className="py-2 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {codes.map((c) => (
-              <tr key={c.id} className="border-b border-[var(--color-line)]">
-                <td className="py-3 font-mono text-xs">{c.code}</td>
-                <td className="py-3">{c.type}</td>
-                <td className="py-3">
-                  {c.type === 'percentage' ? `${c.value}%` : formatPrice(c.value)}
-                </td>
-                <td className="py-3">{c.times_used}{c.usage_limit ? ` / ${c.usage_limit}` : ''}</td>
-                <td className="py-3">
-                  <span className={`px-2 py-0.5 rounded-full text-xs ${
-                    c.active
-                      ? 'bg-[var(--color-pine)]/10 text-[var(--color-pine)]'
-                      : 'bg-[var(--color-line)]/60 text-[var(--color-muted)]'
-                  }`}>
-                    {c.active ? 'active' : 'inactive'}
-                  </span>
-                </td>
-                <td className="py-3">
-                  {c.active && (
-                    <button onClick={() => handleDeactivate(c.id)} className="text-red-600 underline underline-offset-2 text-xs">
-                      Deactivate
-                    </button>
-                  )}
-                </td>
+        <div className="card rounded-lg overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-[var(--color-line)] text-left text-[var(--color-muted)] text-xs uppercase tracking-wide">
+                <th className="py-3 px-4 font-medium">Code</th>
+                <th className="py-3 px-4 font-medium">Type</th>
+                <th className="py-3 px-4 font-medium">Value</th>
+                <th className="py-3 px-4 font-medium">Used</th>
+                <th className="py-3 px-4 font-medium">Status</th>
+                <th className="py-3 px-4 font-medium">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {codes.map((c) => (
+                <tr key={c.id} className="border-b border-[var(--color-line)] last:border-0 hover:bg-[var(--color-canvas)]">
+                  <td className="py-3 px-4 font-mono text-xs">{c.code}</td>
+                  <td className="py-3 px-4">{c.type}</td>
+                  <td className="py-3 px-4">
+                    {c.type === 'percentage' ? `${c.value}%` : formatPrice(c.value)}
+                  </td>
+                  <td className="py-3 px-4">{c.times_used}{c.usage_limit ? ` / ${c.usage_limit}` : ''}</td>
+                  <td className="py-3 px-4">
+                    <Badge tone={c.active ? 'pine' : 'neutral'}>{c.active ? 'active' : 'inactive'}</Badge>
+                  </td>
+                  <td className="py-3 px-4">
+                    {c.active && (
+                      <button onClick={() => handleDeactivate(c.id)} className="text-[var(--color-danger)] underline underline-offset-2 text-xs">
+                        Deactivate
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

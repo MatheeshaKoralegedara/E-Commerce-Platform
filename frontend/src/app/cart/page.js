@@ -7,6 +7,9 @@ import { useRouter } from 'next/navigation';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { formatPrice } from '@/lib/format';
+import Button from '@/components/ui/Button';
+import Alert from '@/components/ui/Alert';
+import EmptyState from '@/components/ui/EmptyState';
 
 export default function CartPage() {
   const { token, user, loading: authLoading } = useAuth();
@@ -17,7 +20,7 @@ export default function CartPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    
+
     loadCart();
   }, [authLoading]);
 
@@ -60,43 +63,41 @@ export default function CartPage() {
   }
 
   if (authLoading || loading) {
-    return <main className="max-w-3xl mx-auto px-6 py-16 text-center text-[var(--color-muted)]">Loading cart…</main>;
-  }
-
-  if (!cart || cart.items.length === 0) {
     return (
-      <main className="max-w-3xl mx-auto px-6 py-16 text-center">
-        <p className="font-display text-2xl mb-2">Your cart is empty</p>
-        <p className="text-[var(--color-muted)] mb-6">Nothing here yet — go find something you like.</p>
-        <Link href="/" className="btn-primary rounded-full px-5 py-2 text-sm inline-block">Continue shopping</Link>
+      <main className="max-w-3xl mx-auto px-6 py-16">
+        <div className="animate-pulse space-y-4">
+          <div className="skeleton h-8 w-40 rounded"></div>
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="skeleton h-20 rounded-lg"></div>
+          ))}
+        </div>
       </main>
     );
   }
 
-  async function removeItem(variantId) {
-  try {
-    await apiRequest('/cart/items', {
-      method: 'PATCH',
-      body: { variantId, quantity: 0 },
-      token,
-    });
-    loadCart();
-  } catch (err) {
-    setError(err.message);
+  if (!cart || cart.items.length === 0) {
+    return (
+      <main className="max-w-3xl mx-auto px-6 py-16">
+        <EmptyState
+          icon="🛒"
+          title="Your cart is empty"
+          description="Nothing here yet — go find something you like."
+          action={<Button href="/" shape="full">Continue shopping</Button>}
+        />
+      </main>
+    );
   }
-}
-
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
       <p className="eyebrow mb-2">Your Cart</p>
       <h1 className="font-display text-3xl mb-8">{cart.items.length} item{cart.items.length !== 1 ? 's' : ''}</h1>
 
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+      {error && <Alert className="mb-4">{error}</Alert>}
 
       <div className="divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
         {cart.items.map((item) => (
-          <div key={item.variant_id} className="py-5 flex justify-between items-center">
+          <div key={item.variant_id} className="py-5 flex flex-wrap gap-4 justify-between items-center">
             <div>
               <p className="font-medium">{item.product_name}</p>
               <p className="text-sm text-[var(--color-muted)] mt-0.5">
@@ -110,7 +111,8 @@ export default function CartPage() {
                 <div className="flex items-center border border-[var(--color-line)] rounded-full">
                   <button
                     onClick={() => updateQuantity(item.variant_id, item.quantity - 1)}
-                    className="w-8 h-8 flex items-center justify-center hover:bg-[var(--color-line)]/40 rounded-full transition-colors"
+                    className="w-8 h-8 flex items-center justify-center hover:bg-[var(--color-pine-light)] rounded-full transition-colors"
+                    aria-label="Decrease quantity"
                   >
                     −
                   </button>
@@ -118,7 +120,8 @@ export default function CartPage() {
                   <button
                     onClick={() => updateQuantity(item.variant_id, item.quantity + 1)}
                     disabled={item.quantity >= item.stock_qty}
-                    className="w-8 h-8 flex items-center justify-center hover:bg-[var(--color-line)]/40 rounded-full transition-colors disabled:opacity-30"
+                    className="w-8 h-8 flex items-center justify-center hover:bg-[var(--color-pine-light)] rounded-full transition-colors disabled:opacity-30"
+                    aria-label="Increase quantity"
                   >
                     +
                   </button>
@@ -126,7 +129,7 @@ export default function CartPage() {
 
                 <button
                   onClick={() => removeItem(item.variant_id)}
-                  className="text-xs text-red-600 underline underline-offset-2"
+                  className="text-xs text-[var(--color-danger)] underline underline-offset-2"
                   aria-label={`Remove ${item.product_name} from cart`}
                 >
                   Remove
@@ -141,13 +144,13 @@ export default function CartPage() {
         ))}
       </div>
 
-      <div className="mt-8 flex justify-between items-center">
+      <div className="mt-8 flex flex-wrap gap-4 justify-between items-center">
         <p className="text-lg">
           Subtotal: <span className="font-display text-xl ml-1">{formatPrice(cart.subtotalCents)}</span>
         </p>
-        <Link href="/checkout" className="btn-primary rounded-full px-6 py-3 text-sm">
+        <Button href="/checkout" shape="full" size="lg">
           Proceed to Checkout
-        </Link>
+        </Button>
       </div>
     </main>
   );

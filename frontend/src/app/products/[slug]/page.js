@@ -1,6 +1,7 @@
 
 import AddToCartButton from '@/components/AddToCartButton';
 import ReviewForm from '@/components/ReviewForm';
+import StarRating from '@/components/ui/StarRating';
 import { formatPrice } from '@/lib/format';
 
 async function getProduct(slug) {
@@ -25,8 +26,9 @@ export default async function ProductPage({ params }) {
 
   if (!product) {
     return (
-      <main className="max-w-3xl mx-auto px-6 py-16 text-center">
-        <p className="text-[var(--color-muted)]">Product not found.</p>
+      <main className="max-w-3xl mx-auto px-6 py-24 text-center">
+        <p className="font-display text-2xl mb-2">Product not found</p>
+        <p className="text-[var(--color-muted)]">It may have been removed or is no longer available.</p>
       </main>
     );
   }
@@ -36,7 +38,7 @@ export default async function ProductPage({ params }) {
   return (
     <main className="max-w-5xl mx-auto px-6 py-12">
       <div className="grid md:grid-cols-2 gap-12">
-        <div className="aspect-square bg-[var(--color-line)]/40 rounded-md overflow-hidden">
+        <div className="aspect-square bg-[var(--color-pine-light)] rounded-lg overflow-hidden">
           {product.image_url ? (
             <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
           ) : (
@@ -47,14 +49,15 @@ export default async function ProductPage({ params }) {
         </div>
 
         <div>
-          <h1 className="font-display text-3xl">{product.name}</h1>
+          <h1 className="font-display text-3xl md:text-4xl leading-tight">{product.name}</h1>
 
           {reviewData.reviewCount > 0 && (
-            <p className="text-sm text-[var(--color-muted)] mt-2">
-              <span className="text-[var(--color-clay)]">★</span> {reviewData.averageRating}
-              <span className="mx-1">·</span>
-              {reviewData.reviewCount} review{reviewData.reviewCount !== 1 ? 's' : ''}
-            </p>
+            <div className="flex items-center gap-2 mt-3">
+              <StarRating rating={Number(reviewData.averageRating)} />
+              <span className="text-sm text-[var(--color-muted)]">
+                {reviewData.averageRating} · {reviewData.reviewCount} review{reviewData.reviewCount !== 1 ? 's' : ''}
+              </span>
+            </div>
           )}
 
           <p className="text-[var(--color-muted)] mt-4 leading-relaxed">{product.description}</p>
@@ -63,7 +66,7 @@ export default async function ProductPage({ params }) {
             {product.variants.map((variant) => (
               <div
                 key={variant.id}
-                className="border border-[var(--color-line)] rounded-md p-4 flex justify-between items-center"
+                className="card rounded-lg p-4 flex justify-between items-center"
               >
                 <div>
                   <p className="font-medium text-sm">
@@ -72,7 +75,11 @@ export default async function ProductPage({ params }) {
                       .join(', ') || variant.sku}
                   </p>
                   <p className="text-xs text-[var(--color-muted)] mt-0.5">
-                    {variant.stock_qty > 0 ? `${variant.stock_qty} in stock` : 'Out of stock'}
+                    {variant.stock_qty > 0
+                      ? variant.stock_qty <= 5
+                        ? `Only ${variant.stock_qty} left`
+                        : `${variant.stock_qty} in stock`
+                      : 'Out of stock'}
                   </p>
                 </div>
                 <div className="text-right">
@@ -85,22 +92,20 @@ export default async function ProductPage({ params }) {
         </div>
       </div>
 
-      <section className="mt-16 pt-10 border-t border-[var(--color-line)] max-w-2xl">
+      <section className="mt-20 pt-10 border-t border-[var(--color-line)] max-w-2xl">
         <p className="eyebrow mb-2">Reviews</p>
         <h2 className="font-display text-2xl mb-6">What people are saying</h2>
 
         <ReviewForm productId={product.id} />
 
         {reviewData.reviews.length === 0 ? (
-          <p className="text-[var(--color-muted)] mt-6 text-sm">No reviews yet.</p>
+          <p className="text-[var(--color-muted)] mt-6 text-sm">No reviews yet — be the first to share your thoughts.</p>
         ) : (
           <div className="mt-8 space-y-5">
             {reviewData.reviews.map((review) => (
               <div key={review.id} className="border-b border-[var(--color-line)] pb-5">
                 <div className="flex items-center gap-2">
-                  <span className="text-[var(--color-clay)] text-sm">
-                    {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
-                  </span>
+                  <StarRating rating={review.rating} />
                   <span className="text-xs text-[var(--color-muted)]">{review.masked_email}</span>
                 </div>
                 {review.comment && <p className="mt-2 text-sm leading-relaxed">{review.comment}</p>}

@@ -2,10 +2,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { formatPrice } from '@/lib/format';
+import Button from '@/components/ui/Button';
+import Alert from '@/components/ui/Alert';
 
 export default function AdminOverviewPage() {
   const { token } = useAuth();
@@ -29,44 +30,67 @@ export default function AdminOverviewPage() {
     }
   }
 
-  if (loading) return <p className="text-[var(--color-muted)] text-sm">Loading dashboard…</p>;
-  if (error) return <p className="text-red-600 text-sm">{error}</p>;
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => <div key={i} className="skeleton h-24 rounded-lg"></div>)}
+        </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="skeleton h-40 rounded-lg"></div>
+          <div className="skeleton h-40 rounded-lg"></div>
+        </div>
+      </div>
+    );
+  }
+  if (error) return <Alert>{error}</Alert>;
   if (!data) return null;
 
   return (
     <div className="space-y-8">
-      {/* Key metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Total Revenue" value={formatPrice(data.totalRevenueCents)} />
-        <MetricCard label="Total Orders" value={data.totalOrders} />
-        <MetricCard label="Revenue (30d)" value={formatPrice(data.revenue30dCents)} />
-        <MetricCard label="Customers" value={data.customerCount} />
+        <MetricCard label="Total Revenue" value={formatPrice(data.totalRevenueCents)} icon="💰" />
+        <MetricCard label="Total Orders" value={data.totalOrders} icon="📦" />
+        <MetricCard label="Revenue (30d)" value={formatPrice(data.revenue30dCents)} icon="📈" />
+        <MetricCard label="Customers" value={data.customerCount} icon="👤" />
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Order status breakdown */}
-        <div className="border border-[var(--color-line)] rounded-md p-5">
+        <div className="card rounded-lg p-5">
           <h3 className="font-medium text-sm mb-4">Orders by Status</h3>
-          <div className="space-y-2">
-            {data.statusBreakdown.map((s) => (
-              <div key={s.status} className="flex justify-between text-sm">
-                <span className="capitalize text-[var(--color-muted)]">{s.status}</span>
-                <span className="font-medium">{s.count}</span>
-              </div>
-            ))}
+          <div className="space-y-3">
+            {data.statusBreakdown.map((s) => {
+              const max = Math.max(...data.statusBreakdown.map((x) => x.count), 1);
+              return (
+                <div key={s.status}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="capitalize text-[var(--color-muted)]">{s.status}</span>
+                    <span className="font-medium">{s.count}</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-[var(--color-line)] overflow-hidden">
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${(s.count / max) * 100}%`, background: 'var(--color-clay)' }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Top products */}
-        <div className="border border-[var(--color-line)] rounded-md p-5">
+        <div className="card rounded-lg p-5">
           <h3 className="font-medium text-sm mb-4">Top Products</h3>
           {data.topProducts.length === 0 ? (
             <p className="text-sm text-[var(--color-muted)]">No sales yet.</p>
           ) : (
-            <div className="space-y-2">
-              {data.topProducts.map((p) => (
-                <div key={p.product_name} className="flex justify-between text-sm">
-                  <span>{p.product_name}</span>
+            <div className="space-y-3">
+              {data.topProducts.map((p, i) => (
+                <div key={p.product_name} className="flex justify-between items-center text-sm">
+                  <span className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-[var(--color-pine-light)] text-[var(--color-pine-dark)] text-xs flex items-center justify-center font-medium">{i + 1}</span>
+                    {p.product_name}
+                  </span>
                   <span className="text-[var(--color-muted)]">{p.units_sold} sold</span>
                 </div>
               ))}
@@ -75,15 +99,16 @@ export default function AdminOverviewPage() {
         </div>
       </div>
 
-      {/* Low stock warning */}
       {data.lowStock.length > 0 && (
-        <div className="border border-orange-200 bg-orange-50 rounded-md p-5">
-          <h3 className="font-medium text-sm mb-4 text-orange-800">⚠ Low Stock</h3>
+        <div className="rounded-lg p-5" style={{ background: 'var(--color-warning-light)', border: '1px solid rgba(184,133,62,0.25)' }}>
+          <h3 className="font-medium text-sm mb-4 flex items-center gap-1.5" style={{ color: 'var(--color-warning)' }}>
+            <span aria-hidden="true">!</span> Low Stock
+          </h3>
           <div className="space-y-2">
             {data.lowStock.map((v) => (
               <div key={v.sku} className="flex justify-between text-sm">
                 <span>{v.product_name} ({v.sku})</span>
-                <span className="text-orange-700 font-medium">{v.stock_qty} left</span>
+                <span className="font-medium" style={{ color: 'var(--color-warning)' }}>{v.stock_qty} left</span>
               </div>
             ))}
           </div>
@@ -91,17 +116,20 @@ export default function AdminOverviewPage() {
       )}
 
       <div className="flex gap-3">
-        <Link href="/admin/products" className="btn-secondary rounded-md px-4 py-2 text-sm">Manage Products</Link>
-        <Link href="/admin/orders" className="btn-secondary rounded-md px-4 py-2 text-sm">Manage Orders</Link>
+        <Button href="/admin/products" variant="secondary">Manage Products</Button>
+        <Button href="/admin/orders" variant="secondary">Manage Orders</Button>
       </div>
     </div>
   );
 }
 
-function MetricCard({ label, value }) {
+function MetricCard({ label, value, icon }) {
   return (
-    <div className="border border-[var(--color-line)] rounded-md p-4">
-      <p className="text-xs text-[var(--color-muted)] uppercase tracking-wide mb-1">{label}</p>
+    <div className="card rounded-lg p-4">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs text-[var(--color-muted)] uppercase tracking-wide">{label}</p>
+        <span className="text-base opacity-70">{icon}</span>
+      </div>
       <p className="font-display text-2xl">{value}</p>
     </div>
   );

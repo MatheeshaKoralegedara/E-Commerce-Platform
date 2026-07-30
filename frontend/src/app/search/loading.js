@@ -1,14 +1,15 @@
 
 export default function Loading() {
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8 animate-pulse">
-      <div className="h-8 bg-gray-200 rounded w-64 mb-6"></div>
+    <main className="max-w-6xl mx-auto px-6 py-12">
+      <div className="skeleton h-4 w-16 rounded mb-2"></div>
+      <div className="skeleton h-9 w-72 rounded mb-8"></div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="border rounded-lg overflow-hidden">
-            <div className="aspect-square bg-gray-200"></div>
+          <div key={i} className="border border-[var(--color-line)] rounded-lg overflow-hidden">
+            <div className="skeleton aspect-square"></div>
             <div className="p-4 space-y-2">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="skeleton h-4 rounded w-3/4"></div>
             </div>
           </div>
         ))}

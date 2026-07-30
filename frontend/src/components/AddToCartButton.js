@@ -31,11 +31,12 @@ export default function AddToCartButton({ variantId, stockQty }) {
       <button
         onClick={handleAddToCart}
         disabled={stockQty === 0 || status === 'loading'}
-        className="btn-primary rounded-full px-5 py-2 text-sm"
+        className={`btn rounded-full px-5 py-2 text-sm ${status === 'added' ? '' : 'btn-primary'}`}
+        style={status === 'added' ? { background: 'var(--color-pine)', color: 'white' } : undefined}
       >
         {status === 'loading' ? 'Adding…' : status === 'added' ? 'Added ✓' : 'Add to Cart'}
       </button>
-      {errorMsg && <p className="text-red-600 text-xs mt-1">{errorMsg}</p>}
+      {errorMsg && <p className="text-[var(--color-danger)] text-xs mt-1">{errorMsg}</p>}
     </div>
   );
 }
