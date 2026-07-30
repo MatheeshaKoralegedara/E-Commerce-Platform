@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { formatPrice } from '@/lib/format';
+import { Input, Textarea, Select } from '@/components/ui/Field';
+import Button from '@/components/ui/Button';
+import Alert from '@/components/ui/Alert';
+import Badge from '@/components/ui/Badge';
 
 export default function AdminProductsPage() {
   const { token } = useAuth();
@@ -27,21 +31,22 @@ export default function AdminProductsPage() {
     if (token) loadData();
   }, [token]);
 
- async function loadData() {
-  setLoading(true);
-  try {
-    const [productsData, categoriesData] = await Promise.all([
-      apiRequest('/products/admin/all', { token }),
-      apiRequest('/categories'),
-    ]);
-    setProducts(productsData);
-    setCategories(categoriesData);
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
+  async function loadData() {
+    setLoading(true);
+    try {
+      const [productsData, categoriesData] = await Promise.all([
+        apiRequest('/products/admin/all', { token }),
+        apiRequest('/categories'),
+      ]);
+      setProducts(productsData);
+      setCategories(categoriesData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
-}
+
   async function handleCreate(e) {
     e.preventDefault();
     setCreating(true);
@@ -123,73 +128,39 @@ export default function AdminProductsPage() {
     }
   }
 
-  if (loading) return <p className="text-[var(--color-muted)] text-sm">Loading products…</p>;
+  if (loading) return <div className="skeleton h-64 rounded-lg"></div>;
 
   return (
     <div>
       <h2 className="font-display text-2xl mb-6">Products</h2>
 
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
-      {successMessage && <p className="text-[var(--color-pine)] text-sm mb-4">{successMessage}</p>}
+      {error && <Alert className="mb-4">{error}</Alert>}
+      {successMessage && <Alert tone="success" className="mb-4">{successMessage}</Alert>}
 
-      <form onSubmit={handleCreate} className="border border-[var(--color-line)] rounded-md p-5 mb-8 space-y-3">
+      <form onSubmit={handleCreate} className="card rounded-lg p-5 mb-8 space-y-3">
         <h3 className="font-medium text-sm">Add new product</h3>
         <div className="grid grid-cols-2 gap-3">
-          <input
-            type="text"
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
-            required
-          />
-          <input
-            type="text"
-            placeholder="Slug (e.g. blue-hoodie)"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
-            required
-          />
+          <Input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+          <Input type="text" placeholder="Slug (e.g. blue-hoodie)" value={slug} onChange={(e) => setSlug(e.target.value)} required />
         </div>
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
-          rows={2}
-        />
-        <input
-          type="text"
-          placeholder="Image URL (optional)"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          className="w-full border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
-        />
-        <select
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-          className="border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
-        >
+        <Textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
+        <Input type="text" placeholder="Image URL (optional)" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+        <Select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
           <option value="">No category</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
-        </select>
-        <button type="submit" disabled={creating} className="btn-primary rounded-md px-4 py-2 text-sm disabled:opacity-50">
+        </Select>
+        <Button type="submit" disabled={creating} size="sm">
           {creating ? 'Creating…' : 'Create Product'}
-        </button>
+        </Button>
       </form>
 
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 mb-4 p-3 bg-[var(--color-pine)]/5 border border-[var(--color-pine)]/20 rounded-md">
+        <div className="flex items-center gap-3 mb-4 p-3 rounded-md" style={{ background: 'var(--color-pine-light)' }}>
           <span className="text-sm font-medium">{selectedIds.size} selected</span>
-          <button onClick={() => handleBulkStatus('active')} className="btn-secondary rounded-md px-3 py-1.5 text-xs">
-            Publish
-          </button>
-          <button onClick={() => handleBulkStatus('draft')} className="btn-secondary rounded-md px-3 py-1.5 text-xs">
-            Unpublish
-          </button>
+          <Button variant="secondary" size="sm" onClick={() => handleBulkStatus('active')}>Publish</Button>
+          <Button variant="secondary" size="sm" onClick={() => handleBulkStatus('draft')}>Unpublish</Button>
           <button onClick={() => setSelectedIds(new Set())} className="text-xs text-[var(--color-muted)] underline underline-offset-2 ml-auto">
             Clear selection
           </button>
@@ -207,8 +178,8 @@ export default function AdminProductsPage() {
 
       <div className="space-y-2">
         {products.map((product) => (
-          <div key={product.id} className="border border-[var(--color-line)] rounded-md">
-            <div className="flex justify-between items-center p-4">
+          <div key={product.id} className="card rounded-lg overflow-hidden">
+            <div className="flex flex-wrap justify-between items-center gap-3 p-4">
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -228,13 +199,7 @@ export default function AdminProductsPage() {
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <span className={`px-2 py-0.5 rounded-full text-xs ${
-                  product.status === 'active'
-                    ? 'bg-[var(--color-pine)]/10 text-[var(--color-pine)]'
-                    : 'bg-[var(--color-line)]/60 text-[var(--color-muted)]'
-                }`}>
-                  {product.status}
-                </span>
+                <Badge tone={product.status === 'active' ? 'pine' : 'neutral'}>{product.status}</Badge>
                 <button onClick={() => toggleStatus(product)} className="text-xs text-[var(--color-pine)] underline underline-offset-2">
                   {product.status === 'active' ? 'Unpublish' : 'Publish'}
                 </button>
@@ -312,62 +277,64 @@ function VariantManager({ product, token, onChange }) {
   return (
     <div className="border-t border-[var(--color-line)] bg-[var(--color-canvas)] p-4">
       {product.variants && product.variants.length > 0 && (
-        <table className="w-full text-xs mb-4">
-          <thead>
-            <tr className="text-left text-[var(--color-muted)] uppercase tracking-wide">
-              <th className="pb-2 font-medium">SKU</th>
-              <th className="pb-2 font-medium">Price</th>
-              <th className="pb-2 font-medium">Stock</th>
-              <th className="pb-2 font-medium">Attributes</th>
-              <th className="pb-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {product.variants.map((v) => (
-              <tr key={v.id} className="border-t border-[var(--color-line)]">
-                <td className="py-2">{v.sku}</td>
-                <td className="py-2">{formatPrice(v.price_cents)}</td>
-                <td className="py-2">{v.stock_qty}</td>
-                <td className="py-2">
-                  {Object.entries(v.attributes || {}).map(([k, val]) => `${k}: ${val}`).join(', ') || '—'}
-                </td>
-                <td className="py-2">
-                  <button onClick={() => handleDeleteVariant(v.id)} className="text-red-600 underline underline-offset-2">
-                    Delete
-                  </button>
-                </td>
+        <div className="overflow-x-auto mb-4">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-left text-[var(--color-muted)] uppercase tracking-wide">
+                <th className="pb-2 font-medium">SKU</th>
+                <th className="pb-2 font-medium">Price</th>
+                <th className="pb-2 font-medium">Stock</th>
+                <th className="pb-2 font-medium">Attributes</th>
+                <th className="pb-2"></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {product.variants.map((v) => (
+                <tr key={v.id} className="border-t border-[var(--color-line)] hover:bg-[var(--color-surface)]">
+                  <td className="py-2">{v.sku}</td>
+                  <td className="py-2">{formatPrice(v.price_cents)}</td>
+                  <td className="py-2">{v.stock_qty}</td>
+                  <td className="py-2">
+                    {Object.entries(v.attributes || {}).map(([k, val]) => `${k}: ${val}`).join(', ') || '—'}
+                  </td>
+                  <td className="py-2">
+                    <button onClick={() => handleDeleteVariant(v.id)} className="text-[var(--color-danger)] underline underline-offset-2">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <form onSubmit={handleAddVariant} className="flex flex-wrap gap-2 items-end">
         <div>
           <label className="text-xs text-[var(--color-muted)] block mb-1">SKU</label>
-          <input value={sku} onChange={(e) => setSku(e.target.value)} className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-xs w-28 focus:outline-none focus:border-[var(--color-ink)]" required />
+          <input value={sku} onChange={(e) => setSku(e.target.value)} className="field-input px-2 py-1.5 text-xs w-28" required />
         </div>
         <div>
           <label className="text-xs text-[var(--color-muted)] block mb-1">Price (cents)</label>
-          <input type="number" value={priceCents} onChange={(e) => setPriceCents(e.target.value)} className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-xs w-24 focus:outline-none focus:border-[var(--color-ink)]" required />
+          <input type="number" value={priceCents} onChange={(e) => setPriceCents(e.target.value)} className="field-input px-2 py-1.5 text-xs w-24" required />
         </div>
         <div>
           <label className="text-xs text-[var(--color-muted)] block mb-1">Stock</label>
-          <input type="number" value={stockQty} onChange={(e) => setStockQty(e.target.value)} className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-xs w-20 focus:outline-none focus:border-[var(--color-ink)]" required />
+          <input type="number" value={stockQty} onChange={(e) => setStockQty(e.target.value)} className="field-input px-2 py-1.5 text-xs w-20" required />
         </div>
         <div>
           <label className="text-xs text-[var(--color-muted)] block mb-1">Attr name</label>
-          <input value={attrKey} onChange={(e) => setAttrKey(e.target.value)} placeholder="color" className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-xs w-20 focus:outline-none focus:border-[var(--color-ink)]" />
+          <input value={attrKey} onChange={(e) => setAttrKey(e.target.value)} placeholder="color" className="field-input px-2 py-1.5 text-xs w-20" />
         </div>
         <div>
           <label className="text-xs text-[var(--color-muted)] block mb-1">Attr value</label>
-          <input value={attrValue} onChange={(e) => setAttrValue(e.target.value)} placeholder="blue" className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-xs w-20 focus:outline-none focus:border-[var(--color-ink)]" />
+          <input value={attrValue} onChange={(e) => setAttrValue(e.target.value)} placeholder="blue" className="field-input px-2 py-1.5 text-xs w-20" />
         </div>
-        <button type="submit" disabled={saving} className="btn-primary rounded-md px-3 py-1.5 text-xs disabled:opacity-50">
+        <Button type="submit" disabled={saving} size="sm">
           {saving ? 'Adding…' : 'Add Variant'}
-        </button>
+        </Button>
       </form>
-      {error && <p className="text-red-600 text-xs mt-2">{error}</p>}
+      {error && <p className="text-[var(--color-danger)] text-xs mt-2">{error}</p>}
     </div>
   );
 }
@@ -401,27 +368,27 @@ function ProductEditForm({ product, categories, token, onChange, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSave} className="border-t border-[var(--color-line)] bg-[var(--color-pine)]/[0.04] p-4 space-y-2">
+    <form onSubmit={handleSave} className="border-t border-[var(--color-line)] p-4 space-y-2" style={{ background: 'var(--color-pine-light)' }}>
       <div className="grid grid-cols-2 gap-2">
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-ink)]" required />
-        <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="Slug" className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-ink)]" required />
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="field-input px-2 py-1.5 text-sm" required />
+        <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="Slug" className="field-input px-2 py-1.5 text-sm" required />
       </div>
-      <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="w-full border border-[var(--color-line)] rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-ink)]" rows={2} />
-      <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="Image URL" className="w-full border border-[var(--color-line)] rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-ink)]" />
-      <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="border border-[var(--color-line)] rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-ink)]">
+      <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="field-input w-full px-2 py-1.5 text-sm" rows={2} />
+      <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="Image URL" className="field-input w-full px-2 py-1.5 text-sm" />
+      <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="field-input px-2 py-1.5 text-sm">
         <option value="">No category</option>
         {categories.map((cat) => (
           <option key={cat.id} value={cat.id}>{cat.name}</option>
         ))}
       </select>
-      {error && <p className="text-red-600 text-xs">{error}</p>}
+      {error && <p className="text-[var(--color-danger)] text-xs">{error}</p>}
       <div className="flex gap-2">
-        <button type="submit" disabled={saving} className="btn-primary rounded-md px-3 py-1.5 text-xs disabled:opacity-50">
+        <Button type="submit" disabled={saving} size="sm">
           {saving ? 'Saving…' : 'Save Changes'}
-        </button>
-        <button type="button" onClick={onCancel} className="btn-secondary rounded-md px-3 py-1.5 text-xs">
+        </Button>
+        <Button type="button" variant="secondary" size="sm" onClick={onCancel}>
           Cancel
-        </button>
+        </Button>
       </div>
     </form>
   );

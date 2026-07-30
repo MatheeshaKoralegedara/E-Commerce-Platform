@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import Alert from '@/components/ui/Alert';
+import EmptyState from '@/components/ui/EmptyState';
 
 const ACTION_LABELS = {
   'product.status_changed': 'Changed product status',
@@ -36,19 +38,19 @@ export default function AuditLogPage() {
     }
   }
 
-  if (loading) return <p className="text-[var(--color-muted)] text-sm">Loading audit log…</p>;
+  if (loading) return <div className="skeleton h-48 rounded-lg"></div>;
 
   return (
     <div>
       <h2 className="font-display text-2xl mb-6">Audit Log</h2>
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+      {error && <Alert className="mb-4">{error}</Alert>}
 
       {logs.length === 0 ? (
-        <p className="text-[var(--color-muted)] text-sm">No admin actions recorded yet.</p>
+        <EmptyState icon="🗒️" title="No activity yet" description="Admin actions will be recorded here." />
       ) : (
-        <div className="space-y-2">
+        <div className="card rounded-lg divide-y divide-[var(--color-line)]">
           {logs.map((log) => (
-            <div key={log.id} className="border-b border-[var(--color-line)] py-3 flex justify-between text-sm">
+            <div key={log.id} className="py-3 px-4 flex justify-between text-sm gap-4">
               <div>
                 <span className="font-medium">{ACTION_LABELS[log.action] || log.action}</span>
                 <span className="text-[var(--color-muted)]"> · {log.entity_type} #{log.entity_id}</span>
@@ -58,7 +60,7 @@ export default function AuditLogPage() {
                   </p>
                 )}
               </div>
-              <div className="text-right text-xs text-[var(--color-muted)]">
+              <div className="text-right text-xs text-[var(--color-muted)] whitespace-nowrap">
                 <p>{log.admin_email}</p>
                 <p>{new Date(log.created_at).toLocaleString()}</p>
               </div>

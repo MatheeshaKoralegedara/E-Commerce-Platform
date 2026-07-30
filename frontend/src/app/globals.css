@@ -3,15 +3,33 @@
 
 :root {
   --color-canvas: #FAFAF8;
+  --color-surface: #FFFFFF;
   --color-ink: #15171A;
   --color-pine: #324A3A;
   --color-pine-dark: #263A2D;
+  --color-pine-light: #EAF0EB;
   --color-clay: #B8763E;
+  --color-clay-dark: #9C6230;
+  --color-clay-light: #F5E7D6;
   --color-line: #E5E2D9;
   --color-muted: #6E6D64;
+  --color-danger: #B34035;
+  --color-danger-light: #FBEAE7;
+  --color-warning: #B8853E;
+  --color-warning-light: #FAF0DE;
 
   --font-display: 'Fraunces', serif;
   --font-body: 'Inter', sans-serif;
+
+  --shadow-sm: 0 1px 2px rgba(21, 23, 26, 0.04);
+  --shadow-md: 0 6px 24px rgba(21, 23, 26, 0.08);
+  --shadow-lg: 0 16px 48px rgba(21, 23, 26, 0.14);
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+}
+
+* {
+  border-color: var(--color-line);
 }
 
 body {
@@ -51,14 +69,36 @@ body {
   background: var(--color-clay);
 }
 
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .btn-primary {
   background: var(--color-ink);
   color: var(--color-canvas);
   font-weight: 500;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 .btn-primary:hover:not(:disabled) {
   background: var(--color-pine-dark);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
 }
 .btn-primary:disabled {
   opacity: 0.4;
@@ -66,23 +106,106 @@ body {
 }
 
 .btn-secondary {
-  background: transparent;
+  background: var(--color-surface);
   color: var(--color-ink);
   border: 1px solid var(--color-line);
   font-weight: 500;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
   border-color: var(--color-ink);
   background: rgba(21, 23, 26, 0.03);
 }
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
 
+.btn-ghost {
+  background: transparent;
+  color: var(--color-muted);
+  font-weight: 500;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.btn-ghost:hover:not(:disabled) {
+  color: var(--color-ink);
+  background: rgba(21, 23, 26, 0.04);
+}
+
+.btn-danger {
+  background: var(--color-danger);
+  color: #fff;
+  font-weight: 500;
+}
+.btn-danger:hover:not(:disabled) {
+  background: #94342A;
+}
+
+/* Cards */
 .card-product {
   border: 1px solid var(--color-line);
-  background: white;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  background: var(--color-surface);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
 }
 .card-product:hover {
   border-color: var(--color-ink);
-  box-shadow: 0 4px 20px rgba(21, 23, 26, 0.06);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+}
+
+/* Inputs */
+.field-input {
+  width: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field-input:focus {
+  outline: none;
+  border-color: var(--color-ink);
+  box-shadow: 0 0 0 3px rgba(21, 23, 26, 0.06);
+}
+.field-input::placeholder {
+  color: #9C9A8F;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  text-transform: capitalize;
+}
+
+/* Fade/slide-in animation for content */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 0.4s ease both;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--color-line) 25%, #EFECE3 37%, var(--color-line) 63%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }

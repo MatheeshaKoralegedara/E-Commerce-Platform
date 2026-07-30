@@ -5,6 +5,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { Textarea } from '@/components/ui/Field';
+import Button from '@/components/ui/Button';
+import Alert from '@/components/ui/Alert';
 
 export default function ReviewForm({ productId }) {
   const { token, user } = useAuth();
@@ -17,8 +20,8 @@ export default function ReviewForm({ productId }) {
 
   if (!user) {
     return (
-      <p className="text-sm text-[var(--color-muted)]">
-        <a href="/login" className="underline underline-offset-2 text-[var(--color-pine)]">Log in</a> to leave a review.
+      <p className="text-sm text-[var(--color-muted)] card rounded-lg px-4 py-3">
+        <a href="/login" className="underline underline-offset-2 text-[var(--color-pine)] font-medium">Log in</a> to leave a review.
       </p>
     );
   }
@@ -42,11 +45,13 @@ export default function ReviewForm({ productId }) {
   }
 
   if (status === 'done') {
-    return <p className="text-[var(--color-pine)] text-sm">Thanks for your review!</p>;
+    return (
+      <Alert tone="success">Thanks for your review!</Alert>
+    );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="border border-[var(--color-line)] rounded-md p-5 space-y-4">
+    <form onSubmit={handleSubmit} className="card rounded-lg p-5 space-y-4">
       <div>
         <label className="text-sm font-medium block mb-2">Rating</label>
         <div className="flex gap-1" onMouseLeave={() => setHoverRating(0)}>
@@ -68,23 +73,16 @@ export default function ReviewForm({ productId }) {
           })}
         </div>
       </div>
-      <div>
-        <label className="text-sm font-medium block mb-1.5">Comment (optional)</label>
-        <textarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          className="w-full border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
-          rows={3}
-        />
-      </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <button
-        type="submit"
-        disabled={status === 'loading'}
-        className="btn-primary rounded-md px-4 py-2 text-sm disabled:opacity-50"
-      >
+      <Textarea
+        label="Comment (optional)"
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        rows={3}
+      />
+      {error && <Alert>{error}</Alert>}
+      <Button type="submit" disabled={status === 'loading'} size="sm">
         {status === 'loading' ? 'Submitting…' : 'Submit Review'}
-      </button>
+      </Button>
     </form>
   );
 }

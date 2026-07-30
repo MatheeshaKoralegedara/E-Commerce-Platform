@@ -1,9 +1,11 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import StarRating from '@/components/ui/StarRating';
+import Alert from '@/components/ui/Alert';
+import EmptyState from '@/components/ui/EmptyState';
 
 export default function AdminReviewsPage() {
   const { token } = useAuth();
@@ -37,24 +39,22 @@ export default function AdminReviewsPage() {
     }
   }
 
-  if (loading) return <p className="text-[var(--color-muted)] text-sm">Loading reviews…</p>;
+  if (loading) return <div className="skeleton h-48 rounded-lg"></div>;
 
   return (
     <div>
       <h2 className="font-display text-2xl mb-6">Reviews</h2>
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+      {error && <Alert className="mb-4">{error}</Alert>}
 
       {reviews.length === 0 ? (
-        <p className="text-[var(--color-muted)] text-sm">No reviews yet.</p>
+        <EmptyState icon="⭐" title="No reviews yet" />
       ) : (
         <div className="space-y-3">
           {reviews.map((r) => (
-            <div key={r.id} className="border border-[var(--color-line)] rounded-md p-4 flex justify-between items-start">
+            <div key={r.id} className="card rounded-lg p-4 flex justify-between items-start">
               <div>
                 <p className="font-medium text-sm">{r.product_name}</p>
-                <p className="text-[var(--color-clay)] text-sm">
-                  {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
-                </p>
+                <StarRating rating={r.rating} className="mt-0.5" />
                 {r.comment && <p className="text-sm mt-1">{r.comment}</p>}
                 <p className="text-xs text-[var(--color-muted)] mt-1">
                   {new Date(r.created_at).toLocaleDateString()}
@@ -62,7 +62,7 @@ export default function AdminReviewsPage() {
               </div>
               <button
                 onClick={() => handleDelete(r.id)}
-                className="text-red-600 underline underline-offset-2 text-xs whitespace-nowrap"
+                className="text-[var(--color-danger)] underline underline-offset-2 text-xs whitespace-nowrap"
               >
                 Remove
               </button>

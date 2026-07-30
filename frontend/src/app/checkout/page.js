@@ -9,6 +9,9 @@ import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { formatPrice } from '@/lib/format';
 import CheckoutForm from '@/components/CheckoutForm';
+import { Input } from '@/components/ui/Field';
+import Button from '@/components/ui/Button';
+import Alert from '@/components/ui/Alert';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
@@ -90,14 +93,22 @@ export default function CheckoutPage() {
   }
 
   if (authLoading || !cart) {
-    return <main className="max-w-lg mx-auto px-6 py-16 text-center text-[var(--color-muted)]">Loading…</main>;
+    return (
+      <main className="max-w-lg mx-auto px-6 py-16">
+        <div className="animate-pulse space-y-4">
+          <div className="skeleton h-8 w-40 rounded"></div>
+          <div className="skeleton h-32 rounded-lg"></div>
+          <div className="skeleton h-12 rounded-lg"></div>
+        </div>
+      </main>
+    );
   }
 
   if (error) {
     return (
       <main className="max-w-lg mx-auto px-6 py-16">
         <h1 className="font-display text-2xl mb-4">Checkout</h1>
-        <p className="text-red-600 text-sm">{error}</p>
+        <Alert>{error}</Alert>
       </main>
     );
   }
@@ -112,11 +123,13 @@ export default function CheckoutPage() {
             Discount applied: −{formatPrice(order.discount_cents)}
           </p>
         )}
-        <p className="text-[var(--color-muted)] mb-8">Total: {formatPrice(order.total_cents)}</p>
+        <p className="text-[var(--color-muted)] mb-8">Total: <span className="font-medium text-[var(--color-ink)]">{formatPrice(order.total_cents)}</span></p>
 
-        <Elements stripe={stripePromise} options={{ clientSecret }}>
-          <CheckoutForm orderId={order.id} />
-        </Elements>
+        <div className="card rounded-lg p-5">
+          <Elements stripe={stripePromise} options={{ clientSecret }}>
+            <CheckoutForm orderId={order.id} />
+          </Elements>
+        </div>
       </main>
     );
   }
@@ -129,7 +142,7 @@ export default function CheckoutPage() {
       <p className="eyebrow mb-2">Checkout</p>
       <h1 className="font-display text-3xl mb-8">Review your order</h1>
 
-      <div className="border border-[var(--color-line)] rounded-md p-5 mb-6">
+      <div className="card rounded-lg p-5 mb-6">
         <p className="text-sm text-[var(--color-muted)] mb-3">{cart.items.length} item(s)</p>
         <div className="flex justify-between text-sm mb-1">
           <span>Subtotal</span>
@@ -143,14 +156,14 @@ export default function CheckoutPage() {
         )}
         <div className="flex justify-between font-medium text-lg mt-3 pt-3 border-t border-[var(--color-line)]">
           <span>Total</span>
-          <span>{formatPrice(estimatedTotal)}</span>
+          <span className="font-display">{formatPrice(estimatedTotal)}</span>
         </div>
       </div>
 
       <div className="mb-8">
         <label className="text-sm font-medium block mb-2">Discount code</label>
         <div className="flex gap-2">
-          <input
+          <Input
             type="text"
             value={discountCode}
             onChange={(e) => {
@@ -158,23 +171,23 @@ export default function CheckoutPage() {
               setDiscountStatus('idle');
             }}
             placeholder="Enter code"
-            className="flex-1 border border-[var(--color-line)] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-ink)] transition-colors"
+            wrapperClassName="flex-1"
           />
-          <button
+          <Button
+            variant="secondary"
             onClick={applyDiscountCode}
             disabled={discountStatus === 'checking' || !discountCode.trim()}
-            className="btn-secondary rounded-md px-4 py-2 text-sm disabled:opacity-50"
           >
             Apply
-          </button>
+          </Button>
         </div>
-        {discountStatus === 'valid' && <p className="text-[var(--color-pine)] text-sm mt-2">Code applied</p>}
-        {discountStatus === 'invalid' && <p className="text-red-600 text-sm mt-2">{discountError}</p>}
+        {discountStatus === 'valid' && <p className="text-[var(--color-pine)] text-sm mt-2">✓ Code applied</p>}
+        {discountStatus === 'invalid' && <p className="text-[var(--color-danger)] text-sm mt-2">{discountError}</p>}
       </div>
 
-      <button onClick={proceedToPayment} className="btn-primary rounded-md w-full py-3 text-sm">
+      <Button onClick={proceedToPayment} fullWidth size="lg">
         Continue to Payment
-      </button>
+      </Button>
     </main>
   );
 }
