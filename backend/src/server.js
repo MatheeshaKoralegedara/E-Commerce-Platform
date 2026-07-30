@@ -18,6 +18,7 @@ const discountRoutes = require('./routes/discountRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes')
 const adminReviewRoutes = require('./routes/adminReviewRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 
@@ -60,6 +61,7 @@ app.use('/api/discounts',discountRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/admin/reviews', adminReviewRoutes);
 app.use('/api/audit-log', auditLogRoutes);
+app.use('/api/upload', uploadRoutes);
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
