@@ -3,13 +3,16 @@ import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import EmptyState from '@/components/ui/EmptyState';
 
-async function getProducts(categorySlug) {
-  const url = categorySlug
-    ? `${process.env.NEXT_PUBLIC_API_URL}/products?category=${categorySlug}`
-    : `${process.env.NEXT_PUBLIC_API_URL}/products`;
-  const res = await fetch(url, { cache: 'no-store' });
+async function getProducts(categorySlug, sort, offset) {
+  const params = new URLSearchParams();
+  if (categorySlug) params.set('category', categorySlug);
+  if (sort) params.set('sort', sort);
+  params.set('offset', offset);
+  params.set('limit', '12');
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${params}`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to load products');
-  return res.json();
+  return res.json(); // { products, total, limit, offset }
 }
 
 async function getCategories() {
@@ -18,12 +21,33 @@ async function getCategories() {
   return res.json();
 }
 
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'price_asc', label: 'Price: Low to High' },
+  { value: 'price_desc', label: 'Price: High to Low' },
+  { value: 'name_asc', label: 'Name: A-Z' },
+];
+
 export default async function HomePage({ searchParams }) {
-  const { category } = await searchParams;
-  const [products, categories] = await Promise.all([
-    getProducts(category),
+  const { category, sort = 'newest', page = '1' } = await searchParams;
+  const pageNum = Math.max(parseInt(page) || 1, 1);
+  const limit = 12;
+  const offset = (pageNum - 1) * limit;
+
+  const [{ products, total }, categories] = await Promise.all([
+    getProducts(category, sort, offset),
     getCategories(),
   ]);
+
+  const totalPages = Math.max(Math.ceil(total / limit), 1);
+
+  function pageUrl(newPage) {
+    const params = new URLSearchParams();
+    if (category) params.set('category', category);
+    if (sort) params.set('sort', sort);
+    params.set('page', newPage);
+    return `/?${params}#collection`;
+  }
 
   return (
     <main>
@@ -81,30 +105,50 @@ export default async function HomePage({ searchParams }) {
             </h2>
           </div>
 
-          <div className="flex gap-2 flex-wrap scrollbar-none">
-            <Link
-              href="/"
-              className={`px-4 py-1.5 rounded-full text-sm border transition-colors ${
-                !category
-                  ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)]'
-                  : 'border-[var(--color-line)] hover:border-[var(--color-ink)] bg-[var(--color-surface)]'
-              }`}
-            >
-              All
-            </Link>
-            {categories.map((cat) => (
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex gap-2 flex-wrap scrollbar-none">
               <Link
-                key={cat.id}
-                href={`/?category=${cat.slug}`}
+                href={`/?sort=${sort}#collection`}
                 className={`px-4 py-1.5 rounded-full text-sm border transition-colors ${
-                  category === cat.slug
+                  !category
                     ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)]'
                     : 'border-[var(--color-line)] hover:border-[var(--color-ink)] bg-[var(--color-surface)]'
                 }`}
               >
-                {cat.name}
+                All
               </Link>
-            ))}
+              {categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/?category=${cat.slug}&sort=${sort}#collection`}
+                  className={`px-4 py-1.5 rounded-full text-sm border transition-colors ${
+                    category === cat.slug
+                      ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)]'
+                      : 'border-[var(--color-line)] hover:border-[var(--color-ink)] bg-[var(--color-surface)]'
+                  }`}
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            </div>
+
+            <form action="/" method="get" className="flex items-center gap-2">
+              {category && <input type="hidden" name="category" value={category} />}
+              <label htmlFor="sort" className="text-xs text-[var(--color-muted)]">Sort</label>
+              <select
+                id="sort"
+                name="sort"
+                defaultValue={sort}
+                className="border border-[var(--color-line)] rounded-md px-3 py-1.5 text-sm bg-[var(--color-surface)]"
+              >
+                {SORT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              <button type="submit" className="text-xs underline underline-offset-2 text-[var(--color-muted)]">
+                Apply
+              </button>
+            </form>
           </div>
         </div>
 
@@ -116,11 +160,35 @@ export default async function HomePage({ searchParams }) {
             action={category ? <Link href="/" className="btn btn-secondary rounded-full px-5 py-2 text-sm">View all products</Link> : null}
           />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-12">
+                <Link
+                  href={pageUrl(pageNum - 1)}
+                  aria-disabled={pageNum <= 1}
+                  className={`px-3 py-1.5 rounded-md text-sm border border-[var(--color-line)] ${pageNum <= 1 ? 'pointer-events-none opacity-30' : 'hover:border-[var(--color-ink)]'}`}
+                >
+                  Previous
+                </Link>
+                <span className="text-sm text-[var(--color-muted)] px-2">
+                  Page {pageNum} of {totalPages}
+                </span>
+                <Link
+                  href={pageUrl(pageNum + 1)}
+                  aria-disabled={pageNum >= totalPages}
+                  className={`px-3 py-1.5 rounded-md text-sm border border-[var(--color-line)] ${pageNum >= totalPages ? 'pointer-events-none opacity-30' : 'hover:border-[var(--color-ink)]'}`}
+                >
+                  Next
+                </Link>
+              </div>
+            )}
+          </>
         )}
       </div>
     </main>
