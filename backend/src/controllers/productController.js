@@ -91,10 +91,11 @@ async function list(req, res) {
     const limit = Math.min(parseInt(req.query.limit) || 20, 100);
     const offset = parseInt(req.query.offset) || 0;
     const categorySlug = req.query.category || null;
-    const products = await listActiveProducts({ limit, offset, categorySlug });
-    res.json(products);
+    const sort = req.query.sort || 'newest';
+    const { products, total } = await listActiveProducts({ limit, offset, categorySlug, sort });
+    res.json({ products, total, limit, offset });
   } catch (err) {
-    req.log.error(err);
+    req.log.error({ err }, 'Failed to list products');
     res.status(500).json({ error: 'Failed to list products' });
   }
 }
