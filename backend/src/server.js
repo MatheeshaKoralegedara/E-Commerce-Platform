@@ -17,6 +17,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const discountRoutes = require('./routes/discountRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes')
 const adminReviewRoutes = require('./routes/adminReviewRoutes');
+const auditLogRoutes = require('./routes/auditLogRoutes');
 
 const app = express();
 
@@ -58,6 +59,7 @@ app.use('/api/products/:productId/reviews', reviewRoutes);
 app.use('/api/discounts',discountRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/admin/reviews', adminReviewRoutes);
+app.use('/api/audit-log', auditLogRoutes);
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 

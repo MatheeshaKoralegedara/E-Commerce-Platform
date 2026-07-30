@@ -9,6 +9,7 @@ const {
   adminDeleteReview
 } = require('../models/reviewModel');
 const { query } = require('../config/db');
+const { logActionSafe } = require('../models/auditLogModel');
 
 // Public: list reviews + summary for a product
 async function listForProduct(req, res) {
@@ -114,6 +115,14 @@ async function adminRemove(req, res) {
     const { reviewId } = req.params;
     const deleted = await adminDeleteReview(reviewId);
     if (!deleted) return res.status(404).json({ error: 'Review not found' });
+
+    logActionSafe({
+      adminUserId: req.user.userId,
+      action: 'review.removed',
+      entityType: 'review',
+      entityId: parseInt(reviewId),
+    });
+
     res.status(204).send();
   } catch (err) {
     req.log.error({ err }, 'Failed to delete review as admin');

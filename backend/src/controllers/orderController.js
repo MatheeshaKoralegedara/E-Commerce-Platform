@@ -7,6 +7,7 @@ const {
   getAllOrders,
   updateOrderStatus,
 } = require('../models/orderModel');
+const { logActionSafe } = require('../models/auditLogModel');
 
 async function checkout(req, res) {
   try {
@@ -83,9 +84,18 @@ async function adminUpdateStatus(req, res) {
     }
     const order = await updateOrderStatus(req.params.orderId, status);
     if (!order) return res.status(404).json({ error: 'Order not found' });
+
+    logActionSafe({
+      adminUserId: req.user.userId,
+      action: 'order.status_changed',
+      entityType: 'order',
+      entityId: order.id,
+      details: { newStatus: status },
+    });
+
     res.json(order);
   } catch (err) {
-    req.log.error(err);
+    req.log.error({ err }, 'Failed to update order status');
     res.status(500).json({ error: 'Failed to update order status' });
   }
 }
