@@ -3,6 +3,7 @@ import AddToCartButton from '@/components/AddToCartButton';
 import ReviewForm from '@/components/ReviewForm';
 import StarRating from '@/components/ui/StarRating';
 import { formatPrice } from '@/lib/format';
+import ProductCard from '@/components/ProductCard';
 
 async function getProduct(slug) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${slug}`, {
@@ -114,6 +115,17 @@ export default async function ProductPage({ params }) {
           </div>
         )}
       </section>
+        {product.related && product.related.length > 0 && (
+            <section className="mt-16 pt-10 border-t border-[var(--color-line)]">
+              <p className="eyebrow mb-2">You Might Also Like</p>
+              <h2 className="font-display text-2xl mb-6">More from this collection</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {product.related.map((relatedProduct) => (
+                <ProductCard key={relatedProduct.id} product={relatedProduct} />
+            ))}
+              </div>
+        </section>
+)}
     </main>
   );
 }

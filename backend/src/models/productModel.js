@@ -175,6 +175,38 @@ async function bulkUpdateStatus(productIds, status) {
   return result.rows;
 }
 
+
+async function getRelatedProducts(productId, categoryId, limit = 4) {
+  if (!categoryId) return [];
+
+  const result = await query(
+    `SELECT p.*,
+            COALESCE(
+              json_agg(
+                json_build_object(
+                  'id', v.id,
+                  'sku', v.sku,
+                  'price_cents', v.price_cents,
+                  'attributes', v.attributes,
+                  'stock_qty', v.stock_qty
+                )
+              ) FILTER (WHERE v.id IS NOT NULL), '[]'
+            ) AS variants
+     FROM products p
+     LEFT JOIN product_variants v ON v.product_id = p.id
+     WHERE p.category_id = $1
+       AND p.id != $2
+       AND p.status = 'active'
+     GROUP BY p.id
+     ORDER BY random()
+     LIMIT $3`,
+    [categoryId, productId, limit]
+  );
+  return result.rows;
+}
+
+
+
 module.exports = {
   createProduct,
   addVariant,
@@ -186,4 +218,5 @@ module.exports = {
   updateProduct,
   deleteVariant,
   bulkUpdateStatus,
+  getRelatedProducts,
 };
