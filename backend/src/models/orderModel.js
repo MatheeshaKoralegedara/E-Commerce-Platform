@@ -148,10 +148,54 @@ async function updateOrderStatus(orderId, status) {
   return result.rows[0];
 }
 
+async function cancelAbandonedOrders(olderThanMinutes = 60) {
+  const client = await pool.connect();
+  let cancelledCount = 0;
+
+  try {
+    await client.query('BEGIN');
+
+    // Find pending orders past the threshold
+    const staleOrders = await client.query(
+      `SELECT id FROM orders
+       WHERE status = 'pending'
+         AND created_at < now() - interval '1 minute' * $1`,
+      [olderThanMinutes]
+    );
+
+    for (const order of staleOrders.rows) {
+      // Release stock for each item in this order
+      const items = await client.query(
+        `SELECT variant_id, quantity FROM order_items WHERE order_id = $1`,
+        [order.id]
+      );
+
+      for (const item of items.rows) {
+        await client.query(
+          `UPDATE product_variants SET stock_qty = stock_qty + $1, version = version + 1 WHERE id = $2`,
+          [item.quantity, item.variant_id]
+        );
+      }
+
+      await client.query(`UPDATE orders SET status = 'cancelled' WHERE id = $1`, [order.id]);
+      cancelledCount++;
+    }
+
+    await client.query('COMMIT');
+    return cancelledCount;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   createOrderFromCart,
   getOrdersForUser,
   getOrderWithItems,
   getAllOrders,
   updateOrderStatus,
+  cancelAbandonedOrders,
 };

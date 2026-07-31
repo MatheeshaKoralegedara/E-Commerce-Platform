@@ -8,6 +8,7 @@ const {
   updateOrderStatus,
 } = require('../models/orderModel');
 const { logActionSafe } = require('../models/auditLogModel');
+const { cancelAbandonedOrders } = require('../models/orderModel');
 
 async function checkout(req, res) {
   try {
@@ -100,6 +101,18 @@ async function adminUpdateStatus(req, res) {
   }
 }
 
+async function runAbandonedCleanup(req, res) {
+  try {
+    const minutes = parseInt(req.query.minutes) || 60;
+    const count = await cancelAbandonedOrders(minutes);
+    req.log.info({ count, minutes }, 'Abandoned order cleanup ran');
+    res.json({ cancelledCount: count });
+  } catch (err) {
+    req.log.error({ err }, 'Abandoned order cleanup failed');
+    res.status(500).json({ error: 'Cleanup failed' });
+  }
+}
+
 
 
 
@@ -110,4 +123,5 @@ module.exports = {
   adminListOrders,
   adminOrderDetail,
   adminUpdateStatus,
+  runAbandonedCleanup,
 };
