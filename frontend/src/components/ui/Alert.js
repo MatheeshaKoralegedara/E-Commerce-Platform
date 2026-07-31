@@ -9,6 +9,8 @@ export default function Alert({ tone = 'danger', children, className = '' }) {
   const t = TONES[tone] || TONES.danger;
   return (
     <div
+      role={tone === 'danger' ? 'alert' : 'status'}
+      aria-live={tone === 'danger' ? 'assertive' : 'polite'}
       className={`text-sm rounded-md px-4 py-3 flex items-start gap-2 ${className}`}
       style={{ background: t.bg, color: t.color }}
     >

@@ -178,8 +178,9 @@ async function handleImageFileChange(e) {
         <Textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
         <Input type="text" placeholder="Image URL (optional)" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
         <div>
-          <label className="text-xs text-[var(--color-muted)] block mb-1">Or upload an image</label>
+          <label htmlFor="product-image-file" className="text-xs text-[var(--color-muted)] block mb-1">Or upload an image</label>
               <input
+                  id="product-image-file"
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
                   onChange={handleImageFileChange}
@@ -354,24 +355,24 @@ function VariantManager({ product, token, onChange }) {
 
       <form onSubmit={handleAddVariant} className="flex flex-wrap gap-2 items-end">
         <div>
-          <label className="text-xs text-[var(--color-muted)] block mb-1">SKU</label>
-          <input value={sku} onChange={(e) => setSku(e.target.value)} className="field-input px-2 py-1.5 text-xs w-28" required />
+          <label htmlFor="variant-sku" className="text-xs text-[var(--color-muted)] block mb-1">SKU</label>
+          <input id="variant-sku" value={sku} onChange={(e) => setSku(e.target.value)} className="field-input px-2 py-1.5 text-xs w-28" required />
         </div>
         <div>
-          <label className="text-xs text-[var(--color-muted)] block mb-1">Price (cents)</label>
-          <input type="number" value={priceCents} onChange={(e) => setPriceCents(e.target.value)} className="field-input px-2 py-1.5 text-xs w-24" required />
+          <label htmlFor="variant-price" className="text-xs text-[var(--color-muted)] block mb-1">Price (cents)</label>
+          <input id="variant-price" type="number" value={priceCents} onChange={(e) => setPriceCents(e.target.value)} className="field-input px-2 py-1.5 text-xs w-24" required />
         </div>
         <div>
-          <label className="text-xs text-[var(--color-muted)] block mb-1">Stock</label>
-          <input type="number" value={stockQty} onChange={(e) => setStockQty(e.target.value)} className="field-input px-2 py-1.5 text-xs w-20" required />
+          <label htmlFor="variant-stock" className="text-xs text-[var(--color-muted)] block mb-1">Stock</label>
+          <input id="variant-stock" type="number" value={stockQty} onChange={(e) => setStockQty(e.target.value)} className="field-input px-2 py-1.5 text-xs w-20" required />
         </div>
         <div>
-          <label className="text-xs text-[var(--color-muted)] block mb-1">Attr name</label>
-          <input value={attrKey} onChange={(e) => setAttrKey(e.target.value)} placeholder="color" className="field-input px-2 py-1.5 text-xs w-20" />
+          <label htmlFor="variant-attr-key" className="text-xs text-[var(--color-muted)] block mb-1">Attr name</label>
+          <input id="variant-attr-key" value={attrKey} onChange={(e) => setAttrKey(e.target.value)} placeholder="color" className="field-input px-2 py-1.5 text-xs w-20" />
         </div>
         <div>
-          <label className="text-xs text-[var(--color-muted)] block mb-1">Attr value</label>
-          <input value={attrValue} onChange={(e) => setAttrValue(e.target.value)} placeholder="blue" className="field-input px-2 py-1.5 text-xs w-20" />
+          <label htmlFor="variant-attr-value" className="text-xs text-[var(--color-muted)] block mb-1">Attr value</label>
+          <input id="variant-attr-value" value={attrValue} onChange={(e) => setAttrValue(e.target.value)} placeholder="blue" className="field-input px-2 py-1.5 text-xs w-20" />
         </div>
         <Button type="submit" disabled={saving} size="sm">
           {saving ? 'Adding…' : 'Add Variant'}
@@ -418,7 +419,7 @@ function ProductEditForm({ product, categories, token, onChange, onCancel }) {
       </div>
       <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="field-input w-full px-2 py-1.5 text-sm" rows={2} />
       <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="Image URL" className="field-input w-full px-2 py-1.5 text-sm" />
-      <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="field-input px-2 py-1.5 text-sm">
+      <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} aria-label="Category" className="field-input px-2 py-1.5 text-sm">
         <option value="">No category</option>
         {categories.map((cat) => (
           <option key={cat.id} value={cat.id}>{cat.name}</option>

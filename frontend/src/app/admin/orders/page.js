@@ -95,6 +95,7 @@ export default function AdminOrdersPage() {
                     <select
                       value={order.status}
                       onChange={(e) => updateStatus(order.id, e.target.value)}
+                      aria-label={`Update status for order #${order.id}`}
                       className="field-input px-2 py-1 text-xs w-auto"
                     >
                       {STATUS_OPTIONS.map((s) => (
