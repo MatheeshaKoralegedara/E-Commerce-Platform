@@ -13,22 +13,33 @@ const SALT_ROUNDS = 12;
 
 async function register(req, res) {
   try {
-    const { email, password } = req.body;
+    const { email, password, fullName, phone, addressLine1, city, postalCode, country } = req.body;
+
     if (!email || !password || password.length < 8) {
       return res.status(400).json({ error: 'Email and 8+ character password required' });
     }
+    if (!fullName || !fullName.trim()) {
+      return res.status(400).json({ error: 'Full name is required' });
+    }
+    if (!phone || !phone.trim()) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+
     const existing = await findUserByEmail(email);
     if (existing) {
       return res.status(409).json({ error: 'Email already registered' });
     }
+
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = await createUser(email, passwordHash);
+    const user = await createUser({ email, passwordHash, fullName, phone, addressLine1, city, postalCode, country });
+
     const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
+
     res.status(201).json({ user: sanitizeUser(user), token });
   } catch (err) {
-    req.log.error(err);
+    console.error(err);
     res.status(500).json({ error: 'Registration failed' });
   }
 }
@@ -108,4 +119,18 @@ async function resetPassword(req, res) {
   }
 }
 
-module.exports = { register, login, forgotPassword, resetPassword };
+async function updateProfile(req, res) {
+  try {
+    const { fullName, phone, addressLine1, city, postalCode, country } = req.body;
+    if (!fullName || !fullName.trim()) {
+      return res.status(400).json({ error: 'Full name is required' });
+    }
+    const user = await updateUserProfile(req.user.userId, { fullName, phone, addressLine1, city, postalCode, country });
+    res.json({ user: sanitizeUser(user) });
+  } catch (err) {
+    req.log.error({ err }, 'Failed to update profile');
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+}
+
+module.exports = { register, login, forgotPassword, resetPassword, updateProfile };
