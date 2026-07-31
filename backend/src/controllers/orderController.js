@@ -75,7 +75,7 @@ async function adminOrderDetail(req, res) {
 }
 
 // Admin: update order status (e.g., paid -> shipped -> delivered)
-const VALID_STATUSES = ['pending', 'paid', 'shipped', 'delivered', 'cancelled'];
+const VALID_STATUSES = ['pending', 'paid', 'shipped', 'delivered', 'cancelled', 'refunded', 'disputed'];
 
 async function adminUpdateStatus(req, res) {
   try {
