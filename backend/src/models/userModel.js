@@ -41,15 +41,7 @@ async function findUserByEmail(email) {
     return result.rows[0];
 }
 
-function sanitizeUser(user) {
-  
-  return {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    created_at: user.created_at,
-  };
-}
+
 
 async function setResetToken(email, tokenHash, expiresAt) {
   await query(
