@@ -116,7 +116,7 @@ export default function CartPage() {
                   >
                     −
                   </button>
-                  <span className="w-6 text-center text-sm">{item.quantity}</span>
+                  <span className="w-6 text-center text-sm" aria-live="polite">{item.quantity}</span>
                   <button
                     onClick={() => updateQuantity(item.variant_id, item.quantity + 1)}
                     disabled={item.quantity >= item.stock_qty}

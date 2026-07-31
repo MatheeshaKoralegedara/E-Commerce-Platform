@@ -161,9 +161,10 @@ export default function CheckoutPage() {
       </div>
 
       <div className="mb-8">
-        <label className="text-sm font-medium block mb-2">Discount code</label>
+        <label htmlFor="discount-code" className="text-sm font-medium block mb-2">Discount code</label>
         <div className="flex gap-2">
           <Input
+            id="discount-code"
             type="text"
             value={discountCode}
             onChange={(e) => {
@@ -181,8 +182,8 @@ export default function CheckoutPage() {
             Apply
           </Button>
         </div>
-        {discountStatus === 'valid' && <p className="text-[var(--color-pine)] text-sm mt-2">✓ Code applied</p>}
-        {discountStatus === 'invalid' && <p className="text-[var(--color-danger)] text-sm mt-2">{discountError}</p>}
+        {discountStatus === 'valid' && <p role="status" aria-live="polite" className="text-[var(--color-pine)] text-sm mt-2">✓ Code applied</p>}
+        {discountStatus === 'invalid' && <p role="alert" aria-live="assertive" className="text-[var(--color-danger)] text-sm mt-2">{discountError}</p>}
       </div>
 
       <Button onClick={proceedToPayment} fullWidth size="lg">
