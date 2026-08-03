@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { formatPrice } from '@/lib/format';
@@ -16,6 +16,7 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     if (token) loadOrders();
@@ -77,34 +78,64 @@ export default function AdminOrdersPage() {
                 <th className="py-3 px-4 font-medium">Status</th>
                 <th className="py-3 px-4 font-medium">Date</th>
                 <th className="py-3 px-4 font-medium">Update Status</th>
+                <th className="py-3 px-4 font-medium">Shipping</th>
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
-                <tr key={order.id} className="border-b border-[var(--color-line)] last:border-0 hover:bg-[var(--color-canvas)]">
-                  <td className="py-3 px-4">#{order.id}</td>
-                  <td className="py-3 px-4">{order.user_id}</td>
-                  <td className="py-3 px-4">{formatPrice(order.total_cents)}</td>
-                  <td className="py-3 px-4">
-                    <Badge tone={ORDER_STATUS_TONE[order.status] || 'neutral'}>{order.status}</Badge>
-                  </td>
-                  <td className="py-3 px-4 text-[var(--color-muted)]">
-                    {new Date(order.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4">
-                    <select
-                      value={order.status}
-                      onChange={(e) => updateStatus(order.id, e.target.value)}
-                      aria-label={`Update status for order #${order.id}`}
-                      className="field-input px-2 py-1 text-xs w-auto"
-                    >
-                      {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-                  </td>
-                </tr>
-              ))}
+              {orders.map((order) => {
+                const isExpanded = expandedId === order.id;
+                return (
+                <Fragment key={order.id}>
+                  <tr className="border-b border-[var(--color-line)] last:border-0 hover:bg-[var(--color-canvas)]">
+                    <td className="py-3 px-4">#{order.id}</td>
+                    <td className="py-3 px-4">{order.user_id}</td>
+                    <td className="py-3 px-4">{formatPrice(order.total_cents)}</td>
+                    <td className="py-3 px-4">
+                      <Badge tone={ORDER_STATUS_TONE[order.status] || 'neutral'}>{order.status}</Badge>
+                    </td>
+                    <td className="py-3 px-4 text-[var(--color-muted)]">
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-4">
+                      <select
+                        value={order.status}
+                        onChange={(e) => updateStatus(order.id, e.target.value)}
+                        aria-label={`Update status for order #${order.id}`}
+                        className="field-input px-2 py-1 text-xs w-auto"
+                      >
+                        {STATUS_OPTIONS.map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="py-3 px-4">
+                      <button
+                        onClick={() => setExpandedId(isExpanded ? null : order.id)}
+                        aria-expanded={isExpanded}
+                        aria-controls={`shipping-${order.id}`}
+                        className="text-xs text-[var(--color-pine)] underline underline-offset-2"
+                      >
+                        {isExpanded ? 'Hide' : 'View'}
+                      </button>
+                    </td>
+                  </tr>
+                  {isExpanded && (
+                    <tr id={`shipping-${order.id}`} className="border-b border-[var(--color-line)] last:border-0" style={{ background: 'var(--color-canvas)' }}>
+                      <td colSpan={7} className="py-4 px-4">
+                        <div className="border border-[var(--color-line)] rounded-md p-4 max-w-sm">
+                          <p className="text-xs text-[var(--color-muted)] uppercase tracking-wide mb-2">Shipping to</p>
+                          <p className="text-sm font-medium">{order.shipping_name}</p>
+                          <p className="text-sm">{order.shipping_phone}</p>
+                          <p className="text-sm">{order.shipping_address_line1}</p>
+                          <p className="text-sm">{order.shipping_city}{order.shipping_postal_code ? `, ${order.shipping_postal_code}` : ''}</p>
+                          {order.shipping_country && <p className="text-sm">{order.shipping_country}</p>}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
