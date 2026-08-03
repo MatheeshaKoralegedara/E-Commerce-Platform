@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const pinoHttp = require('pino-http');
 const { randomUUID } = require('crypto');
 const logger = require('./config/logger');
+const { pool } = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
@@ -65,7 +66,15 @@ app.use('/api/admin/reviews', adminReviewRoutes);
 app.use('/api/audit-log', auditLogRoutes);
 app.use('/api/upload', uploadRoutes);
 
-app.get('/health', (req, res) => res.json({ ok: true }));
+app.get('/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ ok: true, database: 'connected' });
+  } catch (err) {
+    logger.error({ err }, 'Health check failed: database unreachable');
+    res.status(503).json({ ok: false, database: 'unreachable' });
+  }
+});
 
 app.use(errorHandler);
 
