@@ -2,7 +2,7 @@
 
 A custom-built e-commerce platform with a Node.js/Express backend, Next.js frontend, PostgreSQL database, and Stripe payments. Built from scratch with a focus on production-grade concerns: transactional inventory safety, verified webhook payments, purchase-verified reviews, and a full admin dashboard.
 
-**Live site:** https://e-commerce-platform-beta-eight.vercel.app
+**Live site:** https://mercato-e-commerce-platform.vercel.app/
 **Live API:** https://ecommerce-backend-dzsy.onrender.com
 
 ---
