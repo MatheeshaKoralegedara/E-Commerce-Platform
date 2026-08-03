@@ -1,29 +1,34 @@
 // backend/src/middleware/rateLimiters.js
 const rateLimit = require('express-rate-limit');
 
-// Checkout: financial action, should be rare per user — tight limit
+function getClientIp(req) {
+  // Cloudflare's header is the most reliable source of the real client IP
+  // in this deployment's proxy chain (Cloudflare -> Render -> our app)
+  return req.headers['cf-connecting-ip'] || req.ip;
+}
+
 const checkoutLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 10,
+  keyGenerator: getClientIp,
   message: { error: 'Too many checkout attempts. Please wait a few minutes and try again.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Cart: normal browsing/shopping behavior, but still cap to prevent abuse
 const cartLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutes
+  windowMs: 5 * 60 * 1000,
   max: 60,
+  keyGenerator: getClientIp,
   message: { error: 'Too many requests. Please slow down.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Discount validation: this is the one most at risk of being brute-forced
-// to guess valid codes — tightest limit of the three
 const discountLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
+  windowMs: 10 * 60 * 1000,
   max: 15,
+  keyGenerator: getClientIp,
   message: { error: 'Too many discount code attempts. Please wait before trying again.' },
   standardHeaders: true,
   legacyHeaders: false,

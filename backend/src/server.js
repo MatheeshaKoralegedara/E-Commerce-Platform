@@ -21,7 +21,7 @@ const auditLogRoutes = require('./routes/auditLogRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
-app.set('trust proxy', 2); // trust Render's reverse proxy for accurate client IPs in rate limiting
+app.set('trust proxy', 1); // trust Render's reverse proxy for accurate client IPs in rate limiting
 
 app.use(helmet());
 const corsOptions = {
