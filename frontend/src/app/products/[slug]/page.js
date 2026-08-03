@@ -4,6 +4,7 @@ import ReviewForm from '@/components/ReviewForm';
 import StarRating from '@/components/ui/StarRating';
 import { formatPrice } from '@/lib/format';
 import ProductCard from '@/components/ProductCard';
+import WishlistButton from '@/components/WishlistButton';
 
 async function getProduct(slug) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${slug}`, {
@@ -50,7 +51,10 @@ export default async function ProductPage({ params }) {
         </div>
 
         <div>
-          <h1 className="font-display text-3xl md:text-4xl leading-tight">{product.name}</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="font-display text-3xl md:text-4xl leading-tight">{product.name}</h1>
+            <WishlistButton productId={product.id} />
+          </div>
 
           {reviewData.reviewCount > 0 && (
             <div className="flex items-center gap-2 mt-3">
