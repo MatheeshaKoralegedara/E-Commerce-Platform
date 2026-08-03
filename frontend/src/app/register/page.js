@@ -5,9 +5,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
-import { Input } from '@/components/ui/Field';
-import Button from '@/components/ui/Button';
-import Alert from '@/components/ui/Alert';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -19,6 +16,7 @@ export default function RegisterPage() {
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
 
@@ -27,11 +25,15 @@ export default function RegisterPage() {
     setError('');
     setLoading(true);
     try {
-      const data = await apiRequest('/auth/register', { method: 'POST', body: { email, password } });
+      const data = await apiRequest('/auth/register', {
+        method: 'POST',
+        body: { email, password, fullName, phone, addressLine1, city, postalCode, country },
+      });
       login(data.token, data.user);
       router.push('/');
     } catch (err) {
       setError(err.message);
+    } finally {
       setLoading(false);
     }
   }
@@ -111,8 +113,8 @@ export default function RegisterPage() {
         </div>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
-        <button type="submit" className="btn-primary rounded-md w-full py-2.5 text-sm">
-          Create Account
+        <button type="submit" disabled={loading} className="btn-primary rounded-md w-full py-2.5 text-sm disabled:opacity-50">
+          {loading ? 'Creating account…' : 'Create Account'}
         </button>
       </form>
     </main>
