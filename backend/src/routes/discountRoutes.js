@@ -1,11 +1,12 @@
 
 const express = require('express');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { discountLimiter } = require('../middleware/rateLimiters');
 const { validate, create, list, remove, update } = require('../controllers/discountController');
 
 const router = express.Router();
 
-router.post('/validate', requireAuth, validate);
+router.post('/validate', discountLimiter, requireAuth, validate);
 
 router.post('/', requireAuth, requireAdmin, create);
 router.get('/', requireAuth, requireAdmin, list);
