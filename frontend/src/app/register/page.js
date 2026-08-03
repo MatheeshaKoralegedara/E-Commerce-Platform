@@ -6,6 +6,22 @@ import { useRouter } from 'next/navigation';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 
+function getPasswordStrength(password) {
+  if (!password) return { score: 0, label: '', color: '' };
+
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  if (score <= 2) return { score, label: 'Weak', color: 'bg-red-500' };
+  if (score <= 4) return { score, label: 'Medium', color: 'bg-yellow-500' };
+  return { score, label: 'Strong', color: 'bg-green-500' };
+}
+
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,6 +35,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
+  const passwordStrength = getPasswordStrength(password);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -75,6 +92,24 @@ export default function RegisterPage() {
           className="w-full border border-[var(--color-line)] rounded-md px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-ink)]"
           required
         />
+        {password && (
+          <div>
+            <div className="flex gap-1 h-1.5">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={`flex-1 rounded-full transition-colors ${
+                    passwordStrength.score > i * 2 ? passwordStrength.color : 'bg-[var(--color-line)]'
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="text-xs text-[var(--color-muted)] mt-1">{passwordStrength.label}</p>
+          </div>
+        )}
+        <p className="text-xs text-[var(--color-muted)]">
+          Must include an uppercase letter, lowercase letter, and a number.
+        </p>
 
         <div className="pt-2 border-t border-[var(--color-line)]">
           <p className="text-xs text-[var(--color-muted)] mb-3">Shipping address (optional — add later if you prefer)</p>
