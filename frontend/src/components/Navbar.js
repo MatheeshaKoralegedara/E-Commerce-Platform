@@ -65,6 +65,7 @@ export default function Navbar() {
               )}
               <Link href="/orders" className="hover:text-[var(--color-pine)] transition-colors">Orders</Link>
               <span className="text-[var(--color-muted)] hidden lg:inline">{user.email}</span>
+              <Link href="/account">My Profile</Link>
               <button onClick={logout} className="text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors">
                 Logout
               </button>
