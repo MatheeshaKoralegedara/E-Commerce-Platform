@@ -75,6 +75,9 @@ export default function RegisterPage() {
           className="w-full border border-[var(--color-line)] rounded-md px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-ink)]"
           required
         />
+        <p className="text-xs text-[var(--color-muted)]">
+          Must include an uppercase letter, lowercase letter, and a number.
+        </p>
 
         <div className="pt-2 border-t border-[var(--color-line)]">
           <p className="text-xs text-[var(--color-muted)] mb-3">Shipping address (optional — add later if you prefer)</p>

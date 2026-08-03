@@ -11,12 +11,24 @@ const { mergeGuestCartIntoUserCart } = require('../models/cartModel');
 
 const SALT_ROUNDS = 12;
 
+function isPasswordStrong(password) {
+  if (password.length < 8) return { valid: false, error: 'Password must be at least 8 characters' };
+  if (!/[A-Z]/.test(password)) return { valid: false, error: 'Password must contain at least one uppercase letter' };
+  if (!/[a-z]/.test(password)) return { valid: false, error: 'Password must contain at least one lowercase letter' };
+  if (!/[0-9]/.test(password)) return { valid: false, error: 'Password must contain at least one number' };
+  return { valid: true };
+}
+
 async function register(req, res) {
   try {
     const { email, password, fullName, phone, addressLine1, city, postalCode, country } = req.body;
 
-    if (!email || !password || password.length < 8) {
-      return res.status(400).json({ error: 'Email and 8+ character password required' });
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password required' });
+    }
+    const passwordCheck = isPasswordStrong(password);
+    if (!passwordCheck.valid) {
+      return res.status(400).json({ error: passwordCheck.error });
     }
     if (!fullName || !fullName.trim()) {
       return res.status(400).json({ error: 'Full name is required' });
@@ -102,8 +114,12 @@ async function forgotPassword(req, res) {
 async function resetPassword(req, res) {
   try {
     const { token, newPassword } = req.body;
-    if (!token || !newPassword || newPassword.length < 8) {
-      return res.status(400).json({ error: 'Token and 8+ character password required' });
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: 'Token and password required' });
+    }
+    const passwordCheck = isPasswordStrong(newPassword);
+    if (!passwordCheck.valid) {
+      return res.status(400).json({ error: passwordCheck.error });
     }
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const user = await findUserByResetTokenHash(tokenHash);

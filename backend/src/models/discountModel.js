@@ -103,6 +103,7 @@ module.exports = {
   deactivateCode,
   validateDiscountCode,
   updateDiscountCode,
+  calculateDiscount,
 };
 
 
