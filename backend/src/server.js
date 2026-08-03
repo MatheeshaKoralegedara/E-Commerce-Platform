@@ -19,6 +19,7 @@ const analyticsRoutes = require('./routes/analyticsRoutes')
 const adminReviewRoutes = require('./routes/adminReviewRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 app.set('trust proxy', 1); // trust Render's reverse proxy for accurate client IPs in rate limiting
@@ -65,6 +66,8 @@ app.use('/api/audit-log', auditLogRoutes);
 app.use('/api/upload', uploadRoutes);
 
 app.get('/health', (req, res) => res.json({ ok: true }));
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
