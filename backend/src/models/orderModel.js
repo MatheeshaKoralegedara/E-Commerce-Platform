@@ -2,7 +2,8 @@
 const { pool, query } = require('../config/db');
 const { validateDiscountCode } = require('./discountModel');
 
-async function createOrderFromCart(userId, cartId, discountCodeStr = null) {
+
+async function createOrderFromCart(userId, cartId, discountCodeStr = null, shippingInfo = {}) {
   const client = await pool.connect();
 
   try {
@@ -22,6 +23,10 @@ async function createOrderFromCart(userId, cartId, discountCodeStr = null) {
       throw { status: 400, message: 'Cart is empty' };
     }
 
+    if (!shippingInfo.name || !shippingInfo.phone || !shippingInfo.addressLine1 || !shippingInfo.city) {
+      throw { status: 400, message: 'Shipping name, phone, address, and city are required' };
+    }
+
     for (const item of items) {
       if (item.quantity > item.stock_qty) {
         throw { status: 409, message: `Not enough stock for ${item.product_name}` };
@@ -30,7 +35,6 @@ async function createOrderFromCart(userId, cartId, discountCodeStr = null) {
 
     const subtotalCents = items.reduce((sum, i) => sum + i.price_cents * i.quantity, 0);
 
-    // Validate and apply discount code, if provided
     let discountCents = 0;
     let discountCodeId = null;
     if (discountCodeStr) {
@@ -45,10 +49,17 @@ async function createOrderFromCart(userId, cartId, discountCodeStr = null) {
     const totalCents = subtotalCents - discountCents;
 
     const orderResult = await client.query(
-      `INSERT INTO orders (user_id, status, subtotal_cents, discount_cents, discount_code_id, total_cents)
-       VALUES ($1, 'pending', $2, $3, $4, $5)
+      `INSERT INTO orders (
+         user_id, status, subtotal_cents, discount_cents, discount_code_id, total_cents,
+         shipping_name, shipping_phone, shipping_address_line1, shipping_city, shipping_postal_code, shipping_country
+       )
+       VALUES ($1, 'pending', $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
-      [userId, subtotalCents, discountCents, discountCodeId, totalCents]
+      [
+        userId, subtotalCents, discountCents, discountCodeId, totalCents,
+        shippingInfo.name, shippingInfo.phone, shippingInfo.addressLine1,
+        shippingInfo.city, shippingInfo.postalCode || null, shippingInfo.country || null,
+      ]
     );
     const order = orderResult.rows[0];
 
@@ -72,17 +83,13 @@ async function createOrderFromCart(userId, cartId, discountCodeStr = null) {
       );
     }
 
-    // Increment usage count for the discount code, still inside the same transaction
-   if (discountCodeId) {
-  await client.query(
-    `UPDATE discount_codes SET times_used = times_used + 1 WHERE id = $1`,
-    [discountCodeId]
-  );
-  await client.query(
-    `INSERT INTO discount_code_usage (discount_code_id, user_id, order_id) VALUES ($1, $2, $3)`,
-    [discountCodeId, userId, order.id]
-  );
-}
+    if (discountCodeId) {
+      await client.query(`UPDATE discount_codes SET times_used = times_used + 1 WHERE id = $1`, [discountCodeId]);
+      await client.query(
+        `INSERT INTO discount_code_usage (discount_code_id, user_id, order_id) VALUES ($1, $2, $3)`,
+        [discountCodeId, userId, order.id]
+      );
+    }
 
     await client.query(`DELETE FROM cart_items WHERE cart_id = $1`, [cartId]);
     await client.query(`UPDATE carts SET status = 'converted' WHERE id = $1`, [cartId]);

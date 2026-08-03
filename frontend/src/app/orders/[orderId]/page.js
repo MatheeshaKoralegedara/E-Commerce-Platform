@@ -59,6 +59,15 @@ export default function OrderDetailPage({ params }) {
         <Badge tone={ORDER_STATUS_TONE[order.status] || 'neutral'}>{order.status}</Badge>
       </div>
 
+      <div className="border border-[var(--color-line)] rounded-md p-4 mb-6">
+          <p className="text-xs text-[var(--color-muted)] uppercase tracking-wide mb-2">Shipping to</p>
+          <p className="text-sm font-medium">{order.shipping_name}</p>
+          <p className="text-sm">{order.shipping_phone}</p>
+          <p className="text-sm">{order.shipping_address_line1}</p>
+          <p className="text-sm">{order.shipping_city}{order.shipping_postal_code ? `, ${order.shipping_postal_code}` : ''}</p>
+        {order.shipping_country && <p className="text-sm">{order.shipping_country}</p>}
+      </div>
+
       <div className="card rounded-lg divide-y divide-[var(--color-line)]">
         {order.items.map((item) => (
           <div key={item.id} className="p-4 flex justify-between">
