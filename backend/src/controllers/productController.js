@@ -13,6 +13,8 @@ const {
 
 const { logActionSafe } = require('../models/auditLogModel');
 const { getRelatedProducts } = require('../models/productModel');
+const asyncHandler = require('../middleware/asyncHandler');
+const { AppError } = require('../middleware/errorHandler');
 
 // Admin: create a new product (starts as 'draft')
 async function create(req, res) {
@@ -98,18 +100,6 @@ async function list(req, res) {
   } catch (err) {
     req.log.error({ err }, 'Failed to list products');
     res.status(500).json({ error: 'Failed to list products' });
-  }
-}
-
-// Public: get one product by slug
-async function getBySlug(req, res) {
-  try {
-    const product = await getProductBySlug(req.params.slug);
-    if (!product) return res.status(404).json({ error: 'Product not found' });
-    res.json(product);
-  } catch (err) {
-    req.log.error(err);
-    res.status(500).json({ error: 'Failed to get product' });
   }
 }
 
@@ -231,18 +221,15 @@ async function bulkSetStatus(req, res) {
   }
 }
 
-async function getBySlug(req, res) {
-  try {
-    const product = await getProductBySlug(req.params.slug);
-    if (!product) return res.status(404).json({ error: 'Product not found' });
-
-    const related = await getRelatedProducts(product.id, product.category_id, 4);
-    res.json({ ...product, related });
-  } catch (err) {
-    req.log.error({ err }, 'Failed to get product');
-    res.status(500).json({ error: 'Failed to get product' });
+// Public: get one product by slug
+const getBySlug = asyncHandler(async (req, res) => {
+  const product = await getProductBySlug(req.params.slug);
+  if (!product) {
+    throw new AppError('Product not found', 404);
   }
-}
+  const related = await getRelatedProducts(product.id, product.category_id, 4);
+  res.json({ ...product, related });
+});
 
 
-module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search, updateImage, update, removeVariant, bulkSetStatus, getBySlug };
+module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search, updateImage, update, removeVariant, bulkSetStatus };
