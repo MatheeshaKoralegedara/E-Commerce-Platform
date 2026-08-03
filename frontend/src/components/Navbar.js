@@ -63,6 +63,7 @@ export default function Navbar() {
               {user.role === 'admin' && (
                 <Link href="/admin" className="font-medium text-[var(--color-clay)] hover:text-[var(--color-clay-dark)] transition-colors">Admin</Link>
               )}
+              <Link href="/wishlist" className="hover:text-[var(--color-pine)] transition-colors">Wishlist</Link>
               <Link href="/orders" className="hover:text-[var(--color-pine)] transition-colors">Orders</Link>
               <span className="text-[var(--color-muted)] hidden lg:inline">{user.email}</span>
               <Link href="/account">My Profile</Link>
@@ -107,6 +108,7 @@ export default function Navbar() {
                 {user.role === 'admin' && (
                   <Link href="/admin" onClick={() => setMenuOpen(false)} className="font-medium text-[var(--color-clay)]">Admin</Link>
                 )}
+                <Link href="/wishlist" onClick={() => setMenuOpen(false)}>Wishlist</Link>
                 <Link href="/orders" onClick={() => setMenuOpen(false)}>Orders</Link>
                 <button onClick={() => { logout(); setMenuOpen(false); }} className="text-left text-[var(--color-muted)]">Logout</button>
               </>
