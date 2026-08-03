@@ -1,6 +1,7 @@
 
 const express = require('express');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { checkoutLimiter } = require('../middleware/rateLimiters');
 const {
   checkout,
   myOrders,
@@ -22,7 +23,7 @@ function requireCronSecret(req, res, next) {
 }
 
 // Customer routes
-router.post('/checkout', requireAuth, checkout);
+router.post('/checkout', checkoutLimiter, requireAuth, checkout);
 router.get('/my', requireAuth, myOrders);
 router.get('/my/:orderId', requireAuth, myOrderDetail);
 
