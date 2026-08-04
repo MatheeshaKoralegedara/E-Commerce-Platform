@@ -3,7 +3,7 @@ const { pool, query } = require('../config/db');
 const { validateDiscountCode } = require('./discountModel');
 
 
-async function createOrderFromCart(userId, cartId, discountCodeStr = null, shippingInfo = {}) {
+async function createOrderFromCart(userId, cartId, discountCodeStr = null, shippingInfo = {}, paymentMethod = 'card') {
   const client = await pool.connect();
 
   try {
@@ -27,6 +27,10 @@ async function createOrderFromCart(userId, cartId, discountCodeStr = null, shipp
       throw { status: 400, message: 'Shipping name, phone, address, and city are required' };
     }
 
+    if (!['card', 'cod'].includes(paymentMethod)) {
+      throw { status: 400, message: 'Invalid payment method' };
+    }
+
     for (const item of items) {
       if (item.quantity > item.stock_qty) {
         throw { status: 409, message: `Not enough stock for ${item.product_name}` };
@@ -48,15 +52,19 @@ async function createOrderFromCart(userId, cartId, discountCodeStr = null, shipp
 
     const totalCents = subtotalCents - discountCents;
 
+    // COD orders skip online payment entirely, so they go straight to 'paid'
+    // (fulfillment-ready) instead of waiting in 'pending' for a payment webhook.
+    const initialStatus = paymentMethod === 'cod' ? 'paid' : 'pending';
+
     const orderResult = await client.query(
       `INSERT INTO orders (
-         user_id, status, subtotal_cents, discount_cents, discount_code_id, total_cents,
+         user_id, status, subtotal_cents, discount_cents, discount_code_id, total_cents, payment_method,
          shipping_name, shipping_phone, shipping_address_line1, shipping_city, shipping_postal_code, shipping_country
        )
-       VALUES ($1, 'pending', $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        RETURNING *`,
       [
-        userId, subtotalCents, discountCents, discountCodeId, totalCents,
+        userId, initialStatus, subtotalCents, discountCents, discountCodeId, totalCents, paymentMethod,
         shippingInfo.name, shippingInfo.phone, shippingInfo.addressLine1,
         shippingInfo.city, shippingInfo.postalCode || null, shippingInfo.country || null,
       ]

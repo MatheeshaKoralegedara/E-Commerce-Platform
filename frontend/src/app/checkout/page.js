@@ -23,6 +23,7 @@ export default function CheckoutPage() {
   const [shippingCity, setShippingCity] = useState('');
   const [shippingPostalCode, setShippingPostalCode] = useState('');
   const [shippingCountry, setShippingCountry] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('card');
 
   const [discountCode, setDiscountCode] = useState('');
   const [discountStatus, setDiscountStatus] = useState('idle');
@@ -108,9 +109,16 @@ export default function CheckoutPage() {
             postalCode: shippingPostalCode.trim(),
             country: shippingCountry.trim(),
           },
+          paymentMethod,
         },
         token,
       });
+
+      if (paymentMethod === 'cod') {
+        router.push(`/orders/${newOrder.id}/confirmation`);
+        return;
+      }
+
       setOrder(newOrder);
 
       const intentData = await apiRequest('/payments/create-intent', {
@@ -276,10 +284,36 @@ export default function CheckoutPage() {
           />
         </div>
 
+        <div className="border-t border-[var(--color-line)] pt-6">
+          <h2 className="font-medium text-sm mb-3">Payment method</h2>
+          <div className="space-y-2">
+            <label className="flex items-center gap-3 border border-[var(--color-line)] rounded-md p-3 cursor-pointer">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="card"
+                checked={paymentMethod === 'card'}
+                onChange={() => setPaymentMethod('card')}
+              />
+              <span className="text-sm">Pay by card (Stripe)</span>
+            </label>
+            <label className="flex items-center gap-3 border border-[var(--color-line)] rounded-md p-3 cursor-pointer">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="cod"
+                checked={paymentMethod === 'cod'}
+                onChange={() => setPaymentMethod('cod')}
+              />
+              <span className="text-sm">Cash on Delivery</span>
+            </label>
+          </div>
+        </div>
+
         {error && <p role="alert" className="text-red-600 text-sm">{error}</p>}
 
         <button type="submit" className="btn-primary rounded-md w-full py-3 text-sm">
-          Continue to Payment
+          {paymentMethod === 'cod' ? 'Place Order' : 'Continue to Payment'}
         </button>
       </form>
     </main>
