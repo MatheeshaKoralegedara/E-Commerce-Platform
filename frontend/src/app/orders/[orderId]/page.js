@@ -57,7 +57,7 @@ export default function OrderDetailPage({ params }) {
       <h1 className="font-display text-3xl mb-6">Order #{order.id}</h1>
 
       <div className="border border-[var(--color-line)] rounded-md px-4 mb-8">
-        <OrderStatusTracker status={order.status} />
+        <OrderStatusTracker status={order.status} paymentMethod={order.payment_method} />
       </div>
 
       <div className="border border-[var(--color-line)] rounded-md p-4 mb-6">
