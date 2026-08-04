@@ -12,6 +12,7 @@ const {
   search,
   updateImage,
   update,
+  setSizeChart,
   removeVariant,
   bulkSetStatus,
 
@@ -35,5 +36,6 @@ router.patch('/:productId/image', requireAuth, requireAdmin, updateImage);
 router.patch('/:productId', requireAuth, requireAdmin, update);
 router.delete('/:productId/variants/:variantId', requireAuth, requireAdmin, removeVariant);
 router.patch('/bulk/status', requireAuth, requireAdmin, bulkSetStatus);
+router.patch('/:productId/size-chart', requireAuth, requireAdmin, setSizeChart);
 
 module.exports = router;

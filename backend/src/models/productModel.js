@@ -163,6 +163,14 @@ async function updateProduct(productId, { name, slug, description, categoryId, i
   return result.rows[0];
 }
 
+async function updateSizeChart(productId, { sizeChartEnabled, sizeChartImageUrl }) {
+  const result = await query(
+    `UPDATE products SET size_chart_enabled = $1, size_chart_image_url = $2 WHERE id = $3 RETURNING *`,
+    [sizeChartEnabled, sizeChartImageUrl || null, productId]
+  );
+  return result.rows[0];
+}
+
 async function deleteVariant(variantId) {
   await query('DELETE FROM product_variants WHERE id = $1', [variantId]);
 }
@@ -216,6 +224,7 @@ module.exports = {
   updateProductStatus,
   searchProducts,
   updateProduct,
+  updateSizeChart,
   deleteVariant,
   bulkUpdateStatus,
   getRelatedProducts,
