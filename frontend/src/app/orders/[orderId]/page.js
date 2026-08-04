@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation';
 import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { formatPrice } from '@/lib/format';
-import Badge, { ORDER_STATUS_TONE } from '@/components/ui/Badge';
 import Alert from '@/components/ui/Alert';
+import OrderStatusTracker from '@/components/OrderStatusTracker';
 
 export default function OrderDetailPage({ params }) {
   const { token, user, loading: authLoading } = useAuth();
@@ -54,9 +54,10 @@ export default function OrderDetailPage({ params }) {
       <Link href="/orders" className="text-sm text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors inline-flex items-center gap-1 mb-4">
         ← Back to orders
       </Link>
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h1 className="font-display text-3xl">Order #{order.id}</h1>
-        <Badge tone={ORDER_STATUS_TONE[order.status] || 'neutral'}>{order.status}</Badge>
+      <h1 className="font-display text-3xl mb-6">Order #{order.id}</h1>
+
+      <div className="border border-[var(--color-line)] rounded-md px-4 mb-8">
+        <OrderStatusTracker status={order.status} />
       </div>
 
       <div className="border border-[var(--color-line)] rounded-md p-4 mb-6">

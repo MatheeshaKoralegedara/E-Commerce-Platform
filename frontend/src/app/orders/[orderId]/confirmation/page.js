@@ -6,6 +6,7 @@ import apiRequest from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { formatPrice } from '@/lib/format';
 import Button from '@/components/ui/Button';
+import OrderStatusTracker from '@/components/OrderStatusTracker';
 
 export default function OrderConfirmationPage({ params }) {
   const { token } = useAuth();
@@ -41,6 +42,9 @@ export default function OrderConfirmationPage({ params }) {
       <h1 className="font-display text-3xl mb-3">Thank you</h1>
       <p className="text-[var(--color-muted)] mb-1">Order #{order.id} · {order.status}</p>
       <p className="font-display text-2xl my-6">{formatPrice(order.total_cents)}</p>
+      <div className="border border-[var(--color-line)] rounded-md px-4 my-8">
+        <OrderStatusTracker status={order.status} />
+      </div>
       <div className="flex justify-center gap-3">
         <Button href="/" shape="full">Continue shopping</Button>
         <Button href={`/orders/${order.id}`} variant="secondary" shape="full">View order</Button>
