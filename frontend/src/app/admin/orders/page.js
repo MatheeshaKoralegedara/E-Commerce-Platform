@@ -92,6 +92,11 @@ export default function AdminOrdersPage() {
                     <td className="py-3 px-4">{formatPrice(order.total_cents)}</td>
                     <td className="py-3 px-4">
                       <Badge tone={ORDER_STATUS_TONE[order.status] || 'neutral'}>{order.status}</Badge>
+                      {order.payment_method === 'cod' && (
+                        <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-800">
+                          COD
+                        </span>
+                      )}
                     </td>
                     <td className="py-3 px-4 text-[var(--color-muted)]">
                       {new Date(order.created_at).toLocaleDateString()}
