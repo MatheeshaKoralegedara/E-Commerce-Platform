@@ -51,7 +51,7 @@ export default async function ProductPage({ params }) {
         </div>
 
         <div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between gap-4">
             <h1 className="font-display text-3xl md:text-4xl leading-tight">{product.name}</h1>
             <WishlistButton productId={product.id} />
           </div>
@@ -71,9 +71,9 @@ export default async function ProductPage({ params }) {
             {product.variants.map((variant) => (
               <div
                 key={variant.id}
-                className="card rounded-lg p-4 flex justify-between items-center"
+                className="card rounded-lg p-4 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center"
               >
-                <div>
+                <div className="min-w-0">
                   <p className="font-medium text-sm">
                     {Object.entries(variant.attributes || {})
                       .map(([k, v]) => `${k}: ${v}`)
@@ -87,8 +87,8 @@ export default async function ProductPage({ params }) {
                       : 'Out of stock'}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium mb-2">{formatPrice(variant.price_cents)}</p>
+                <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 sm:gap-2 sm:text-right shrink-0">
+                  <p className="font-medium">{formatPrice(variant.price_cents)}</p>
                   <AddToCartButton variantId={variant.id} stockQty={variant.stock_qty} />
                 </div>
               </div>
