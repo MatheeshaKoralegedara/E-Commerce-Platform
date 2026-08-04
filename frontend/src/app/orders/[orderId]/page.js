@@ -67,6 +67,9 @@ export default function OrderDetailPage({ params }) {
           <p className="text-sm">{order.shipping_address_line1}</p>
           <p className="text-sm">{order.shipping_city}{order.shipping_postal_code ? `, ${order.shipping_postal_code}` : ''}</p>
         {order.shipping_country && <p className="text-sm">{order.shipping_country}</p>}
+        <p className="text-sm text-[var(--color-muted)] mt-2">
+          Payment method: {order.payment_method === 'cod' ? 'Cash on Delivery' : 'Card'}
+        </p>
       </div>
 
       <div className="card rounded-lg divide-y divide-[var(--color-line)]">

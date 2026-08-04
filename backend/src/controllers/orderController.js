@@ -12,9 +12,9 @@ const { cancelAbandonedOrders } = require('../models/orderModel');
 
 async function checkout(req, res) {
   try {
-    const { discountCode, shippingInfo } = req.body;
+    const { discountCode, shippingInfo, paymentMethod } = req.body;
     const cart = await getOrCreateCart({ userId: req.user.userId });
-    const order = await createOrderFromCart(req.user.userId, cart.id, discountCode || null, shippingInfo || {});
+    const order = await createOrderFromCart(req.user.userId, cart.id, discountCode || null, shippingInfo || {}, paymentMethod || 'card');
     res.status(201).json(order);
   } catch (err) {
     if (err.status) {
