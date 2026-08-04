@@ -5,6 +5,7 @@ import StarRating from '@/components/ui/StarRating';
 import { formatPrice } from '@/lib/format';
 import ProductCard from '@/components/ProductCard';
 import WishlistButton from '@/components/WishlistButton';
+import SizeChartModal from '@/components/SizeChartModal';
 
 async function getProduct(slug) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${slug}`, {
@@ -67,7 +68,14 @@ export default async function ProductPage({ params }) {
 
           <p className="text-[var(--color-muted)] mt-4 leading-relaxed">{product.description}</p>
 
-          <div className="mt-8 space-y-3">
+          <div className="flex items-center justify-between mt-8 mb-3">
+            <h2 className="font-medium text-sm">Select a size</h2>
+            {product.size_chart_enabled && product.size_chart_image_url && (
+              <SizeChartModal imageUrl={product.size_chart_image_url} />
+            )}
+          </div>
+
+          <div className="space-y-3">
             {product.variants.map((variant) => (
               <div
                 key={variant.id}
