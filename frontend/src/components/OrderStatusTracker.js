@@ -1,10 +1,12 @@
 // frontend/src/components/OrderStatusTracker.js
-const STEPS = [
-  { key: 'pending', label: 'Order Placed' },
-  { key: 'paid', label: 'Payment Confirmed' },
-  { key: 'shipped', label: 'Shipped' },
-  { key: 'delivered', label: 'Delivered' },
-];
+function buildSteps(paymentMethod) {
+  return [
+    { key: 'pending', label: 'Order Placed' },
+    { key: 'paid', label: paymentMethod === 'cod' ? 'Order Confirmed' : 'Payment Confirmed' },
+    { key: 'shipped', label: 'Shipped' },
+    { key: 'delivered', label: 'Delivered' },
+  ];
+}
 
 const TERMINAL_STATES = {
   cancelled: { label: 'Order Cancelled', tone: 'neutral' },
@@ -12,7 +14,8 @@ const TERMINAL_STATES = {
   disputed: { label: 'Payment Disputed', tone: 'danger' },
 };
 
-export default function OrderStatusTracker({ status }) {
+export default function OrderStatusTracker({ status, paymentMethod }) {
+  const STEPS = buildSteps(paymentMethod);
   // Cancelled/refunded/disputed don't fit the linear flow — show a distinct banner instead
   if (TERMINAL_STATES[status]) {
     const terminal = TERMINAL_STATES[status];
