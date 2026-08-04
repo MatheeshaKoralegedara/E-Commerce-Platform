@@ -15,9 +15,9 @@ export default async function SearchPage({ searchParams }) {
   const products = q ? await searchProducts(q) : [];
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-12">
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
       <p className="eyebrow mb-2">Search</p>
-      <h1 className="font-display text-3xl mb-8">
+      <h1 className="font-display text-2xl sm:text-3xl mb-8 text-balance">
         {products.length > 0 ? `${products.length} result${products.length !== 1 ? 's' : ''} for` : 'Results for'} &ldquo;{q}&rdquo;
       </h1>
 
@@ -28,7 +28,7 @@ export default async function SearchPage({ searchParams }) {
           description={`We couldn't find anything for "${q}". Try a different search term.`}
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

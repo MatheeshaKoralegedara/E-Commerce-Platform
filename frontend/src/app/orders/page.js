@@ -74,9 +74,9 @@ export default function MyOrdersPage() {
             <Link
               key={order.id}
               href={`/orders/${order.id}`}
-              className="card-product rounded-lg p-5 flex justify-between items-center block"
+              className="card-product rounded-lg p-4 sm:p-5 flex flex-wrap gap-3 justify-between items-center block"
             >
-              <div>
+              <div className="min-w-0">
                 <p className="font-medium">Order #{order.id}</p>
                 <p className="text-sm text-[var(--color-muted)] mt-0.5">
                   {new Date(order.created_at).toLocaleDateString(undefined, {
@@ -84,7 +84,7 @@ export default function MyOrdersPage() {
                   })}
                 </p>
               </div>
-              <div className="text-right">
+              <div className="text-right shrink-0">
                 <p className="font-medium mb-1.5">{formatPrice(order.total_cents)}</p>
                 <Badge tone={ORDER_STATUS_TONE[order.status] || 'neutral'}>{order.status}</Badge>
               </div>
