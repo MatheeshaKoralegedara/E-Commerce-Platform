@@ -97,8 +97,8 @@ export default function CartPage() {
 
       <div className="divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
         {cart.items.map((item) => (
-          <div key={item.variant_id} className="py-5 flex flex-wrap gap-4 justify-between items-center">
-            <div>
+          <div key={item.variant_id} className="py-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
+            <div className="min-w-0">
               <p className="font-medium">{item.product_name}</p>
               <p className="text-sm text-[var(--color-muted)] mt-0.5">
                 {Object.entries(item.attributes || {}).map(([k, v]) => `${k}: ${v}`).join(', ') || item.sku}
@@ -106,12 +106,12 @@ export default function CartPage() {
               <p className="text-sm text-[var(--color-muted)]">{formatPrice(item.price_cents)} each</p>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6">
               <div className="flex items-center gap-3">
                 <div className="flex items-center border border-[var(--color-line)] rounded-full">
                   <button
                     onClick={() => updateQuantity(item.variant_id, item.quantity - 1)}
-                    className="w-8 h-8 flex items-center justify-center hover:bg-[var(--color-pine-light)] rounded-full transition-colors"
+                    className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-[var(--color-pine-light)] rounded-full transition-colors"
                     aria-label="Decrease quantity"
                   >
                     −
@@ -120,7 +120,7 @@ export default function CartPage() {
                   <button
                     onClick={() => updateQuantity(item.variant_id, item.quantity + 1)}
                     disabled={item.quantity >= item.stock_qty}
-                    className="w-8 h-8 flex items-center justify-center hover:bg-[var(--color-pine-light)] rounded-full transition-colors disabled:opacity-30"
+                    className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-[var(--color-pine-light)] rounded-full transition-colors disabled:opacity-30"
                     aria-label="Increase quantity"
                   >
                     +
@@ -136,7 +136,7 @@ export default function CartPage() {
                 </button>
               </div>
 
-              <p className="font-medium w-24 text-right">
+              <p className="font-medium sm:w-24 text-right shrink-0">
                 {formatPrice(item.price_cents * item.quantity)}
               </p>
             </div>
@@ -144,11 +144,11 @@ export default function CartPage() {
         ))}
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-4 justify-between items-center">
+      <div className="mt-8 flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
         <p className="text-lg">
           Subtotal: <span className="font-display text-xl ml-1">{formatPrice(cart.subtotalCents)}</span>
         </p>
-        <Button href="/checkout" shape="full" size="lg">
+        <Button href="/checkout" shape="full" size="lg" className="w-full sm:w-auto">
           Proceed to Checkout
         </Button>
       </div>
