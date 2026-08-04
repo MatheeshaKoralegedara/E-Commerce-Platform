@@ -389,8 +389,34 @@ function ProductEditForm({ product, categories, token, onChange, onCancel }) {
   const [description, setDescription] = useState(product.description || '');
   const [categoryId, setCategoryId] = useState(product.category_id || '');
   const [imageUrl, setImageUrl] = useState(product.image_url || '');
+  const [sizeChartEnabled, setSizeChartEnabled] = useState(product.size_chart_enabled || false);
+  const [sizeChartImageUrl, setSizeChartImageUrl] = useState(product.size_chart_image_url || '');
+  const [uploadingChart, setUploadingChart] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  async function handleSizeChartUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingChart(true);
+    setError('');
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      setSizeChartImageUrl(data.imageUrl);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploadingChart(false);
+    }
+  }
 
   async function handleSave(e) {
     e.preventDefault();
@@ -400,6 +426,11 @@ function ProductEditForm({ product, categories, token, onChange, onCancel }) {
       await apiRequest(`/products/${product.id}`, {
         method: 'PATCH',
         body: { name, slug, description, categoryId: categoryId || null, imageUrl: imageUrl || null },
+        token,
+      });
+      await apiRequest(`/products/${product.id}/size-chart`, {
+        method: 'PATCH',
+        body: { sizeChartEnabled, sizeChartImageUrl: sizeChartImageUrl || null },
         token,
       });
       onChange();
@@ -425,6 +456,45 @@ function ProductEditForm({ product, categories, token, onChange, onCancel }) {
           <option key={cat.id} value={cat.id}>{cat.name}</option>
         ))}
       </select>
+
+      <div className="border-t border-[var(--color-line)] pt-2 space-y-2">
+        <label className="flex items-center gap-2 text-xs">
+          <input
+            type="checkbox"
+            checked={sizeChartEnabled}
+            onChange={(e) => setSizeChartEnabled(e.target.checked)}
+          />
+          Show size chart on product page
+        </label>
+        {sizeChartEnabled && (
+          <>
+            <input
+              value={sizeChartImageUrl}
+              onChange={(e) => setSizeChartImageUrl(e.target.value)}
+              placeholder="Size chart image URL"
+              className="field-input w-full px-2 py-1.5 text-sm"
+            />
+            <div>
+              <label htmlFor={`size-chart-file-${product.id}`} className="text-xs text-[var(--color-muted)] block mb-1">
+                Or upload a size chart image
+              </label>
+              <input
+                id={`size-chart-file-${product.id}`}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleSizeChartUpload}
+                disabled={uploadingChart}
+                className="text-sm"
+              />
+              {uploadingChart && <p className="text-xs text-[var(--color-muted)] mt-1">Uploading…</p>}
+            </div>
+            {sizeChartImageUrl && (
+              <img src={sizeChartImageUrl} alt="Size chart preview" className="max-h-32 rounded border border-[var(--color-line)]" />
+            )}
+          </>
+        )}
+      </div>
+
       {error && <p className="text-[var(--color-danger)] text-xs">{error}</p>}
       <div className="flex gap-2">
         <Button type="submit" disabled={saving} size="sm">

@@ -8,6 +8,7 @@ const {
   updateProductStatus,
   searchProducts,
   updateProduct,
+  updateSizeChart,
   deleteVariant,
 } = require('../models/productModel');
 
@@ -193,6 +194,19 @@ async function update(req, res) {
   }
 }
 
+async function setSizeChart(req, res) {
+  try {
+    const { productId } = req.params;
+    const { sizeChartEnabled, sizeChartImageUrl } = req.body;
+    const product = await updateSizeChart(productId, { sizeChartEnabled, sizeChartImageUrl });
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json(product);
+  } catch (err) {
+    req.log.error({ err }, 'Failed to update size chart');
+    res.status(500).json({ error: 'Failed to update size chart' });
+  }
+}
+
 async function removeVariant(req, res) {
   try {
     const { variantId } = req.params;
@@ -232,4 +246,4 @@ const getBySlug = asyncHandler(async (req, res) => {
 });
 
 
-module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search, updateImage, update, removeVariant, bulkSetStatus };
+module.exports = { create, addProductVariant, setStatus, list, getBySlug, adminList, assignCategory, search, updateImage, update, setSizeChart, removeVariant, bulkSetStatus };
