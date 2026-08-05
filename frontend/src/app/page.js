@@ -51,82 +51,72 @@ export default async function HomePage({ searchParams }) {
 
   return (
     <main>
-      <section className="relative overflow-hidden bg-[var(--color-pine-dark)] text-[var(--color-canvas)]">
-        {/* Dot grid texture — unchanged */}
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
-            backgroundSize: '22px 22px',
-          }}
-        />
-
-        {/* Soft animated glow orb for depth */}
-        <div
-          className="absolute -top-20 -right-20 w-96 h-96 rounded-full blur-3xl animate-glow pointer-events-none"
-          style={{ background: 'var(--color-clay)' }}
-        />
-
-        <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
-          <div>
-            <p className="eyebrow mb-4 animate-fade-up" style={{ color: 'var(--color-clay-light)' }}>
-              The Collection · Est. 2024
-            </p>
-            <h1 className="font-display text-4xl md:text-6xl leading-[1.05] mb-6 animate-fade-up delay-100">
-              Everyday goods,<br />made to last.
-            </h1>
-            <p className="text-white/70 max-w-md mb-8 leading-relaxed animate-fade-up delay-200">
-              Considered essentials, sourced from makers who care about materials
-              as much as you do. No trends — just things worth keeping.
-            </p>
-            <div className="flex flex-wrap gap-3 animate-fade-up delay-300">
-              <Link
-                href="#collection"
-                className="btn btn-primary rounded-full px-6 py-3 text-sm transition-transform hover:scale-105"
-                style={{ background: 'var(--color-clay)' }}
-              >
-                Shop the collection
-              </Link>
-              <a
-                href="#collection"
-                className="btn rounded-full px-6 py-3 text-sm border border-white/25 text-white hover:bg-white/10 transition-all hover:scale-105"
-              >
-                Browse categories
-              </a>
-            </div>
-          </div>
-
-          <div className="hidden md:grid grid-cols-2 gap-4">
-            {products.slice(0, 4).map((p, i) => (
+      <section className="relative h-[85vh] min-h-[600px] overflow-hidden text-white">
+        {/* Rotating background images with Ken Burns zoom + crossfade */}
+        <div className="absolute inset-0">
+          {products.slice(0, 3).map((p, i) => (
+            p.image_url && (
               <div
                 key={p.id}
-                className={`aspect-square rounded-lg overflow-hidden ring-1 ring-white/10 shadow-xl shadow-black/20
-                  animate-fade-up transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl hover:ring-white/30
-                  ${i % 3 === 1 ? 'sm:mt-6 animate-float' : ''}`}
-                style={{ animationDelay: `${0.15 * i + 0.2}s` }}
+                className={`absolute inset-0 animate-crossfade-${i + 1}`}
               >
-                {p.image_url ? (
-                  <img
-                    src={p.image_url}
-                    alt={p.name}
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-white/5" />
-                )}
+                <img
+                  src={p.image_url}
+                  alt=""
+                  className="w-full h-full object-cover animate-kenburns"
+                />
               </div>
-            ))}
+            )
+          ))}
+        </div>
+
+        {/* Dark gradient overlay so text stays readable */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(180deg, rgba(21,23,20,0.3) 0%, rgba(21,23,20,0.75) 70%, rgba(21,23,20,0.95) 100%)' }}
+        />
+
+        {/* Content */}
+        <div className="relative h-full max-w-6xl mx-auto px-6 flex flex-col justify-end pb-20">
+          <p className="eyebrow mb-4" style={{ color: 'var(--color-clay-light)' }}>
+            The Collection · Est. 2024
+          </p>
+
+          <h1 className="font-display text-5xl md:text-7xl leading-[1.02] mb-6 max-w-3xl">
+            <span className="word-reveal">
+              {'Everyday goods, made to last.'.split(' ').map((word, i) => (
+                <span key={i} style={{ animationDelay: `${i * 0.08}s` }}>
+                  {word}{'\u00A0'}
+                </span>
+              ))}
+            </span>
+          </h1>
+
+          <p className="text-white/80 max-w-md mb-8 leading-relaxed text-lg">
+            Considered essentials, sourced from makers who care about materials
+            as much as you do. No trends — just things worth keeping.
+          </p>
+
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="#collection"
+              className="btn-shimmer rounded-full px-8 py-4 text-sm font-medium text-white shadow-2xl transition-transform hover:scale-105"
+            >
+              Shop the collection
+            </Link>
+            <a
+              href="#collection"
+              className="rounded-full px-8 py-4 text-sm border border-white/30 text-white hover:bg-white/10 backdrop-blur-sm transition-all hover:scale-105"
+            >
+              Browse categories
+            </a>
           </div>
         </div>
 
         {/* Scroll cue */}
-        <div className="relative flex justify-center pb-8">
-          <a
-            href="#collection"
-            aria-label="Scroll to collection"
-            className="text-white/40 hover:text-white/70 transition-colors animate-float"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+          <a href="#collection" aria-label="Scroll to collection" className="text-white/60 hover:text-white transition-colors">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-bounce">
               <path d="M12 5v14M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </a>

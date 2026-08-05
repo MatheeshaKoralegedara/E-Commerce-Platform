@@ -240,6 +240,50 @@ body {
   animation: glowPulse 6s ease-in-out infinite;
 }
 
+@keyframes kenBurns {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.15) translate(-1%, -1%); }
+}
+
+@keyframes crossfade {
+  0%, 25% { opacity: 1; }
+  33%, 92% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes wordReveal {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-kenburns {
+  animation: kenBurns 8s ease-out forwards;
+}
+
+.animate-crossfade-1 { animation: crossfade 12s infinite; animation-delay: 0s; }
+.animate-crossfade-2 { animation: crossfade 12s infinite; animation-delay: 4s; }
+.animate-crossfade-3 { animation: crossfade 12s infinite; animation-delay: 8s; }
+
+.word-reveal {
+  display: inline-block;
+  overflow: hidden;
+}
+.word-reveal span {
+  display: inline-block;
+  animation: wordReveal 0.8s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+.btn-shimmer {
+  background: linear-gradient(110deg, var(--color-clay) 40%, #e8a563 50%, var(--color-clay) 60%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
 /* Staggered delays for sequential entrance */
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
