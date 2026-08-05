@@ -52,55 +52,84 @@ export default async function HomePage({ searchParams }) {
   return (
     <main>
       <section className="relative overflow-hidden bg-[var(--color-pine-dark)] text-[var(--color-canvas)]">
+        {/* Dot grid texture — unchanged */}
         <div
           className="absolute inset-0 opacity-[0.07]"
           style={{
-            backgroundImage:
-              'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+            backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
             backgroundSize: '22px 22px',
           }}
         />
+
+        {/* Soft animated glow orb for depth */}
         <div
-          className="absolute -top-32 -right-32 w-[26rem] h-[26rem] rounded-full opacity-20 blur-3xl pointer-events-none"
+          className="absolute -top-20 -right-20 w-96 h-96 rounded-full blur-3xl animate-glow pointer-events-none"
           style={{ background: 'var(--color-clay)' }}
         />
-        <div
-          className="absolute -bottom-40 -left-24 w-[22rem] h-[22rem] rounded-full opacity-10 blur-3xl pointer-events-none"
-          style={{ background: 'var(--color-pine-light)' }}
-        />
-        <div className="relative max-w-6xl mx-auto px-6 py-16 sm:py-20 md:py-28 grid md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-12 items-center">
-          <div className="animate-fade-up text-center md:text-left">
-            <p className="eyebrow mb-4 justify-center md:justify-start inline-flex" style={{ color: 'var(--color-clay-light)' }}>The Collection · Est. 2024</p>
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.05] mb-6 text-balance">
+
+        <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
+          <div>
+            <p className="eyebrow mb-4 animate-fade-up" style={{ color: 'var(--color-clay-light)' }}>
+              The Collection · Est. 2024
+            </p>
+            <h1 className="font-display text-4xl md:text-6xl leading-[1.05] mb-6 animate-fade-up delay-100">
               Everyday goods,<br />made to last.
             </h1>
-            <p className="text-white/70 max-w-md mx-auto md:mx-0 mb-8 leading-relaxed">
+            <p className="text-white/70 max-w-md mb-8 leading-relaxed animate-fade-up delay-200">
               Considered essentials, sourced from makers who care about materials
               as much as you do. No trends — just things worth keeping.
             </p>
-            <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-              <Link href="#collection" className="btn btn-primary rounded-full px-6 py-3 text-sm shadow-lg shadow-black/20 hover:scale-[1.03] active:scale-[0.98] transition-transform" style={{ background: 'var(--color-clay)' }}>
+            <div className="flex flex-wrap gap-3 animate-fade-up delay-300">
+              <Link
+                href="#collection"
+                className="btn btn-primary rounded-full px-6 py-3 text-sm transition-transform hover:scale-105"
+                style={{ background: 'var(--color-clay)' }}
+              >
                 Shop the collection
               </Link>
-              <a href="#collection" className="btn rounded-full px-6 py-3 text-sm border border-white/25 text-white hover:bg-white/10 hover:border-white/40 transition-colors">
+              <a
+                href="#collection"
+                className="btn rounded-full px-6 py-3 text-sm border border-white/25 text-white hover:bg-white/10 transition-all hover:scale-105"
+              >
                 Browse categories
               </a>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-2 md:mt-0">
+
+          <div className="hidden md:grid grid-cols-2 gap-4">
             {products.slice(0, 4).map((p, i) => (
               <div
                 key={p.id}
-                className={`aspect-square rounded-lg overflow-hidden ring-1 ring-white/10 shadow-xl shadow-black/20 ${i % 3 === 1 ? 'sm:mt-6' : ''}`}
+                className={`aspect-square rounded-lg overflow-hidden ring-1 ring-white/10 shadow-xl shadow-black/20
+                  animate-fade-up transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl hover:ring-white/30
+                  ${i % 3 === 1 ? 'sm:mt-6 animate-float' : ''}`}
+                style={{ animationDelay: `${0.15 * i + 0.2}s` }}
               >
                 {p.image_url ? (
-                  <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
+                  <img
+                    src={p.image_url}
+                    alt={p.name}
+                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                  />
                 ) : (
                   <div className="w-full h-full bg-white/5" />
                 )}
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Scroll cue */}
+        <div className="relative flex justify-center pb-8">
+          <a
+            href="#collection"
+            aria-label="Scroll to collection"
+            className="text-white/40 hover:text-white/70 transition-colors animate-float"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 5v14M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
         </div>
       </section>
 
