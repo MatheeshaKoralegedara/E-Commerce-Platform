@@ -91,7 +91,7 @@ export default async function HomePage({ searchParams }) {
             {products.slice(0, 4).map((p, i) => (
               <div
                 key={p.id}
-                className={`aspect-square rounded-lg overflow-hidden ring-1 ring-white/10 shadow-xl shadow-black/20 ${i % 3 === 1 ? 'sm:translate-y-6' : ''}`}
+                className={`aspect-square rounded-lg overflow-hidden ring-1 ring-white/10 shadow-xl shadow-black/20 ${i % 3 === 1 ? 'sm:mt-6' : ''}`}
               >
                 {p.image_url ? (
                   <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
