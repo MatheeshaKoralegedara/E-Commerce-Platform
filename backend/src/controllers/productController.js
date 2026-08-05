@@ -14,6 +14,7 @@ const {
 
 const { logActionSafe } = require('../models/auditLogModel');
 const { getRelatedProducts } = require('../models/productModel');
+const { getProductImages } = require('../models/productImageModel');
 const asyncHandler = require('../middleware/asyncHandler');
 const { AppError } = require('../middleware/errorHandler');
 
@@ -242,7 +243,8 @@ const getBySlug = asyncHandler(async (req, res) => {
     throw new AppError('Product not found', 404);
   }
   const related = await getRelatedProducts(product.id, product.category_id, 4);
-  res.json({ ...product, related });
+  const gallery = await getProductImages(product.id);
+  res.json({ ...product, related, gallery });
 });
 
 
