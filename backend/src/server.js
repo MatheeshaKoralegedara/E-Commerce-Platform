@@ -22,6 +22,7 @@ const auditLogRoutes = require('./routes/auditLogRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const { errorHandler } = require('./middleware/errorHandler');
+const productImageRoutes = require('./routes/productImageRoutes');
 
 const app = express();
 app.set('trust proxy', 1); // trust Render's reverse proxy for accurate client IPs in rate limiting
@@ -67,6 +68,7 @@ app.use('/api/admin/reviews', adminReviewRoutes);
 app.use('/api/audit-log', auditLogRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/products/:productId/images', productImageRoutes);
 
 app.get('/health', async (req, res) => {
   try {
