@@ -207,5 +207,180 @@ body {
   animation: shimmer 1.4s ease infinite;
 }
 
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float-card {
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.25; transform: scale(1.05); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-down {
+  animation: slideDown 0.4s ease-out both;
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.7s ease-out both;
+}
+
+.animate-float {
+  animation: floatSlow 5s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glowPulse 6s ease-in-out infinite;
+}
+
+@keyframes heroZoom {
+  0%, 100% { transform: scale(1.12) translate(0, 0); }
+  50% { transform: scale(1.08) translate(-0.4%, -0.4%); }
+}
+
+.animate-hero-zoom {
+  animation: heroZoom 18s ease-in-out infinite both;
+  transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+@keyframes crossfade {
+  0% { opacity: 0; }
+  5% { opacity: 1; }
+  20% { opacity: 1; }
+  30% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes wordReveal {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-crossfade-1 { animation: crossfade 20s infinite both; animation-delay: 0s; }
+.animate-crossfade-2 { animation: crossfade 20s infinite both; animation-delay: 4s; }
+.animate-crossfade-3 { animation: crossfade 20s infinite both; animation-delay: 8s; }
+.animate-crossfade-4 { animation: crossfade 20s infinite both; animation-delay: 12s; }
+.animate-crossfade-5 { animation: crossfade 20s infinite both; animation-delay: 16s; }
+
+.word-reveal {
+  display: inline-block;
+  overflow: hidden;
+}
+.word-reveal span {
+  display: inline-block;
+  animation: wordReveal 0.8s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+.btn-shimmer {
+  background: linear-gradient(110deg, var(--color-clay) 40%, #e8a563 50%, var(--color-clay) 60%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes meshMove {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px 0 rgba(56, 189, 248, 0.4); }
+  50% { box-shadow: 0 0 40px 8px rgba(56, 189, 248, 0.6); }
+}
+
+@keyframes slideInBold {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes blobFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+@keyframes gentleBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-mesh {
+  background: radial-gradient(circle at 20% 30%, rgba(56, 189, 248, 0.25), transparent 40%),
+              radial-gradient(circle at 80% 70%, rgba(232, 121, 249, 0.2), transparent 40%),
+              radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.15), transparent 50%);
+  background-size: 200% 200%;
+  animation: meshMove 10s ease-in-out infinite;
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+.animate-slide-bold {
+  animation: slideInBold 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-blob-1 { animation: blobFloat 12s ease-in-out infinite; }
+.animate-blob-2 { animation: blobFloat 15s ease-in-out infinite reverse; }
+.animate-blob-3 { animation: blobFloat 9s ease-in-out infinite; animation-delay: 2s; }
+
+.animate-gentle-bounce {
+  animation: gentleBounce 3s ease-in-out infinite;
+}
+
+.animate-pop-in {
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Staggered delays for sequential entrance */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }

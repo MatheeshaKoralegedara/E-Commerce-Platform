@@ -40,6 +40,8 @@ export default async function HomePage({ searchParams }) {
   ]);
 
   const totalPages = Math.max(Math.ceil(total / limit), 1);
+  const heroImages = products.map((product) => product.image_url).filter(Boolean).slice(0, 5);
+  const firstHeroImage = heroImages[0] || null;
 
   function pageUrl(newPage) {
     const params = new URLSearchParams();
@@ -50,59 +52,78 @@ export default async function HomePage({ searchParams }) {
   }
 
   return (
-    <main>
-      <section className="relative overflow-hidden bg-[var(--color-pine-dark)] text-[var(--color-canvas)]">
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
-            backgroundSize: '22px 22px',
-          }}
-        />
-        <div
-          className="absolute -top-32 -right-32 w-[26rem] h-[26rem] rounded-full opacity-20 blur-3xl pointer-events-none"
-          style={{ background: 'var(--color-clay)' }}
-        />
-        <div
-          className="absolute -bottom-40 -left-24 w-[22rem] h-[22rem] rounded-full opacity-10 blur-3xl pointer-events-none"
-          style={{ background: 'var(--color-pine-light)' }}
-        />
-        <div className="relative max-w-6xl mx-auto px-6 py-16 sm:py-20 md:py-28 grid md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-12 items-center">
-          <div className="animate-fade-up text-center md:text-left">
-            <p className="eyebrow mb-4 justify-center md:justify-start inline-flex" style={{ color: 'var(--color-clay-light)' }}>The Collection · Est. 2024</p>
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.05] mb-6 text-balance">
-              Everyday goods,<br />made to last.
+    <>
+      <div className="bg-[var(--color-ink)] text-white text-center py-2 text-xs font-medium tracking-wide">
+        🚚 Free shipping on orders over Rs. 5,000 · Cash on Delivery available
+      </div>
+
+      <main>
+        <section className="relative h-[85vh] min-h-[600px] overflow-hidden text-white">
+          <div
+            className="absolute inset-0 bg-[var(--color-ink)] bg-center bg-cover"
+            style={firstHeroImage ? { backgroundImage: `url(${firstHeroImage})` } : undefined}
+          >
+            {heroImages.map((url, i) => (
+              <div key={`${url}-${i}`} className={`absolute inset-0 animate-crossfade-${i + 1}`}>
+                <img
+                  src={url}
+                  alt=""
+                  loading="eager"
+                  className="w-full h-full min-w-full min-h-full object-cover animate-hero-zoom"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(180deg, rgba(21,23,20,0.3) 0%, rgba(21,23,20,0.75) 70%, rgba(21,23,20,0.95) 100%)' }}
+          />
+
+          <div className="relative h-full max-w-6xl mx-auto px-6 flex flex-col justify-end pb-20">
+            <p className="eyebrow mb-4" style={{ color: 'var(--color-clay-light)' }}>
+              The Collection · Est. 2024
+            </p>
+
+            <h1 className="font-display text-5xl md:text-7xl leading-[1.02] mb-6 max-w-3xl">
+              <span className="word-reveal">
+                {'Everyday goods, made to last.'.split(' ').map((word, i) => (
+                  <span key={i} style={{ animationDelay: `${i * 0.08}s` }}>
+                    {word}{'\u00A0'}
+                  </span>
+                ))}
+              </span>
             </h1>
-            <p className="text-white/70 max-w-md mx-auto md:mx-0 mb-8 leading-relaxed">
+
+            <p className="text-white/80 max-w-md mb-8 leading-relaxed text-lg">
               Considered essentials, sourced from makers who care about materials
               as much as you do. No trends — just things worth keeping.
             </p>
-            <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-              <Link href="#collection" className="btn btn-primary rounded-full px-6 py-3 text-sm shadow-lg shadow-black/20 hover:scale-[1.03] active:scale-[0.98] transition-transform" style={{ background: 'var(--color-clay)' }}>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="#collection"
+                className="btn-shimmer rounded-full px-8 py-4 text-sm font-medium text-white shadow-2xl transition-transform hover:scale-105"
+              >
                 Shop the collection
               </Link>
-              <a href="#collection" className="btn rounded-full px-6 py-3 text-sm border border-white/25 text-white hover:bg-white/10 hover:border-white/40 transition-colors">
+              <a
+                href="#collection"
+                className="rounded-full px-8 py-4 text-sm border border-white/30 text-white hover:bg-white/10 backdrop-blur-sm transition-all hover:scale-105"
+              >
                 Browse categories
               </a>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-2 md:mt-0">
-            {products.slice(0, 4).map((p, i) => (
-              <div
-                key={p.id}
-                className={`aspect-square rounded-lg overflow-hidden ring-1 ring-white/10 shadow-xl shadow-black/20 ${i % 3 === 1 ? 'sm:mt-6' : ''}`}
-              >
-                {p.image_url ? (
-                  <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-white/5" />
-                )}
-              </div>
-            ))}
+
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+            <a href="#collection" aria-label="Scroll to collection" className="text-white/60 hover:text-white transition-colors">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-bounce">
+                <path d="M12 5v14M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
           </div>
-        </div>
-      </section>
+        </section>
 
       <div id="collection" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 scroll-mt-20">
         <div className="mb-8 sm:mb-10 flex flex-col gap-6">
@@ -200,5 +221,6 @@ export default async function HomePage({ searchParams }) {
         )}
       </div>
     </main>
+    </>
   );
 }
