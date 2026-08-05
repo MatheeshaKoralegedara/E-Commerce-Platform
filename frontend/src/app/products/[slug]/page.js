@@ -42,9 +42,7 @@ export default async function ProductPage({ params }) {
   return (
     <main className="max-w-5xl mx-auto px-6 py-12">
       <div className="grid md:grid-cols-2 gap-12">
-        <div className="aspect-square bg-[var(--color-pine-light)] rounded-lg overflow-hidden">
-          <ProductGallery mainImage={product.image_url} gallery={product.gallery || []} />
-        </div>
+        <ProductGallery mainImage={product.image_url} gallery={product.gallery || []} />
 
         <div>
           <div className="flex items-start justify-between gap-4">
