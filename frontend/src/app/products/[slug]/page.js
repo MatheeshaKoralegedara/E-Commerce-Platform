@@ -6,7 +6,7 @@ import { formatPrice } from '@/lib/format';
 import ProductCard from '@/components/ProductCard';
 import WishlistButton from '@/components/WishlistButton';
 import SizeChartModal from '@/components/SizeChartModal';
-import ProductImageGallery from '@/components/ProductImageGallery';
+import ProductGallery from '@/components/ProductGallery';
 
 async function getProduct(slug) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${slug}`, {
@@ -43,7 +43,7 @@ export default async function ProductPage({ params }) {
     <main className="max-w-5xl mx-auto px-6 py-12">
       <div className="grid md:grid-cols-2 gap-12">
         <div className="aspect-square bg-[var(--color-pine-light)] rounded-lg overflow-hidden">
-          <ProductImageGallery mainImage={product.image_url} gallery={product.gallery || []} />
+          <ProductGallery mainImage={product.image_url} gallery={product.gallery || []} />
         </div>
 
         <div>
