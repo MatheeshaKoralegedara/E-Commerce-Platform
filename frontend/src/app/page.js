@@ -223,5 +223,6 @@ export default async function HomePage({ searchParams }) {
         )}
       </div>
     </main>
+    </>
   );
 }
