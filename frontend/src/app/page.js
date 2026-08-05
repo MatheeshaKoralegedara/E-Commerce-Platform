@@ -53,80 +53,77 @@ export default async function HomePage({ searchParams }) {
 
   return (
     <>
+      <div className="bg-[var(--color-ink)] text-white text-center py-2 text-xs font-medium tracking-wide">
+        🚚 Free shipping on orders over Rs. 5,000 · Cash on Delivery available
+      </div>
+
       <main>
-      <section className="relative h-[85vh] min-h-[600px] overflow-hidden text-white">
-        {/* Rotating background images with Ken Burns zoom + crossfade */}
-        <div
-          className="absolute inset-0 bg-[var(--color-ink)] bg-center bg-cover"
-          style={firstHeroImage ? { backgroundImage: `url(${firstHeroImage})` } : undefined}
-        >
-          {heroImages.map((url, i) => (
-            <div
-              key={`${url}-${i}`}
-              className={`absolute inset-0 animate-crossfade-${i + 1}`}
-            >
-              <img
-                src={url}
-                alt=""
-                loading="eager"
-                className="w-full h-full min-w-full min-h-full object-cover animate-hero-zoom"
-              />
+        <section className="relative h-[85vh] min-h-[600px] overflow-hidden text-white">
+          <div
+            className="absolute inset-0 bg-[var(--color-ink)] bg-center bg-cover"
+            style={firstHeroImage ? { backgroundImage: `url(${firstHeroImage})` } : undefined}
+          >
+            {heroImages.map((url, i) => (
+              <div key={`${url}-${i}`} className={`absolute inset-0 animate-crossfade-${i + 1}`}>
+                <img
+                  src={url}
+                  alt=""
+                  loading="eager"
+                  className="w-full h-full min-w-full min-h-full object-cover animate-hero-zoom"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(180deg, rgba(21,23,20,0.3) 0%, rgba(21,23,20,0.75) 70%, rgba(21,23,20,0.95) 100%)' }}
+          />
+
+          <div className="relative h-full max-w-6xl mx-auto px-6 flex flex-col justify-end pb-20">
+            <p className="eyebrow mb-4" style={{ color: 'var(--color-clay-light)' }}>
+              The Collection · Est. 2024
+            </p>
+
+            <h1 className="font-display text-5xl md:text-7xl leading-[1.02] mb-6 max-w-3xl">
+              <span className="word-reveal">
+                {'Everyday goods, made to last.'.split(' ').map((word, i) => (
+                  <span key={i} style={{ animationDelay: `${i * 0.08}s` }}>
+                    {word}{'\u00A0'}
+                  </span>
+                ))}
+              </span>
+            </h1>
+
+            <p className="text-white/80 max-w-md mb-8 leading-relaxed text-lg">
+              Considered essentials, sourced from makers who care about materials
+              as much as you do. No trends — just things worth keeping.
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="#collection"
+                className="btn-shimmer rounded-full px-8 py-4 text-sm font-medium text-white shadow-2xl transition-transform hover:scale-105"
+              >
+                Shop the collection
+              </Link>
+              <a
+                href="#collection"
+                className="rounded-full px-8 py-4 text-sm border border-white/30 text-white hover:bg-white/10 backdrop-blur-sm transition-all hover:scale-105"
+              >
+                Browse categories
+              </a>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* Dark gradient overlay so text stays readable */}
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(180deg, rgba(21,23,20,0.3) 0%, rgba(21,23,20,0.75) 70%, rgba(21,23,20,0.95) 100%)' }}
-        />
-
-        {/* Content */}
-        <div className="relative h-full max-w-6xl mx-auto px-6 flex flex-col justify-end pb-20">
-          <p className="eyebrow mb-4" style={{ color: 'var(--color-clay-light)' }}>
-            The Collection · Est. 2024
-          </p>
-
-          <h1 className="font-display text-5xl md:text-7xl leading-[1.02] mb-6 max-w-3xl">
-            <span className="word-reveal">
-              {'Everyday goods, made to last.'.split(' ').map((word, i) => (
-                <span key={i} style={{ animationDelay: `${i * 0.08}s` }}>
-                  {word}{'\u00A0'}
-                </span>
-              ))}
-            </span>
-          </h1>
-
-          <p className="text-white/80 max-w-md mb-8 leading-relaxed text-lg">
-            Considered essentials, sourced from makers who care about materials
-            as much as you do. No trends — just things worth keeping.
-          </p>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="#collection"
-              className="btn-shimmer rounded-full px-8 py-4 text-sm font-medium text-white shadow-2xl transition-transform hover:scale-105"
-            >
-              Shop the collection
-            </Link>
-            <a
-              href="#collection"
-              className="rounded-full px-8 py-4 text-sm border border-white/30 text-white hover:bg-white/10 backdrop-blur-sm transition-all hover:scale-105"
-            >
-              Browse categories
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+            <a href="#collection" aria-label="Scroll to collection" className="text-white/60 hover:text-white transition-colors">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-bounce">
+                <path d="M12 5v14M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </a>
           </div>
-        </div>
-
-        {/* Scroll cue */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
-          <a href="#collection" aria-label="Scroll to collection" className="text-white/60 hover:text-white transition-colors">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-bounce">
-              <path d="M12 5v14M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
-        </div>
-      </section>
+        </section>
 
       <div id="collection" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 scroll-mt-20">
         <div className="mb-8 sm:mb-10 flex flex-col gap-6">
