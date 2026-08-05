@@ -1,6 +1,4 @@
-
 const { addProductImage, getProductImages, deleteProductImage, reorderProductImages } = require('../models/productImageModel');
-const { getProductImages } = require('../models/productImageModel');
 
 async function list(req, res) {
   try {
@@ -16,7 +14,6 @@ async function add(req, res) {
   try {
     const { imageUrl } = req.body;
     if (!imageUrl) return res.status(400).json({ error: 'imageUrl is required' });
-
     const existing = await getProductImages(req.params.productId);
     const image = await addProductImage(req.params.productId, imageUrl, existing.length);
     res.status(201).json(image);
@@ -49,14 +46,4 @@ async function reorder(req, res) {
   }
 }
 
-async function getBySlug(req, res) {
-  const product = await getProductBySlug(req.params.slug);
-  if (!product) {
-    throw new AppError('Product not found', 404);
-  }
-  const related = await getRelatedProducts(product.id, product.category_id, 4);
-  const gallery = await getProductImages(product.id);
-  res.json({ ...product, related, gallery });
-}
-
-module.exports = { list, add, remove, reorder, getBySlug };
+module.exports = { list, add, remove, reorder };
