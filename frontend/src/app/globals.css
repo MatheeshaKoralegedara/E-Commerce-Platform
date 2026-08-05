@@ -269,8 +269,11 @@ body {
 }
 
 @keyframes crossfade {
-  0%, 18% { opacity: 1; }
-  22%, 100% { opacity: 0; }
+  0% { opacity: 0; }
+  5% { opacity: 1; }
+  20% { opacity: 1; }
+  30% { opacity: 0; }
+  100% { opacity: 0; }
 }
 
 @keyframes wordReveal {
