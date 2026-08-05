@@ -1,5 +1,6 @@
 // frontend/src/app/page.js
 import Link from 'next/link';
+import SplashIntro from '@/components/SplashIntro';
 import ProductCard from '@/components/ProductCard';
 import EmptyState from '@/components/ui/EmptyState';
 
@@ -40,6 +41,7 @@ export default async function HomePage({ searchParams }) {
   ]);
 
   const totalPages = Math.max(Math.ceil(total / limit), 1);
+  const splashImages = products.map((p) => p.image_url).filter(Boolean);
 
   function pageUrl(newPage) {
     const params = new URLSearchParams();
@@ -50,7 +52,9 @@ export default async function HomePage({ searchParams }) {
   }
 
   return (
-    <main>
+    <>
+      <SplashIntro productImages={splashImages} />
+      <main>
       <section className="relative h-[85vh] min-h-[600px] overflow-hidden text-white">
         {/* Rotating background images with Ken Burns zoom + crossfade */}
         <div className="absolute inset-0">
