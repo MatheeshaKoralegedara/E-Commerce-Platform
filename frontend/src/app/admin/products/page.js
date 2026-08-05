@@ -253,8 +253,10 @@ async function handleImageFileChange(e) {
               </div>
             </div>
 
-            {expandedId === product.id && (
+            {expandedId === product.id && (<>
               <VariantManager product={product} token={token} onChange={loadData} />
+              <ImageGalleryManager product={product} token={token} onChange={loadData} />
+              </>
             )}
             {editingId === product.id && (
               <ProductEditForm
@@ -382,6 +384,144 @@ function VariantManager({ product, token, onChange }) {
     </div>
   );
 }
+
+
+
+function ImageGalleryManager({ product, token, onChange }) {
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    loadImages();
+  }, [product.id]);
+
+  async function loadImages() {
+    setLoading(true);
+    try {
+      const data = await apiRequest(`/products/${product.id}/images`, { token });
+      setImages(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    setError('');
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      await apiRequest(`/products/${product.id}/images`, {
+        method: 'POST',
+        body: { imageUrl: data.imageUrl },
+        token,
+      });
+      loadImages();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleDelete(imageId) {
+    try {
+      await apiRequest(`/products/${product.id}/images/${imageId}`, { method: 'DELETE', token });
+      loadImages();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function moveImage(index, direction) {
+    const newOrder = [...images];
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= newOrder.length) return;
+    [newOrder[index], newOrder[targetIndex]] = [newOrder[targetIndex], newOrder[index]];
+    setImages(newOrder);
+    try {
+      await apiRequest(`/products/${product.id}/images/reorder`, {
+        method: 'PATCH',
+        body: { orderedIds: newOrder.map((img) => img.id) },
+        token,
+      });
+    } catch (err) {
+      setError(err.message);
+      loadImages(); // revert on failure
+    }
+  }
+
+  return (
+    <div className="border-t border-[var(--color-line)] p-4">
+      <h4 className="font-medium text-sm mb-3">Product Gallery</h4>
+      {error && <p className="text-red-600 text-xs mb-2">{error}</p>}
+
+      {loading ? (
+        <p className="text-xs text-[var(--color-muted)]">Loading…</p>
+      ) : (
+        <div className="grid grid-cols-4 gap-2 mb-3">
+          {images.map((img, i) => (
+            <div key={img.id} className="relative border border-[var(--color-line)] rounded overflow-hidden">
+              <img src={img.image_url} alt="" className="w-full aspect-square object-cover" />
+              <div className="absolute top-1 right-1 flex gap-1">
+                <button
+                  onClick={() => handleDelete(img.id)}
+                  className="bg-white/90 rounded text-xs px-1 text-red-600"
+                  aria-label="Remove image"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="absolute bottom-1 left-1 right-1 flex justify-between">
+                <button
+                  onClick={() => moveImage(i, -1)}
+                  disabled={i === 0}
+                  className="bg-white/90 rounded text-xs px-1 disabled:opacity-30"
+                  aria-label="Move earlier"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => moveImage(i, 1)}
+                  disabled={i === images.length - 1}
+                  className="bg-white/90 rounded text-xs px-1 disabled:opacity-30"
+                  aria-label="Move later"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <label className="text-xs text-[var(--color-muted)] block mb-1">Add image to gallery</label>
+      <input
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        onChange={handleUpload}
+        disabled={uploading}
+        className="text-sm"
+      />
+      {uploading && <p className="text-xs text-[var(--color-muted)] mt-1">Uploading…</p>}
+    </div>
+  );
+}
+
 
 function ProductEditForm({ product, categories, token, onChange, onCancel }) {
   const [name, setName] = useState(product.name);
