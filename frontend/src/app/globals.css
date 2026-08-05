@@ -240,9 +240,9 @@ body {
   animation: glowPulse 6s ease-in-out infinite;
 }
 
-@keyframes kenBurns {
-  0% { transform: scale(1) translate(0, 0); }
-  100% { transform: scale(1.15) translate(-1%, -1%); }
+@keyframes heroZoom {
+  0%, 100% { transform: scale(1.1) translate(0, 0); }
+  50% { transform: scale(0.95) translate(-1%, -1%); }
 }
 
 @keyframes crossfade {
@@ -260,8 +260,8 @@ body {
   100% { background-position: 200% 0; }
 }
 
-.animate-kenburns {
-  animation: kenBurns 8s ease-out forwards;
+.animate-hero-zoom {
+  animation: heroZoom 18s ease-in-out infinite;
 }
 
 .animate-crossfade-1 { animation: crossfade 20s infinite; animation-delay: 0s; }
@@ -319,22 +319,6 @@ body {
 @keyframes popIn {
   0% { opacity: 0; transform: scale(0.8); }
   100% { opacity: 1; transform: scale(1); }
-}
-
-@keyframes splashLogoIn {
-  0% { opacity: 0; transform: scale(0.7); }
-  60% { opacity: 1; transform: scale(1.05); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-@keyframes splashProductIn {
-  0% { opacity: 0; transform: scale(0.5) translateY(20px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-@keyframes splashFadeOut {
-  0% { opacity: 1; visibility: visible; }
-  100% { opacity: 0; visibility: hidden; }
 }
 
 .animate-mesh {
