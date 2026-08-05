@@ -53,80 +53,130 @@ export default async function HomePage({ searchParams }) {
 
   return (
     <>
+      {/* Slim promo bar */}
+      <div className="animate-slide-down bg-[var(--color-ink)] text-white text-center py-2 text-xs font-medium tracking-wide">
+        🚚 Free shipping on orders over Rs. 5,000 · Cash on Delivery available
+      </div>
+
       <main>
-      <section className="relative h-[85vh] min-h-[600px] overflow-hidden text-white">
-        {/* Rotating background images with Ken Burns zoom + crossfade */}
-        <div
-          className="absolute inset-0 bg-[var(--color-ink)] bg-center bg-cover"
-          style={firstHeroImage ? { backgroundImage: `url(${firstHeroImage})` } : undefined}
-        >
-          {heroImages.map((url, i) => (
-            <div
-              key={`${url}-${i}`}
-              className={`absolute inset-0 animate-crossfade-${i + 1}`}
-            >
-              <img
-                src={url}
-                alt=""
-                loading="eager"
-                className="w-full h-full min-w-full min-h-full object-cover animate-hero-zoom"
-              />
+        <section className="relative h-[80vh] min-h-[560px] overflow-hidden text-white">
+          {/* Rotating background images with Ken Burns zoom + crossfade */}
+          <div
+            className="absolute inset-0 bg-[var(--color-ink)] bg-center bg-cover"
+            style={firstHeroImage ? { backgroundImage: `url(${firstHeroImage})` } : undefined}
+          >
+            {heroImages.map((url, i) => (
+              <div key={`${url}-${i}`} className={`absolute inset-0 animate-crossfade-${i + 1}`}>
+                <img
+                  src={url}
+                  alt=""
+                  loading="eager"
+                  className="w-full h-full min-w-full min-h-full object-cover animate-hero-zoom"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(180deg, rgba(21,23,20,0.35) 0%, rgba(21,23,20,0.7) 65%, rgba(21,23,20,0.95) 100%)' }}
+          />
+
+          {/* Floating social-proof card */}
+          <div className="hidden lg:block absolute top-24 right-10 animate-float-card">
+            <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl px-5 py-4 flex items-center gap-3">
+              <div className="flex -space-x-2">
+                {[1, 2, 3].map((n) => (
+                  <div key={n} className="w-8 h-8 rounded-full bg-[var(--color-pine)] border-2 border-white" />
+                ))}
+              </div>
+              <div>
+                <p className="text-[var(--color-ink)] font-semibold text-sm leading-tight">2,500+ orders</p>
+                <p className="text-[var(--color-muted)] text-xs">delivered this month</p>
+              </div>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* Dark gradient overlay so text stays readable */}
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(180deg, rgba(21,23,20,0.3) 0%, rgba(21,23,20,0.75) 70%, rgba(21,23,20,0.95) 100%)' }}
-        />
+          {/* Content */}
+          <div className="relative h-full max-w-6xl mx-auto px-6 flex flex-col justify-end pb-24">
+            <p className="eyebrow mb-4" style={{ color: 'var(--color-clay-light)' }}>
+              The Collection · Est. 2024
+            </p>
 
-        {/* Content */}
-        <div className="relative h-full max-w-6xl mx-auto px-6 flex flex-col justify-end pb-20">
-          <p className="eyebrow mb-4" style={{ color: 'var(--color-clay-light)' }}>
-            The Collection · Est. 2024
-          </p>
+            <h1 className="font-display text-5xl md:text-7xl leading-[1.02] mb-6 max-w-3xl">
+              <span className="word-reveal">
+                {'Everyday goods, made to last.'.split(' ').map((word, i) => (
+                  <span key={i} style={{ animationDelay: `${i * 0.08}s` }}>
+                    {word}{'\u00A0'}
+                  </span>
+                ))}
+              </span>
+            </h1>
 
-          <h1 className="font-display text-5xl md:text-7xl leading-[1.02] mb-6 max-w-3xl">
-            <span className="word-reveal">
-              {'Everyday goods, made to last.'.split(' ').map((word, i) => (
-                <span key={i} style={{ animationDelay: `${i * 0.08}s` }}>
-                  {word}{'\u00A0'}
-                </span>
-              ))}
-            </span>
-          </h1>
+            <p className="text-white/80 max-w-md mb-8 leading-relaxed text-lg">
+              Considered essentials, sourced from makers who care about materials
+              as much as you do. No trends — just things worth keeping.
+            </p>
 
-          <p className="text-white/80 max-w-md mb-8 leading-relaxed text-lg">
-            Considered essentials, sourced from makers who care about materials
-            as much as you do. No trends — just things worth keeping.
-          </p>
+            <div className="flex flex-wrap gap-3 mb-10">
+              <Link
+                href="#collection"
+                className="btn-shimmer rounded-full px-8 py-4 text-sm font-medium text-white shadow-2xl transition-transform hover:scale-105"
+              >
+                Shop the collection
+              </Link>
+              <a
+                href="#collection"
+                className="rounded-full px-8 py-4 text-sm border border-white/30 text-white hover:bg-white/10 backdrop-blur-sm transition-all hover:scale-105"
+              >
+                Browse categories
+              </a>
+            </div>
 
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="#collection"
-              className="btn-shimmer rounded-full px-8 py-4 text-sm font-medium text-white shadow-2xl transition-transform hover:scale-105"
-            >
-              Shop the collection
-            </Link>
-            <a
-              href="#collection"
-              className="rounded-full px-8 py-4 text-sm border border-white/30 text-white hover:bg-white/10 backdrop-blur-sm transition-all hover:scale-105"
-            >
-              Browse categories
+            {/* Quick category chips — common on real storefronts, gets shoppers to intent fast */}
+            {categories.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {categories.slice(0, 5).map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/?category=${cat.slug}#collection`}
+                    className="text-xs px-3 py-1.5 rounded-full border border-white/25 text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+            <a href="#collection" aria-label="Scroll to collection" className="text-white/60 hover:text-white transition-colors">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-bounce">
+                <path d="M12 5v14M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </a>
           </div>
-        </div>
+        </section>
 
-        {/* Scroll cue */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
-          <a href="#collection" aria-label="Scroll to collection" className="text-white/60 hover:text-white transition-colors">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-bounce">
-              <path d="M12 5v14M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
+        {/* Trust signals strip — standard on every major e-commerce site */}
+        <div className="border-b border-[var(--color-line)] bg-[var(--color-surface)]">
+          <div className="max-w-6xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { icon: '🚚', label: 'Free shipping', sub: 'On orders over Rs. 5,000' },
+              { icon: '↩️', label: 'Easy returns', sub: '7-day return window' },
+              { icon: '🔒', label: 'Secure checkout', sub: 'Powered by Stripe' },
+              { icon: '💵', label: 'Cash on delivery', sub: 'Available islandwide' },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-3">
+                <span className="text-2xl">{item.icon}</span>
+                <div>
+                  <p className="text-sm font-medium">{item.label}</p>
+                  <p className="text-xs text-[var(--color-muted)]">{item.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </section>
 
       <div id="collection" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 scroll-mt-20">
         <div className="mb-8 sm:mb-10 flex flex-col gap-6">
