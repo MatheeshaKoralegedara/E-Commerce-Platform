@@ -40,6 +40,8 @@ export default async function HomePage({ searchParams }) {
   ]);
 
   const totalPages = Math.max(Math.ceil(total / limit), 1);
+  const heroImages = products.map((product) => product.image_url).filter(Boolean).slice(0, 5);
+  const firstHeroImage = heroImages[0] || null;
 
   function pageUrl(newPage) {
     const params = new URLSearchParams();
@@ -54,20 +56,22 @@ export default async function HomePage({ searchParams }) {
       <main>
       <section className="relative h-[85vh] min-h-[600px] overflow-hidden text-white">
         {/* Rotating background images with Ken Burns zoom + crossfade */}
-        <div className="absolute inset-0">
-          {products.slice(0, 5).map((p, i) => (
-            p.image_url && (
-              <div
-                key={p.id}
-                className={`absolute inset-0 animate-crossfade-${i + 1}`}
-              >
-                <img
-                  src={p.image_url}
-                  alt=""
-                  className="w-full h-full object-cover animate-hero-zoom"
-                />
-              </div>
-            )
+        <div
+          className="absolute inset-0 bg-[var(--color-ink)] bg-center bg-cover"
+          style={firstHeroImage ? { backgroundImage: `url(${firstHeroImage})` } : undefined}
+        >
+          {heroImages.map((url, i) => (
+            <div
+              key={`${url}-${i}`}
+              className={`absolute inset-0 animate-crossfade-${i + 1}`}
+            >
+              <img
+                src={url}
+                alt=""
+                loading="eager"
+                className="w-full h-full min-w-full min-h-full object-cover animate-hero-zoom"
+              />
+            </div>
           ))}
         </div>
 
