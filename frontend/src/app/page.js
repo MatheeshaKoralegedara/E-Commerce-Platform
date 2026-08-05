@@ -54,7 +54,7 @@ export default async function HomePage({ searchParams }) {
       <section className="relative h-[85vh] min-h-[600px] overflow-hidden text-white">
         {/* Rotating background images with Ken Burns zoom + crossfade */}
         <div className="absolute inset-0">
-          {products.slice(0, 3).map((p, i) => (
+          {products.slice(0, 5).map((p, i) => (
             p.image_url && (
               <div
                 key={p.id}

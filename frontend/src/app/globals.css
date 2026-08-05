@@ -246,9 +246,8 @@ body {
 }
 
 @keyframes crossfade {
-  0%, 25% { opacity: 1; }
-  33%, 92% { opacity: 0; }
-  100% { opacity: 1; }
+  0%, 18% { opacity: 1; }
+  22%, 100% { opacity: 0; }
 }
 
 @keyframes wordReveal {
@@ -265,9 +264,11 @@ body {
   animation: kenBurns 8s ease-out forwards;
 }
 
-.animate-crossfade-1 { animation: crossfade 12s infinite; animation-delay: 0s; }
-.animate-crossfade-2 { animation: crossfade 12s infinite; animation-delay: 4s; }
-.animate-crossfade-3 { animation: crossfade 12s infinite; animation-delay: 8s; }
+.animate-crossfade-1 { animation: crossfade 20s infinite; animation-delay: 0s; }
+.animate-crossfade-2 { animation: crossfade 20s infinite; animation-delay: 4s; }
+.animate-crossfade-3 { animation: crossfade 20s infinite; animation-delay: 8s; }
+.animate-crossfade-4 { animation: crossfade 20s infinite; animation-delay: 12s; }
+.animate-crossfade-5 { animation: crossfade 20s infinite; animation-delay: 16s; }
 
 .word-reveal {
   display: inline-block;
